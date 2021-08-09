@@ -1,0 +1,8 @@
+[
+  {
+    "addr": "localhost:28749",
+    "api_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJQQyIsImF1ZCI6ImJ1ci1hcGkiLCJzdWIiOiJsb2NhbGhvc3QiLCJpYXQiOjE2MjcyMTE1NzYsImV4cCI6MTY1ODc0NzU3Nn0.dt6F0a7w2Yk8LYAggsuesBwthjlYgo9QzeXJ0J_fApY"
+  },
+  { "addr": "bad_addr", "api_token": "" },
+  { "addr": "nas", "api_token": "" }
+]

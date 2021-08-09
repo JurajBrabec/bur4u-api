@@ -1,0 +1,30 @@
+{
+  "name": "bur4u-api",
+  "version": "1.0.0",
+  "description": "BUR 4U API",
+  "main": "./bur4u-api.js",
+  "scripts": {
+    "build": "esbuild bur4u-api.js --bundle --minify --platform=node --outfile=./build/bur4u-api.js",
+    "dev-api": "nodemon bur4u-api.js --module api --port 28749",
+    "dev-proxy": "nodemon bur4u-api.js --module proxy",
+    "prod-api": "node build\\bur4u-api.js --module api --port 28749",
+    "prod-proxy": "node build\\bur4u-api.js --module proxy",
+    "test": "jest --watch"
+  },
+  "author": "Juraj Brabec",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.12.15",
+    "jest": "^27.0.6",
+    "supertest": "^6.1.3"
+  },
+  "dependencies": {
+    "apicache-plus": "^2.2.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "njwt": "^1.1.0",
+    "node-fetch": "^2.6.1",
+    "rotating-file-stream": "^2.1.5"
+  }
+}

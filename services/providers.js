@@ -1,0 +1,58 @@
+const server = require('./server.js');
+const { readFile } = require('fs/promises');
+const make = require('../models/proxy-responses-v1.js');
+
+let _providers = [];
+module.exports.get = () => _providers;
+
+module.exports.resolve = function (req, res, next) {
+  const hostName = req.params.hostName;
+
+  req.providers = _providers
+    .filter((provider) => provider.status === 'OK')
+    .map((provider) =>
+      provider.data.clients.find(
+        (client) => !hostName || client.name === hostName
+      )
+        ? provider
+        : null
+    )
+    .filter((provider) => provider);
+  next();
+};
+
+module.exports.read = async (root, fileName) => {
+  try {
+    const list = JSON.parse(await readFile(fileName, 'utf-8'));
+    const responses = await Promise.all(
+      list.map((provider) => exports.query(provider, `${root}/clients`))
+    );
+    _providers = list.map((provider, index) => {
+      const { timeStamp, status, data } = responses[index];
+      return make.Entry({ ...provider, ...{ timeStamp, status, data } });
+    });
+  } catch (error) {
+    console.error(`Import providers error: ${error.message}`);
+  }
+  return _providers;
+};
+
+module.exports.query = async (provider, url) => {
+  const { addr, api_token } = provider;
+  let data = null;
+  let status = null;
+
+  try {
+    const response = await server.get(`${addr}${url}`, api_token);
+    status = response.statusText;
+    if (response.status === 200) {
+      data = await response.json();
+    }
+    if (response.status === 401) {
+      status = await response.text();
+    }
+  } catch (error) {
+    status = error.code || error.message;
+  }
+  return make.Provider({ ...provider, ...{ data, status } });
+};

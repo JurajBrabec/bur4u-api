@@ -1,0 +1,86 @@
+### PROXY
+
+@proxyUrl = https://localhost:28748
+
+### Request token from TSA
+# @name getTSAToken
+GET {{proxyUrl}}/api/v1/token
+
+@authToken = {{getTSAToken.response.body.*}}
+
+### Request local token
+# @name getLocalToken
+GET {{proxyUrl}}/api/v1/token?local
+
+@authToken = {{getLocalToken.response.body.*}}
+
+### Request data
+
+### Without token
+GET {{proxyUrl}}/api/v1/providers
+### With bad token
+GET {{proxyUrl}}/api/v1/providers
+X-Auth-Token: badtoken
+### With correct token
+
+###
+# @name getProviders
+GET {{proxyUrl}}/api/v1/providers
+X-Auth-Token: {{authToken}}
+
+@provider1 = {{getProviders.response.body.providers[0].name}}
+@provider2 = {{getProviders.response.body.providers[1].name}}
+###
+GET {{proxyUrl}}/api/v1/providers/{{provider1}}
+X-Auth-Token: {{authToken}}
+###
+GET {{proxyUrl}}/api/v1/providers/{{provider2}}
+X-Auth-Token: {{authToken}}
+
+###
+# @name getClients
+GET {{proxyUrl}}/api/v1/clients
+X-Auth-Token: {{authToken}}
+
+@client1 = {{getClients.response.body.providers[0].data.clients[0].name}}
+@client2 = lis9-sipd60.11667.1448.ecs.hp.com
+###
+GET {{proxyUrl}}/api/v1/clients/{{client1}}
+X-Auth-Token: {{authToken}}
+###
+GET {{proxyUrl}}/api/v1/clients/{{client1}}/history
+X-Auth-Token: {{authToken}}
+
+### API
+
+@apiUrl = https://localhost:28749
+
+### Request token
+# @name getJWToken
+GET {{apiUrl}}/api/v1/token
+
+@JWToken = {{getJWToken.response.body.*}}
+
+### Request data
+
+### No token
+GET {{apiUrl}}/api/v1/clients
+### Bad token
+GET {{apiUrl}}/api/v1/clients
+Authorization: Bearer badtoken
+
+### With correct token
+###
+# @name apiGetClients
+GET {{apiUrl}}/api/v1/clients
+Authorization: Bearer {{JWToken}}
+
+@apiClient0 = {{apiGetClients.response.body.clients[0].name}}
+@apiClient1 = lis9-sipd60.11667.1448.ecs.hp.com
+###
+GET {{apiUrl}}/api/v1/clients/{{apiClient1}}
+Authorization: Bearer {{JWToken}}
+
+###
+GET {{apiUrl}}/api/v1/clients/{{apiClient1}}/history
+Authorization: Bearer {{JWToken}}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="index.css" />
+    <script src="index.js" defer></script>
+    <title>BUR-4U-API user Interface</title>
+  </head>
+  <body>
+    <h2>BUR-4U-API user Interface</h2>
+    <div id="error"></div>
+    <div>
+      Search:
+      <input id="clientName" type="text" />
+      <button id="clientStatus">Status</button>
+      <button id="clientHistory">History</button>
+      I
+      <button id="allProviders">All providers</button>
+      <button id="allClients">All clients</button>
+    </div>
+    <div>
+      <h4>Client detail</h4>
+      <label for="clientList" id="clientLabel"></label>
+      <ul id="clientList"></ul>
+    </div>
+    <div>
+      <h4>Providers list</h4>
+      <label for="providersList" id="providersLabel"></label>
+      <ul id="providersList"></ul>
+    </div>
+    <div>
+      <h4>
+        Clients list
+        <span>
+          (filter: <input id="clientsFilter" type="text" />
+          <span id="clientsFiltered"></span>
+          )
+        </span>
+      </h4>
+      <label for="clientsList" id="clientsLabel"></label>
+      <ul id="clientsList"></ul>
+    </div>
+  </body>
+</html>

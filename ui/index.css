@@ -1,0 +1,41 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 13px;
+}
+input {
+  width: 250px;
+  padding: 5px;
+}
+.error {
+  background-color: darksalmon;
+  color: red;
+  padding: 15px;
+}
+.id {
+  color: darkred;
+}
+.status {
+  color: red;
+  font-weight: bold;
+}
+.ts {
+  color: forestgreen;
+}
+.client {
+  color: royalblue;
+}
+.detail {
+  color: navy;
+  font-style: italic;
+}
+li {
+  margin: 2px 0px;
+}
+
+li button {
+  margin: 0px 0px 0px 5px;
+}
+
+span {
+  margin: 0px 5px;
+}

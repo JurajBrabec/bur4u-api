@@ -1,5 +1,4 @@
 const server = require('./server.js');
-const { readFile } = require('fs/promises');
 const make = require('../models/proxy-responses-v1.js');
 
 let _providers = [];
@@ -21,13 +20,12 @@ module.exports.resolve = function (req, res, next) {
   next();
 };
 
-module.exports.read = async (root, fileName) => {
+module.exports.read = async (root, providers) => {
   try {
-    const list = JSON.parse(await readFile(fileName, 'utf-8'));
     const responses = await Promise.all(
-      list.map((provider) => exports.query(provider, `${root}/clients`))
+      providers.map((provider) => exports.query(provider, `${root}/clients`))
     );
-    _providers = list.map((provider, index) => {
+    _providers = providers.map((provider, index) => {
       const { timeStamp, status, data } = responses[index];
       return make.Entry({ ...provider, ...{ timeStamp, status, data } });
     });

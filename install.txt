@@ -19,7 +19,7 @@ pm2 -v
 
 #install bur4u-api
 mkdir /opt/bur4u-api
-cp bur4u-api.js bur4u-api.config.js providers.json /opt/bur4u-api
+cp bur4u-api.js bur4u-api.config.js /opt/bur4u-api
 pm2 start /opt/bur4u-api/bur4u-api.js --cwd /opt/bur4u-api --time -- --module proxy
 pm2 save
 pm2 startup

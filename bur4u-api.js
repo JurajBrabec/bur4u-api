@@ -12,7 +12,6 @@ const LOG_ROT = '1d';
 const MODULE_API = 'api';
 const MODULE_PROXY = 'proxy';
 const PORT = 28748;
-const PROVIDERS_FILE = 'providers.json';
 const CONFIG_FILE = 'bur4u-api.config.js';
 
 try {
@@ -29,9 +28,9 @@ try {
       name: 'moduleName',
       arg: 'module',
       default: null,
-      validate: (module) => {
-        if (!module) throw new Error('Missing parameter --module');
-        return module.toLowerCase();
+      validate: (moduleName) => {
+        if (!moduleName) throw new Error('Missing parameter --module');
+        return moduleName.toLowerCase();
       },
     },
     { name: 'cacheTime', arg: 'cache', default: CACHE_INTERVAL },
@@ -43,12 +42,7 @@ try {
 
   const apiArguments = [{ name: 'nbuBinPath', arg: 'bin', type: Type.Path }];
   const proxyArguments = [
-    {
-      name: 'providersList',
-      arg: 'list',
-      type: Type.File,
-      default: PROVIDERS_FILE,
-    },
+    { name: 'providers', arg: 'list', type: Type.Array, default: [] },
     { name: 'queryInterval', arg: 'interval', type: Type.Num, default: 60 },
   ];
 
@@ -70,16 +64,14 @@ try {
       routes = APIv1Routes;
       break;
     case MODULE_PROXY:
-      const { providersList, queryInterval } = parseArgs(proxyArguments);
-      Providers.read(API_ROOT, providersList)
+      const { providers, queryInterval } = parseArgs(proxyArguments);
+      Providers.read(API_ROOT, providers)
         .then((providers) => {
           setInterval(
-            () => Providers.read(API_ROOT, providersList),
+            () => Providers.read(API_ROOT, providers),
             queryInterval * 1000
           );
-          console.log(
-            `Imported ${providers.length} providers from ${providersList}.`
-          );
+          console.log(`Imported ${providers.length} providers.`);
         })
         .catch((error) => {
           throw new Error(`Error ${error.message} importing providers.`);

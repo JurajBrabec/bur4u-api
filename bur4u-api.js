@@ -1,4 +1,4 @@
-const { parseArgs, Type } = require('./lib/parseArguments.js');
+const configurator = require('./lib/configurator.js');
 const NBU = require('./lib/nbu');
 const express = require('./services/express.js');
 const server = require('./services/server.js');
@@ -17,42 +17,40 @@ const CONFIG_FILE = 'bur4u-api.config.js';
 try {
   console.log('BUR 4U API v1.0');
 
-  const mainArguments = [
-    {
-      name: 'configFile',
-      arg: 'config',
-      default: CONFIG_FILE,
-      type: Type.Config,
-    },
-    {
-      name: 'moduleName',
-      arg: 'module',
-      default: null,
-      validate: (moduleName) => {
-        if (!moduleName) throw new Error('Missing parameter --module');
-        return moduleName.toLowerCase();
+  const mainConfig = configurator.expect
+    .jsFile({ configFile: { arg: 'config', default: CONFIG_FILE } })
+    .string({
+      moduleName: {
+        arg: 'module',
+        required: true,
+        do: (value) => value.toLowerCase(),
       },
-    },
-    { name: 'cacheTime', arg: 'cache', default: CACHE_INTERVAL },
-    { name: 'logPath', arg: 'log', type: Type.Path },
-    { name: 'logRotation', arg: 'logrot', default: LOG_ROT },
-    { name: 'port', type: Type.Num, default: PORT },
-    { name: 'ui', type: Type.Bool },
-  ];
+    })
+    .string({ cacheTime: { arg: 'cache', default: CACHE_INTERVAL } })
+    .path({ logPath: { arg: 'log' } })
+    .string({ logRotation: { arg: 'logrot', default: LOG_ROT } })
+    .num({ port: { default: PORT } })
+    .bool('ui')
+    .save();
 
-  const apiArguments = [{ name: 'nbuBinPath', arg: 'bin', type: Type.Path }];
-  const proxyArguments = [
-    { name: 'providers', arg: 'list', type: Type.Array, default: [] },
-    { name: 'queryInterval', arg: 'interval', type: Type.Num, default: 60 },
-  ];
+  const apiConfig = configurator.expect
+    .new()
+    .path({ nbuBinPath: { arg: 'bin', required: true } })
+    .save();
+
+  const proxyConfig = configurator.expect
+    .new()
+    .array({ providers: { arg: 'list', default: [] } })
+    .num({ queryInterval: { arg: 'interval', default: 60 } })
+    .save();
 
   const { moduleName, cacheTime, logPath, logRotation, port, ui } =
-    parseArgs(mainArguments);
+    configurator.compile(mainConfig);
 
   let routes;
   switch (moduleName) {
     case MODULE_API:
-      const { nbuBinPath } = parseArgs(apiArguments);
+      const { nbuBinPath } = configurator.compile(apiConfig);
       NBU({ bin: nbuBinPath })
         .then((nbu) => nbu.masterServer)
         .then((masterServer) => {
@@ -64,7 +62,7 @@ try {
       routes = APIv1Routes;
       break;
     case MODULE_PROXY:
-      const { providers, queryInterval } = parseArgs(proxyArguments);
+      const { providers, queryInterval } = configurator.compile(proxyConfig);
       Providers.read(API_ROOT, providers)
         .then((providers) => {
           setInterval(

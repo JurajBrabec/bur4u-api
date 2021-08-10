@@ -18,7 +18,7 @@ npm install -g pm2@latest
 pm2 -v
 
 #install bur4u-api
-mkdir /opt/bur4u-api
+mkdir /opt/bur4u-api /opt/bur4u-api/log
 cp bur4u-api.js bur4u-api.config.js /opt/bur4u-api
 pm2 start /opt/bur4u-api/bur4u-api.js --cwd /opt/bur4u-api --time -- --module proxy
 pm2 save
@@ -35,9 +35,13 @@ pm2 delete bu4ur-api
 ## WINDOWS
 ## https://github.com/winsw/winsw
 
-mkdir \bur4u-api
-copy node.exe bur4u-api.js bur4u-api.config.js winsw\* \bur4u-api
+
+
+
+mkdir \bur4u-api \bur4u-api\log
+copy node.exe bur4u-api.js bur4u-api.config.js cert\* winsw\* \bur4u-api
 \bur4u-api\winsw\winsw install
+net start bur4u-api
 
 ## JWT creation
 https://jwt.io/

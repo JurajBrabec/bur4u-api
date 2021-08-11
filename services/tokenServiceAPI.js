@@ -46,6 +46,7 @@ class TokenServiceAPI extends TokenService {
       endPoint = TokenServiceAPI.endPoints.get(environment);
     }
     super({ id, endPoint, authHeader, useCache });
+    this.environment = environment;
     this.authSubjectHeader = authSubjectHeader;
     this.agent = new https.Agent({
       rejectUnauthorized: false,
@@ -53,6 +54,12 @@ class TokenServiceAPI extends TokenService {
     if (isAuthorized) this.isAuthorized = isAuthorized;
   }
 
+  setEnvironment(environment) {
+    if (TokenServiceAPI.environments.has(environment)) {
+      this.environment = environment;
+      this.endPoint = TokenServiceAPI.endPoints.get(environment);
+    }
+  }
   Url(hostName) {
     return `https://${hostName}:35357/v3/auth/tokens?nocatalog`;
   }
@@ -98,7 +105,7 @@ class TokenServiceAPI extends TokenService {
   }
 }
 
-module.exports = new TokenServiceAPI({
+const api = new TokenServiceAPI({
   id: '2242189293e5412ba71a8f2086a3ef0c',
   environment: 'FT1',
   authHeader: 'x-auth-token',
@@ -111,3 +118,5 @@ module.exports = new TokenServiceAPI({
     ),
   useCache: true,
 });
+
+module.exports = api;

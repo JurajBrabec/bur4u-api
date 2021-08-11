@@ -1,10 +1,11 @@
 const configurator = require('./lib/configurator.js');
-const NBU = require('./lib/nbu');
+const NBU = require('./lib/netBackup-cli.js');
 const express = require('./services/express.js');
 const server = require('./services/server.js');
 const Providers = require('./services/providers.js');
 const Proxyv1Routes = require('./routes/proxy-v1.js');
 const APIv1Routes = require('./routes/api-v1.js');
+const tokenService = require('./services/tokenServiceAPI.js');
 
 const API_ROOT = '/api/v1';
 const CACHE_INTERVAL = '15 seconds';
@@ -30,7 +31,6 @@ try {
     .path({ logPath: { arg: 'log' } })
     .string({ logRotation: { arg: 'logrot', default: LOG_ROT } })
     .num({ port: { default: PORT } })
-    .bool('ui')
     .save();
 
   const apiConfig = configurator.expect
@@ -42,6 +42,8 @@ try {
     .new()
     .array({ providers: { arg: 'list', default: [] } })
     .num({ queryInterval: { arg: 'interval', default: 60 } })
+    .string('tsaEnv')
+    .bool('ui')
     .save();
 
   const { moduleName, cacheTime, logPath, logRotation, port, ui } =
@@ -62,7 +64,9 @@ try {
       routes = APIv1Routes;
       break;
     case MODULE_PROXY:
-      const { providers, queryInterval } = configurator.compile(proxyConfig);
+      const { providers, queryInterval, tsaEnv } =
+        configurator.compile(proxyConfig);
+      if (tsaEnv) tokenService.setEnvironment(tsaEnv);
       Providers.read(API_ROOT, providers)
         .then((providers) => {
           setInterval(

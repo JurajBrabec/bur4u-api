@@ -15,5 +15,6 @@ module.exports = {
     },
   ],
   queryInterval: 60,
+  tsaEnv: 'FT1',
   ui: true,
 };

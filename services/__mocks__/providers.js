@@ -1,4 +1,4 @@
-const NBU = require('../../lib/nbu/index.js');
+const NBU = require('../../lib/netBackup-cli.js');
 const make = require('../../models/proxy-responses-v1.js');
 
 const { masterServer, client } = NBU;

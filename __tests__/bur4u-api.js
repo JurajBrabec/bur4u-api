@@ -1,8 +1,8 @@
 const supertest = require('supertest');
 const express = require('../services/express.js');
 
-const NBU = require('../lib/nbu/index.js');
-jest.mock('../lib/nbu');
+const NBU = require('../lib/netBackup-cli.js');
+jest.mock('../lib/netBackup-cli');
 
 const root = '/api/v1';
 const JWTtoken = /eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9./;
@@ -91,7 +91,7 @@ describe('API endpoint tests', () => {
   });
 
   describe('With JWT token', () => {
-    jest.mock('../lib/nbu');
+    jest.mock('../lib/netBackup-cli');
     let token;
 
     beforeAll(() =>

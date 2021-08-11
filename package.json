@@ -9,7 +9,7 @@
     "dev-proxy": "nodemon bur4u-api.js --module proxy",
     "prod-api": "node build\\bur4u-api.js --module api --port 28749",
     "prod-proxy": "node build\\bur4u-api.js --module proxy",
-    "test": "jest --watch"
+    "test": "jest"
   },
   "author": "Juraj Brabec",
   "license": "ISC",

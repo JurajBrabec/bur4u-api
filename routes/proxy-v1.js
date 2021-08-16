@@ -5,6 +5,7 @@ const tokenService = require('../services/tokenServiceAPI.js');
 
 const router = express.Router();
 
+router.options(v1.options);
 router.use('/token', v1.token);
 
 router.use('/providers', tokenService.middleWare());
@@ -15,5 +16,7 @@ router.use('/clients', tokenService.middleWare());
 router.get('/clients', Providers.resolve, v1.proxy);
 router.get('/clients/:hostName', Providers.resolve, v1.proxy);
 router.get('/clients/:hostName/history', Providers.resolve, v1.proxy);
+
+router.get('/version', v1.version);
 
 module.exports = router;

@@ -2,6 +2,12 @@
 
 @proxyUrl = https://localhost:28748
 
+### Get OPTIONS
+OPTIONS {{proxyUrl}}/api/v1
+
+### Get VERSION
+GET {{proxyUrl}}/api/v1/version
+
 ### Request token from TSA
 # @name getTSAToken
 GET {{proxyUrl}}/api/v1/token
@@ -50,6 +56,12 @@ X-Auth-Token: {{authToken}}
 ### API
 
 @apiUrl = https://localhost:28749
+
+### Get OPTIONS
+OPTIONS {{apiUrl}}/api/v1
+
+### Get VERSION
+GET {{apiUrl}}/api/v1/version
 
 ### Request token
 # @name getJWToken

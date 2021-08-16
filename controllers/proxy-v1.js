@@ -2,6 +2,19 @@ const make = require('../models/proxy-responses-v1.js');
 const Providers = require('../services/providers.js');
 const tokenService = require('../services/tokenServiceAPI.js');
 
+const version = '1.0.0';
+
+module.exports.version = (req, res) => res.status(200).json({ version });
+
+module.exports.options = (req, res, next) => {
+  res.header('Access-Control-Allow-Methods', 'GET');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Content-Type, X-Auth-Token, X-Subject-Token'
+  );
+  res.sendStatus(200);
+};
+
 module.exports.token = async (req, res) => {
   if (req.query.hasOwnProperty('local')) return res.send(tokenService.id);
   try {

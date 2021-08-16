@@ -2,6 +2,16 @@ const NBU = require('../lib/netBackup-cli.js');
 const make = require('../models/api-responses-v1.js');
 const jwt = require('../services/jwtAPI.js');
 
+const version = '1.0.0';
+
+module.exports.version = (req, res) => res.status(200).json({ version });
+
+module.exports.options = (req, res, next) => {
+  res.header('Access-Control-Allow-Methods', 'GET');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.sendStatus(200);
+};
+
 module.exports.token = async (req, res) => {
   try {
     res.send(jwt.getToken(req));

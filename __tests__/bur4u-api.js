@@ -65,7 +65,7 @@ describe('API endpoint tests', () => {
   });
 
   describe('Without JWT token', () => {
-    it('should return 401 on "/" endpoint', () => request.get('/').expect(401));
+    it('should return 501 on "/" endpoint', () => request.get('/').expect(501));
 
     it('should return 401 on "/clients" endpoint', async () => {
       const headers = [
@@ -80,6 +80,14 @@ describe('API endpoint tests', () => {
           .expect(401);
       });
     });
+
+    it('should return 200 and version "/version" endpoint', () =>
+      request
+        .get(`${root}/version`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toHaveProperty('version');
+        }));
 
     it('should return 200 and a JWT token on "/token" endpoint', () =>
       request
@@ -143,7 +151,7 @@ describe('PROXY endpoints tests', () => {
   });
 
   describe('Without TSA token', () => {
-    it('should return 401 on "/" endpoint', () => request.get('/').expect(401));
+    it('should return 501 on "/" endpoint', () => request.get('/').expect(501));
 
     it('should return 401 on "/providers" endpoint', async () => {
       const headers = [
@@ -157,6 +165,14 @@ describe('PROXY endpoints tests', () => {
           .expect(401);
       });
     });
+
+    it('should return 200 and version "/version" endpoint', () =>
+      request
+        .get(`${root}/version`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toHaveProperty('version');
+        }));
 
     it('should return 200 and a TSA token on "/token" endpoint', () =>
       request

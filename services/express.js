@@ -29,6 +29,6 @@ module.exports = ({
     );
   if (ui) app.use('/ui', express.static('ui'));
   app.use(root, routes);
-  app.use((req, res) => res.sendStatus(401));
+  app.use((req, res) => res.sendStatus(501));
   return app;
 };

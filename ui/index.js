@@ -1,9 +1,13 @@
 const URL = '/api/v1';
-const TOKEN = '2242189293e5412ba71a8f2086a3ef0c';
 
 const fetchJSON = async (url) => {
+  let response;
   setLabel('error', '');
-  const response = await fetch(url, { headers: { 'x-auth-token': TOKEN } });
+  if (!token) {
+    response = await fetch(`${URL}/token`);
+    if (response.ok) token = await response.text();
+  }
+  response = await fetch(url, { headers: { 'x-auth-token': token } });
   if (!response.ok) {
     const error = await response.text();
     throw new Error(`${response.status} ${response.statusText} - ${error}`);

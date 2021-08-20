@@ -21,7 +21,7 @@ class TokenServiceAPI extends TokenService {
         password: {
           user: {
             domain: {
-              name: 'VPC_Customer',
+              name: 'VPC_Consumer',
             },
             name: TEST_USER,
             password: TEST_PASSWORD,
@@ -29,7 +29,7 @@ class TokenServiceAPI extends TokenService {
         },
       },
       scope: {
-        project: { domain: 'VPC_Services', name: 'VPC_BUR4U_API' },
+        project: { name: 'VPC_BUR4U_API', domain: { name: 'VPC_Services' } },
       },
     },
   };
@@ -70,20 +70,26 @@ class TokenServiceAPI extends TokenService {
   async fetchTokenId() {
     const url = this.Url(this.endPoint);
     const method = 'POST';
-    const headers = { 'content-type': 'application/json' };
-    const body = TokenServiceAPI.AuthBody;
+    const headers = {
+      accept: 'application/json',
+      'content-type': 'application/json',
+    };
+    const body = JSON.stringify(TokenServiceAPI.AuthBody);
     const agent = this.agent;
     let id;
     try {
       const response = await fetch(url, {
         method,
         headers,
-        body: JSON.stringify(body),
+        body,
         agent,
       });
-      id = response.headers.raw()[this.authSubjectHeader][0];
+      if (response.status !== 201)
+        throw new Error(`${response.status} ${response.statusText}`);
+      const rawHeaders = response.headers.raw();
+      id = rawHeaders[this.authSubjectHeader][0];
     } catch (error) {
-      id = { status: 'Error', error };
+      id = { status: 'Error', error: error.message || error };
     }
     return id;
   }

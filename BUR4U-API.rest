@@ -1,6 +1,6 @@
 ### PROXY
 
-@proxyUrl = https://localhost:28748
+@proxyUrl = https://localhost:443
 
 ### Get OPTIONS
 OPTIONS {{proxyUrl}}/api/v1
@@ -92,3 +92,32 @@ Authorization: Bearer {{JWToken}}
 ###
 GET {{apiUrl}}/api/v1/clients/{{apiClient1}}/history
 Authorization: Bearer {{JWToken}}
+
+### TOKEN SERVICE
+POST https://pln-cd1-apigw-vip.ft1core.mcloud.entsvcs.net:35357/v3/auth/tokens?nocatalog
+Content-Type: application/json
+Accept: application/json
+
+{
+    "auth": {
+        "identity": {
+            "methods": [
+                "password"
+            ],
+            "password": {
+                "user": {
+                    "domain": {
+                        "name": "VPC_Consumer"
+                    },
+                    "name": "ngp_bur_user",
+                    "password": "tadrur!9-iV_!55I2lFr"
+                }
+            }
+        },
+        "scope":{
+            "project": { "name":"VPC_BUR4U_API",
+                     "domain":{"name":"VPC_Services"}
+             }
+       }
+    }
+}

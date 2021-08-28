@@ -99,7 +99,6 @@ describe('API endpoint tests', () => {
   });
 
   describe('With JWT token', () => {
-    jest.mock('../lib/netBackup-cli');
     let token;
 
     beforeAll(() =>

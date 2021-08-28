@@ -55,7 +55,7 @@ X-Auth-Token: {{authToken}}
 
 ### API
 
-@apiUrl = https://localhost:28749
+@apiUrl = https://localhost:28748
 
 ### Get OPTIONS
 OPTIONS {{apiUrl}}/api/v1

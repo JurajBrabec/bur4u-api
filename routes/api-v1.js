@@ -1,4 +1,4 @@
-const express = require('express');
+const { express } = require('../modules.js');
 const jwt = require('../services/jwtAPI.js');
 const v1 = require('../controllers/api-v1.js');
 

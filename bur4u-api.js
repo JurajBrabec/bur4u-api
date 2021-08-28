@@ -1,5 +1,4 @@
-const configurator = require('./lib/configurator.js');
-const NBU = require('./lib/netBackup-cli.js');
+const { configurator, NBU } = require('./modules.js');
 const express = require('./services/express.js');
 const server = require('./services/server.js');
 const Providers = require('./services/providers.js');

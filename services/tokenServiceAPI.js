@@ -1,5 +1,5 @@
 const https = require('https');
-const fetch = require('node-fetch').default;
+const { fetch } = require('../modules.js');
 const TokenService = require('./tokenService.js');
 
 const TEST_USER = 'ngp_bur_user';

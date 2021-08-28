@@ -1,4 +1,4 @@
-const express = require('express');
+const { express } = require('../modules.js');
 const Providers = require('../services/providers.js');
 const v1 = require('../controllers/proxy-v1.js');
 const tokenService = require('../services/tokenServiceAPI.js');

@@ -1,6 +1,6 @@
 const https = require('https');
 const { readFileSync } = require('fs');
-const fetch = require('node-fetch').default;
+const { fetch } = require('../modules.js');
 
 const agent = new https.Agent({
   rejectUnauthorized: false,

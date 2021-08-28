@@ -1,8 +1,4 @@
-const apicache = require('apicache-plus');
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
-const rfs = require('rotating-file-stream');
+const { apicache, express, cors, morgan, rfs } = require('../modules.js');
 
 module.exports = ({
   moduleName,

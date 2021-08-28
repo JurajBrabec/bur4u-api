@@ -1,4 +1,4 @@
-const NBU = require('../lib/netBackup-cli.js');
+const { NBU } = require('../modules.js');
 const make = require('../models/api-responses-v1.js');
 const jwt = require('../services/jwtAPI.js');
 

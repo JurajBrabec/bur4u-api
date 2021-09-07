@@ -53,12 +53,11 @@ try {
     case MODULE_API:
       const { nbuBinPath } = configurator.compile(apiConfig);
       NBU({ bin: nbuBinPath })
-        .then((nbu) => nbu.masterServer)
-        .then((masterServer) => {
-          console.log(`Started NBU integration with ${masterServer}.`);
-        })
+        .then((nbu) =>
+          console.log(`Started NBU integration with ${nbu.masterServer}.`)
+        )
         .catch((error) => {
-          throw new Error(`Error ${error.message} strating NBU integration.`);
+          throw new Error(`Error ${error.message} starting NBU integration.`);
         });
       routes = APIv1Routes;
       break;

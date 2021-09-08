@@ -117,7 +117,6 @@ const api = new TokenServiceAPI({
   authHeader: 'x-auth-token',
   authSubjectHeader: 'x-subject-token',
   isAuthorized: (token) =>
-    token.project.name === 'VPC_BUR4U_API' &&
     token.roles.reduce(
       (found, role) => found || role.name === 'bur4u_api_consumer',
       false

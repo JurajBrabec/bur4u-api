@@ -1,0 +1,43 @@
+### API
+
+@apiUrl = https://localhost:28748
+
+### Get OPTIONS
+OPTIONS {{apiUrl}}/api/v1
+
+### Get VERSION
+GET {{apiUrl}}/api/v1/version
+
+### Request token
+# @name getJWToken
+GET {{apiUrl}}/api/v1/token
+
+@JWToken = {{getJWToken.response.body.*}}
+
+### Request data
+
+### No token
+GET {{apiUrl}}/api/v1/clients
+### Bad token
+GET {{apiUrl}}/api/v1/clients
+Authorization: Bearer badtoken
+
+### With correct token
+###
+# @name apiGetClients
+GET {{apiUrl}}/api/v1/clients
+Authorization: Bearer {{JWToken}}
+
+@apiClient0 = {{apiGetClients.response.body.clients[0].name}}
+@apiClient1 = lis9-sipd60.11667.1448.ecs.hp.com
+###
+GET {{apiUrl}}/api/v1/clients/{{apiClient1}}
+Authorization: Bearer {{JWToken}}
+
+###
+GET {{apiUrl}}/api/v1/clients/{{apiClient1}}/history
+Authorization: Bearer {{JWToken}}
+
+###
+GET {{apiUrl}}/api/v1/clients/{{apiClient1}}/configuration
+Authorization: Bearer {{JWToken}}

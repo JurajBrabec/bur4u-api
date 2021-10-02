@@ -139,6 +139,18 @@ describe('API endpoint tests', () => {
         .then((res) =>
           apiResponseToHave({ body: res.body, arrays: { jobs: 1 } })
         ));
+
+    it(`should return 200 and ClientConfiguration on "/clients/${client}/configuration" endpoint`, () =>
+      request
+        .get(`${root}/clients/${client}/configuration`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200)
+        .then((res) =>
+          apiResponseToHave({
+            body: res.body,
+            arrays: { policies: 1, slps: 1 },
+          })
+        ));
   });
 });
 
@@ -261,6 +273,18 @@ describe('PROXY endpoints tests', () => {
             body: res.body,
             providerFields: { name: provider },
             dataArrays: { jobs: 2 },
+          })
+        ));
+    it(`should return 200 and ClientConfiguration for "/clients/${client}/configuration" endpoint`, () =>
+      request
+        .get(`${root}/clients/${client}/configuration`)
+        .set('X-Auth-Token', token)
+        .expect(200)
+        .then((res) =>
+          proxyResponseToHave({
+            body: res.body,
+            providerFields: { name: provider },
+            dataArrays: { policies: 1, slps: 1 },
           })
         ));
   });

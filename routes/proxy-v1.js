@@ -13,9 +13,10 @@ router.get('/providers', v1.providers);
 router.get('/providers/:hostName', v1.provider);
 
 router.use('/clients', tokenService.middleWare());
-router.get('/clients', Providers.resolve, v1.proxy);
-router.get('/clients/:hostName', Providers.resolve, v1.proxy);
+router.get('/clients/:hostName/configuration', Providers.resolve, v1.proxy);
 router.get('/clients/:hostName/history', Providers.resolve, v1.proxy);
+router.get('/clients/:hostName', Providers.resolve, v1.proxy);
+router.get('/clients', Providers.resolve, v1.proxy);
 
 router.get('/version', v1.version);
 

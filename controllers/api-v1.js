@@ -1,6 +1,7 @@
 const { NBU } = require('../modules.js');
 const make = require('../models/api-responses-v1.js');
 const jwt = require('../services/jwtAPI.js');
+const { configuration } = require('./api-v1-configuration.js');
 
 const version = '1.0.0';
 
@@ -85,30 +86,15 @@ module.exports.configuration = async (req, res) => {
   try {
     const { hostName } = req.params;
     const nbu = await NBU();
-    const [policies, slps] = await Promise.all([nbu.policies(), nbu.slps()]);
-    const response = {};
-    response.policies = policies
-      .filter((policy) =>
-        policy.clients.reduce((found, client) => {
-          if (client.name === hostName) found = true;
-          return found;
-        }, false)
-      )
-      .sort((a, b) => a.name < b.name)
-      .map(make.Policy);
+    const [allPolicies, allSlps, allJobs] = await Promise.all([
+      nbu.policies(),
+      nbu.slps(),
+      nbu.jobs(),
+    ]);
 
-    const slpNames = new Set(
-      response.policies.reduce((names, policy) => {
-        names.push(...policy.schedules.map((schedule) => schedule.schedRes));
-        return names;
-      }, [])
-    );
-
-    response.slps = slps
-      .filter((slp) => slpNames.has(slp.slpName))
-      .sort((a, b) => a.name < b.name)
-      .map(make.SLP);
-    res.json(make.ClientConfiguration({ ...response }));
+    const response = configuration(allPolicies, allSlps, allJobs, hostName);
+    //      res.json(make.ClientConfiguration(response));
+    res.json(response);
   } catch (error) {
     console.log(error);
     res.status(500).json(make.Error(error));

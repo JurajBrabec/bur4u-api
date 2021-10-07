@@ -89,7 +89,7 @@ class PolicyResponse {
     this.res = policy.res;
     this.include = policy.include;
     this.policyType = policy._.policyType;
-    this.jobSubType = policy._.jobSubType;
+    this.jobSubtype = policy._.jobSubtype;
     this.clients = policy.clients;
     this.schedules = policy.schedules.map(
       (schedule) => new ScheduleResponse(schedule)

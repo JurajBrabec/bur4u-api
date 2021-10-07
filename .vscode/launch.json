@@ -1,6 +1,13 @@
 {
   "configurations": [
     {
+      "name": "Dev test",
+      "program": "${workspaceFolder}/devTest.js",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "pwa-node"
+    },
+    {
       "type": "node",
       "name": "vscode-jest-tests",
       "request": "launch",

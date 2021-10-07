@@ -15,7 +15,7 @@
   "author": "Juraj Brabec",
   "license": "ISC",
   "devDependencies": {
-    "esbuild": "^0.12.15",
+    "esbuild": "^0.13.4",
     "jest": "^27.0.6",
     "supertest": "^6.1.3"
   },

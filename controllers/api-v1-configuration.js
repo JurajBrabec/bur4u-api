@@ -4,10 +4,10 @@ let policies;
 let slps;
 let jobs;
 
-const isDailyPolicy = (policy) => policy.name.match(/_\d+D_/);
+const isDailyPolicy = (policy) => !policy.name.match(/(DUMMY|TEMPLATE|_\d+Y_)/);
 const isYearlyPolicy = (policy) => policy.name.match(/_\d+Y_/);
 
-const isDailySchedule = (schedule) => schedule.frequency.match(/\d\d hours/);
+const isDailySchedule = (schedule) => schedule._.frequency.match(/\d\d hours/);
 const isMonthlySchedule = (schedule) => schedule.calendar === 1;
 
 const getIncludes = (policies) =>
@@ -25,14 +25,18 @@ const getWeekend = (calDayOfWeek) =>
 const getSLPRetention = (slps, name, useFor) =>
   slps.reduce(
     (retention, slp) =>
-      slp.name === name && slp.useFor === useFor ? slp.retention : retention,
+      slp.name === name && slp._.useFor === useFor
+        ? slp._.retention
+        : retention,
     null
   );
 
-const getLastJob = (jobs, policy, schedule) => {
-  const lastJob = jobs
-    .filter((job) => job.policy === policy && job.schedule === schedule)
-    .pop();
+const getLastJob = (jobs, policy, scheduleType) => {
+  const [lastJob] = jobs
+    .filter(
+      (job) => job.policy === policy && job._.scheduleType === scheduleType
+    )
+    .sort((a, b) => b.started - a.started);
   if (!lastJob) return null;
   return {
     jobId: lastJob.jobId,
@@ -42,18 +46,19 @@ const getLastJob = (jobs, policy, schedule) => {
 };
 
 const processDailySchedule = (policy, schedule) => {
-  const { name, backupType, frequency, schedRes, retention } = schedule;
-  const lastJob = getLastJob(jobs, policy, name);
+  const { schedRes } = schedule;
+  const { backupType, frequency, retention } = schedule._;
+  const lastJob = getLastJob(jobs, policy, backupType);
 
   const startTimes = Array.from(
     new Set([
-      schedule.win_sun_start,
-      schedule.win_mon_start,
-      schedule.win_tue_start,
-      schedule.win_wed_start,
-      schedule.win_thu_start,
-      schedule.win_fri_start,
-      schedule.win_sat_start,
+      schedule._.win_sun_start,
+      schedule._.win_mon_start,
+      schedule._.win_tue_start,
+      schedule._.win_wed_start,
+      schedule._.win_thu_start,
+      schedule._.win_fri_start,
+      schedule._.win_sat_start,
     ])
   ).join(',');
 
@@ -74,8 +79,9 @@ const processDailySchedule = (policy, schedule) => {
 };
 
 const processMonthlySchedule = (policy, schedule) => {
-  const { name, frequency, calDayOfWeek, schedRes, retention } = schedule;
-  const lastJob = getLastJob(jobs, policy, name);
+  const { calDayOfWeek, schedRes } = schedule;
+  const { backupType, frequency, retention } = schedule._;
+  const lastJob = getLastJob(jobs, policy, backupType);
 
   return {
     frequency: frequency,
@@ -132,8 +138,7 @@ module.exports.configuration = (allPolicies, allSlps, allJobs, hostName) => {
       policy.clients.find((client) => client.name === hostName)
     )
     .filter((policy) => isDailyPolicy(policy) || isYearlyPolicy(policy))
-    .sort((a, b) => a.name < b.name)
-    .map(make.Policy);
+    .sort((a, b) => (a.name < b.name ? -1 : 1));
 
   const slpNames = new Set(
     policies.reduce((names, policy) => {
@@ -144,18 +149,17 @@ module.exports.configuration = (allPolicies, allSlps, allJobs, hostName) => {
 
   slps = allSlps
     .filter((slp) => slpNames.has(slp.slpName))
-    .sort((a, b) => a.name < b.name)
-    .map(make.SLP);
+    .sort((a, b) => (a.name < b.name ? -1 : 1));
 
   jobs = allJobs
     .filter((job) => job.client === hostName)
-    .sort((a, b) => a.started > b.started);
+    .sort((a, b) => b.started - a.started);
 
   const response = {};
 
-  new Set(policies.map((policy) => policy.policyType)).forEach((type) => {
+  new Set(policies.map((policy) => policy._.policyType)).forEach((type) => {
     response[type] = processPolicies(
-      policies.filter((policy) => policy.policyType === type)
+      policies.filter((policy) => policy._.policyType === type)
     );
   });
 

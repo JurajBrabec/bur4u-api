@@ -5,7 +5,8 @@ const fetchJSON = async (url) => {
   let response;
   setLabel('error', '');
   if (!token) {
-    response = await fetch(`${URL}/token`);
+//    response = await fetch(`${URL}/token`);
+    response = await fetch(`${URL}/token?local`);
     if (response.ok) token = await response.text();
   }
   response = await fetch(url, { headers: { 'x-auth-token': token } });
@@ -121,6 +122,7 @@ const readClientStatus = async (name) => {
   try {
     const data = await fetchJSON(`${URL}/clients/${name}`);
 
+    document.getElementById('clientName').value = name;
     setLabel('clientLabel', formatTimeStamp(data.timeStamp));
     const list = getList('clientList');
 
@@ -156,6 +158,7 @@ const readClientHistory = async (name) => {
   try {
     const data = await fetchJSON(`${URL}/clients/${name}/history`);
 
+    document.getElementById('clientName').value = name;
     setLabel('clientLabel', formatTimeStamp(data.timeStamp));
     const list = getList('clientList');
 
@@ -183,6 +186,8 @@ const readClientConfiguration = async (name) => {
   try {
     const data = await fetchJSON(`${URL}/clients/${name}/configuration`);
     console.log(data);
+
+    document.getElementById('clientName').value = name;
     setLabel('clientLabel', formatTimeStamp(data.timeStamp));
     const list = getList('clientList');
 
@@ -252,18 +257,32 @@ const fillConfiguration = (el, configuration) =>
     el.innerHTML += `<span class="client">${type}</span>`;
     const entry = createList();
     entry.appendChild(
-      createListItem(`includes<span class="id">${data.includes}</span>`)
+      createListItem(
+        `includes<span class="id">${
+          data.includes === '' ? 'null' : data.includes
+        }</span>`
+      )
     );
 
     if (data.daily === null) {
-      entry.appendChild(createListItem(`Daily <span class="id">NULL</span>`));
+      entry.appendChild(createListItem(`Daily <span class="id">null</span>`));
     } else {
       entry.appendChild(createListItem(`<span>Daily </span>`));
       const entry1 = createList();
       (Array.isArray(data.daily) ? data.daily : [data.daily]).map((daily) => {
         entry1.appendChild(
           createListItem(
-            `model:<span class="id">${daily.model} (${daily.type})</span> freq:<span class="ts">${daily.frequency}</span> window:<span class="ts">${daily.timeWindow}</span> Backup retention:<span class="ts">${daily.backupRetention}</span> Copy retention:<span class="ts">${daily.copyRetention}</span> Last job:<span class="id">${daily.lastJob?.jobId}</span>`
+            `Model:<span class="id">${daily.model} (${daily.type})</span> 
+            Freq:<span class="ts">${daily.frequency}</span> 
+            Window:<span class="ts">${daily.timeWindow}</span> 
+            Backup retention:<span class="ts">${daily.backupRetention}</span> 
+            Copy retention:<span class="ts">${daily.copyRetention}</span> 
+            Last job:<span class="id">${
+              daily.lastJob
+                ? `${daily.lastJob.jobId}</span>
+            <span class="status">${daily.lastJob.status}</span><span class="ts">@${daily.lastJob.started}`
+                : 'null'
+            }</span>`
           )
         );
       });
@@ -272,7 +291,7 @@ const fillConfiguration = (el, configuration) =>
     el.appendChild(entry);
 
     if (data.monthly === null) {
-      entry.appendChild(createListItem(`Monthly <span class="id">NULL</span>`));
+      entry.appendChild(createListItem(`Monthly <span class="id">null</span>`));
     } else {
       entry.appendChild(createListItem(`<span>Monthly </span>`));
       const entry1 = createList();
@@ -280,7 +299,20 @@ const fillConfiguration = (el, configuration) =>
         (monthly) => {
           entry1.appendChild(
             createListItem(
-              `copy weekend:<span class="id">${monthly.copyWeekend} (${monthly.calendar})</span> freq:<span class="ts">${monthly.frequency}</span> Backup retention:<span class="ts">${monthly.backupRetention}</span> Copy retention:<span class="ts">${monthly.copyRetention}</span> Last job:<span class="id">${monthly.lastJob?.jobId}</span>`
+              `Copy weekend:<span class="id">${monthly.copyWeekend} (${
+                monthly.calendar
+              })</span> 
+               Freq:<span class="ts">${monthly.frequency}</span> 
+               Backup retention:<span class="ts">${
+                 monthly.backupRetention
+               }</span> 
+               Copy retention:<span class="ts">${monthly.copyRetention}</span> 
+               Last job:<span class="id">${
+                 monthly.lastJob
+                   ? `${monthly.lastJob.jobId}</span>
+              <span class="status">${monthly.lastJob.status}</span><span class="ts">@${monthly.lastJob.started}`
+                   : 'null'
+               }</span>`
             )
           );
         }
@@ -290,7 +322,7 @@ const fillConfiguration = (el, configuration) =>
     el.appendChild(entry);
 
     if (data.yearly === null) {
-      entry.appendChild(createListItem(`Yearly <span class="id">NULL</span>`));
+      entry.appendChild(createListItem(`Yearly <span class="id">null</span>`));
     } else {
       entry.appendChild(createListItem(`<span>Yearly </span>`));
       const entry1 = createList();
@@ -298,7 +330,20 @@ const fillConfiguration = (el, configuration) =>
         (yearly) => {
           entry1.appendChild(
             createListItem(
-              `copy weekend:<span class="id">${yearly.copyWeekend} (${yearly.calendar})</span> freq:<span class="ts">${yearly.frequency}</span> Backup retention:<span class="ts">${yearly.backupRetention}</span> Copy retention:<span class="ts">${yearly.copyRetention}</span> Last job:<span class="id">${yearly.lastJob?.jobId}</span>`
+              `Copy weekend:<span class="id">${yearly.copyWeekend} (${
+                yearly.calendar
+              })</span> 
+              Freq:<span class="ts">${yearly.frequency}</span> 
+              Backup retention:<span class="ts">${
+                yearly.backupRetention
+              }</span> 
+              Copy retention:<span class="ts">${yearly.copyRetention}</span> 
+              Last job:<span class="id">${
+                yearly.lastJob
+                  ? `${yearly.lastJob.jobId}</span>
+              <span class="status">${yearly.lastJob.status}</span><span class="ts">@${yearly.lastJob.started}`
+                  : 'null'
+              }</span>`
             )
           );
         }

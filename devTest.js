@@ -12,11 +12,25 @@ function readJSONFromFile(fileName) {
 }
 //const response = readJSONFromFile('./response.json');
 
-const { allPolicies, allSlps, allJobs, hostName } =
-  readJSONFromFile('./response.json');
+const saveAllData = async (fileName = 'data') => {
+  const { NBU } = require('./modules.js');
+  const nbu = await NBU({ bin: 'd:/veritas/netbackup/bin' });
+  const [allPolicies, allSlps, allJobs] = await Promise.all([
+    nbu.policies(),
+    nbu.slps(),
+    nbu.jobs(),
+  ]);
+  writeJSONToFile(fileName, { allPolicies, allSlps, allJobs });
+};
 
-const { configuration } = require('./controllers/api-v1-configuration.js');
+const testClient = (hostName) => {
+  const { allPolicies, allSlps, allJobs } = readJSONFromFile('./response.json');
 
-const response = configuration(allPolicies, allSlps, allJobs, hostName);
+  const { configuration } = require('./controllers/api-v1-configuration.js');
+  const response = configuration(allPolicies, allSlps, allJobs, hostName);
 
-console.log(JSON.stringify(response, null, 2));
+  console.log(JSON.stringify(response, null, 2));
+};
+
+//saveAllData('response');
+testClient('auto-0011-3');

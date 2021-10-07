@@ -1,4 +1,5 @@
 const URL = '/api/v1';
+let token;
 
 const fetchJSON = async (url) => {
   let response;
@@ -178,6 +179,33 @@ const readClientHistory = async (name) => {
   }
 };
 
+const readClientConfiguration = async (name) => {
+  try {
+    const data = await fetchJSON(`${URL}/clients/${name}/configuration`);
+    console.log(data);
+    setLabel('clientLabel', formatTimeStamp(data.timeStamp));
+    const list = getList('clientList');
+
+    data.providers.map((provider) => {
+      const item = createListItem(
+        formatClient(provider.name, formatTimeStamp(provider.timeStamp))
+      );
+      const subList = createList();
+      item.appendChild(subList);
+      const subEntry1 = createListItem(
+        formatClient('Backup types', Object.keys(provider.data).length)
+      );
+      subList.appendChild(subEntry1);
+      const subList1 = createList();
+      subEntry1.appendChild(subList1);
+      fillConfiguration(subList1, provider.data);
+      list.appendChild(item);
+    });
+  } catch (error) {
+    setLabel('error', error.message);
+  }
+};
+
 const getInput = () => {
   const result = document.getElementById('clientName').value;
   if (!result) alert('to search, enter a host name first');
@@ -185,6 +213,8 @@ const getInput = () => {
 };
 const clientStatus = () => getInput() && readClientStatus(getInput());
 const clientHistory = () => getInput() && readClientHistory(getInput());
+const clientConfiguration = () =>
+  getInput() && readClientConfiguration(getInput());
 
 const fillClients = (el, clients) =>
   clients.map((client) => {
@@ -194,6 +224,9 @@ const fillClients = (el, clients) =>
     );
     entry.appendChild(
       createButton('History', () => readClientHistory(client.name))
+    );
+    entry.appendChild(
+      createButton('Configuration', () => readClientConfiguration(client.name))
     );
     el.appendChild(entry);
   });
@@ -211,6 +244,69 @@ const fillJobs = (el, jobs) =>
       )
     )
   );
+
+const fillConfiguration = (el, configuration) =>
+  Object.keys(configuration).map((type) => {
+    const data = configuration[type];
+    console.log(type, data);
+    el.innerHTML += `<span class="client">${type}</span>`;
+    const entry = createList();
+    entry.appendChild(
+      createListItem(`includes<span class="id">${data.includes}</span>`)
+    );
+
+    if (data.daily === null) {
+      entry.appendChild(createListItem(`Daily <span class="id">NULL</span>`));
+    } else {
+      entry.appendChild(createListItem(`<span>Daily </span>`));
+      const entry1 = createList();
+      (Array.isArray(data.daily) ? data.daily : [data.daily]).map((daily) => {
+        entry1.appendChild(
+          createListItem(
+            `model:<span class="id">${daily.model} (${daily.type})</span> freq:<span class="ts">${daily.frequency}</span> window:<span class="ts">${daily.timeWindow}</span> Backup retention:<span class="ts">${daily.backupRetention}</span> Copy retention:<span class="ts">${daily.copyRetention}</span> Last job:<span class="id">${daily.lastJob?.jobId}</span>`
+          )
+        );
+      });
+      entry.appendChild(entry1);
+    }
+    el.appendChild(entry);
+
+    if (data.monthly === null) {
+      entry.appendChild(createListItem(`Monthly <span class="id">NULL</span>`));
+    } else {
+      entry.appendChild(createListItem(`<span>Monthly </span>`));
+      const entry1 = createList();
+      (Array.isArray(data.monthly) ? data.monthly : [data.monthly]).map(
+        (monthly) => {
+          entry1.appendChild(
+            createListItem(
+              `copy weekend:<span class="id">${monthly.copyWeekend} (${monthly.calendar})</span> freq:<span class="ts">${monthly.frequency}</span> Backup retention:<span class="ts">${monthly.backupRetention}</span> Copy retention:<span class="ts">${monthly.copyRetention}</span> Last job:<span class="id">${monthly.lastJob?.jobId}</span>`
+            )
+          );
+        }
+      );
+      entry.appendChild(entry1);
+    }
+    el.appendChild(entry);
+
+    if (data.yearly === null) {
+      entry.appendChild(createListItem(`Yearly <span class="id">NULL</span>`));
+    } else {
+      entry.appendChild(createListItem(`<span>Yearly </span>`));
+      const entry1 = createList();
+      (Array.isArray(data.yearly) ? data.yearly : [data.yearly]).map(
+        (yearly) => {
+          entry1.appendChild(
+            createListItem(
+              `copy weekend:<span class="id">${yearly.copyWeekend} (${yearly.calendar})</span> freq:<span class="ts">${yearly.frequency}</span> Backup retention:<span class="ts">${yearly.backupRetention}</span> Copy retention:<span class="ts">${yearly.copyRetention}</span> Last job:<span class="id">${yearly.lastJob?.jobId}</span>`
+            )
+          );
+        }
+      );
+      entry.appendChild(entry1);
+    }
+    el.appendChild(entry);
+  });
 
 const fillPolicies = (el, policies) =>
   policies.map((policy) =>
@@ -242,6 +338,9 @@ document.getElementById('clientStatus').addEventListener('click', clientStatus);
 document
   .getElementById('clientHistory')
   .addEventListener('click', clientHistory);
+document
+  .getElementById('clientConfiguration')
+  .addEventListener('click', clientConfiguration);
 
 document
   .getElementById('clientsFilter')

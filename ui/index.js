@@ -5,7 +5,7 @@ const fetchJSON = async (url) => {
   let response;
   setLabel('error', '');
   if (!token) {
-//    response = await fetch(`${URL}/token`);
+    //    response = await fetch(`${URL}/token`);
     response = await fetch(`${URL}/token?local`);
     if (response.ok) token = await response.text();
   }
@@ -20,11 +20,28 @@ const fetchJSON = async (url) => {
 const formatTimeStamp = (timeStamp) =>
   `@<span class="ts">${new Date(timeStamp)}</span>`;
 
+const formatPolicy = (name, type, state) =>
+  `<span class="client">${name} (<span class="detail">${type}</span>)
+  </span><span class="${
+    state === 'Enabled' ? 'status-green' : 'status-red'
+  }">${state}</span>`;
+
 const formatClient = (name, detail) =>
   `<span class="client">${name} (<span class="detail">${detail}</span>)</span>`;
 
+const formatJobStatus = (status) =>
+  `<span class="${
+    status === 0
+      ? 'status-green'
+      : status === 1
+      ? 'status-yellow'
+      : 'status-red'
+  }">${status}</span>`;
+
 const formatJobId = (jobId, parentJob) =>
-  parentJob !== jobId ? `${parentJob}-${jobId}` : `${jobId}`;
+  `<span class="id">${
+    parentJob !== jobId && parentJob ? `${parentJob}-${jobId}` : `${jobId}`
+  }</span>`;
 
 const setLabel = (id, text) => (document.getElementById(id).innerHTML = text);
 
@@ -240,8 +257,8 @@ const fillJobs = (el, jobs) =>
   jobs.map((job) =>
     el.appendChild(
       createListItem(
-        `<span class="id">${formatJobId(job.jobId, job.parentJob)}</span>
-        <span class="status">${job.status}</span>
+        `${formatJobId(job.jobId, job.parentJob)}
+        ${formatJobStatus(job.status)}
         <span>${job.jobType} ${job.subType} ${job.state}</span>
         @<span class="ts">${job.started} (${job.elapsed})</span>
         ${formatClient(job.policy, job.policyType)} 
@@ -258,16 +275,20 @@ const fillConfiguration = (el, configuration) =>
     const entry = createList();
     entry.appendChild(
       createListItem(
-        `includes<span class="id">${
+        `includes<span class="client">${
           data.includes === '' ? 'null' : data.includes
         }</span>`
       )
     );
 
     if (data.daily === null) {
-      entry.appendChild(createListItem(`Daily <span class="id">null</span>`));
+      entry.appendChild(
+        createListItem(`<span class="status-red">No Daily</span>`)
+      );
     } else {
-      entry.appendChild(createListItem(`<span>Daily </span>`));
+      entry.appendChild(
+        createListItem(`<span class="status-green">Daily </span>`)
+      );
       const entry1 = createList();
       (Array.isArray(data.daily) ? data.daily : [data.daily]).map((daily) => {
         entry1.appendChild(
@@ -275,14 +296,19 @@ const fillConfiguration = (el, configuration) =>
             `Model:<span class="id">${daily.model} (${daily.type})</span> 
             Freq:<span class="ts">${daily.frequency}</span> 
             Window:<span class="ts">${daily.timeWindow}</span> 
-            Backup retention:<span class="ts">${daily.backupRetention}</span> 
-            Copy retention:<span class="ts">${daily.copyRetention}</span> 
-            Last job:<span class="id">${
+            Backup retention:<span class="${
+              daily.backupRetention ? 'client' : 'status-red'
+            }">${daily.backupRetention}</span> 
+            Copy retention:<span class="${
+              daily.copyRetention ? 'detail' : 'status-yellow'
+            }">${daily.copyRetention}</span> 
+            Last job:${
               daily.lastJob
-                ? `${daily.lastJob.jobId}</span>
-            <span class="status">${daily.lastJob.status}</span><span class="ts">@${daily.lastJob.started}`
-                : 'null'
-            }</span>`
+                ? formatJobId(daily.lastJob.jobId) +
+                  formatJobStatus(daily.lastJob.status) +
+                  `<span class="ts">@${daily.lastJob.started}`
+                : '<span class="status-red">null</span>'
+            }`
           )
         );
       });
@@ -291,9 +317,13 @@ const fillConfiguration = (el, configuration) =>
     el.appendChild(entry);
 
     if (data.monthly === null) {
-      entry.appendChild(createListItem(`Monthly <span class="id">null</span>`));
+      entry.appendChild(
+        createListItem(`<span class="status-yellow">No Monthly</span>`)
+      );
     } else {
-      entry.appendChild(createListItem(`<span>Monthly </span>`));
+      entry.appendChild(
+        createListItem(`<span class="status-green">Monthly </span>`)
+      );
       const entry1 = createList();
       (Array.isArray(data.monthly) ? data.monthly : [data.monthly]).map(
         (monthly) => {
@@ -303,16 +333,19 @@ const fillConfiguration = (el, configuration) =>
                 monthly.calendar
               })</span> 
                Freq:<span class="ts">${monthly.frequency}</span> 
-               Backup retention:<span class="ts">${
-                 monthly.backupRetention
-               }</span> 
-               Copy retention:<span class="ts">${monthly.copyRetention}</span> 
-               Last job:<span class="id">${
-                 monthly.lastJob
-                   ? `${monthly.lastJob.jobId}</span>
-              <span class="status">${monthly.lastJob.status}</span><span class="ts">@${monthly.lastJob.started}`
-                   : 'null'
-               }</span>`
+               Backup retention:<span class="${
+                 monthly.backupRetention ? 'client' : 'status-red'
+               }">${monthly.backupRetention}</span> 
+              Copy retention:<span class="${
+                monthly.copyRetention ? 'detail' : 'status-yellow'
+              }">${monthly.copyRetention}</span> 
+                 Last job:${
+                   monthly.lastJob
+                     ? formatJobId(monthly.lastJob.jobId) +
+                       formatJobStatus(monthly.lastJob.status) +
+                       `<span class="ts">@${monthly.lastJob.started}`
+                     : '<span class="status-red">null</span>'
+                 }`
             )
           );
         }
@@ -322,9 +355,13 @@ const fillConfiguration = (el, configuration) =>
     el.appendChild(entry);
 
     if (data.yearly === null) {
-      entry.appendChild(createListItem(`Yearly <span class="id">null</span>`));
+      entry.appendChild(
+        createListItem(`<span class="status-yellow">No Yearly</span>`)
+      );
     } else {
-      entry.appendChild(createListItem(`<span>Yearly </span>`));
+      entry.appendChild(
+        createListItem(`<span class="status-green">Yearly </span>`)
+      );
       const entry1 = createList();
       (Array.isArray(data.yearly) ? data.yearly : [data.yearly]).map(
         (yearly) => {
@@ -334,16 +371,19 @@ const fillConfiguration = (el, configuration) =>
                 yearly.calendar
               })</span> 
               Freq:<span class="ts">${yearly.frequency}</span> 
-              Backup retention:<span class="ts">${
-                yearly.backupRetention
-              }</span> 
-              Copy retention:<span class="ts">${yearly.copyRetention}</span> 
-              Last job:<span class="id">${
-                yearly.lastJob
-                  ? `${yearly.lastJob.jobId}</span>
-              <span class="status">${yearly.lastJob.status}</span><span class="ts">@${yearly.lastJob.started}`
-                  : 'null'
-              }</span>`
+              Backup retention:<span class="${
+                yearly.backupRetention ? 'client' : 'status-red'
+              }">${yearly.backupRetention}</span> 
+              Copy retention:<span class="${
+                yearly.copyRetention ? 'detail' : 'status-yellow'
+              }">${yearly.copyRetention}</span> 
+                Last job:${
+                  yearly.lastJob
+                    ? formatJobId(yearly.lastJob.jobId) +
+                      formatJobStatus(yearly.lastJob.status) +
+                      `<span class="ts">@${yearly.lastJob.started}`
+                    : '<span class="status-red">null</span>'
+                }`
             )
           );
         }
@@ -355,7 +395,9 @@ const fillConfiguration = (el, configuration) =>
 
 const fillPolicies = (el, policies) =>
   policies.map((policy) =>
-    el.appendChild(createListItem(formatClient(policy.name, policy.policyType)))
+    el.appendChild(
+      createListItem(formatPolicy(policy.name, policy.policyType, policy.state))
+    )
   );
 
 const filterClients = () => {

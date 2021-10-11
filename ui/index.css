@@ -14,8 +14,16 @@ input {
 .id {
   color: darkred;
 }
-.status {
+.status-red {
   color: red;
+  font-weight: bold;
+}
+.status-green {
+  color: green;
+  font-weight: bold;
+}
+.status-yellow {
+  color: gold;
   font-weight: bold;
 }
 .ts {

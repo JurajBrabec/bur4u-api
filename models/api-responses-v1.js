@@ -84,6 +84,7 @@ class ScheduleResponse {
 class PolicyResponse {
   constructor(policy) {
     this.name = policy.name;
+    this.state = policy.active ? 'Disabled' : 'Enabled';
     this.backupCopy = policy.backupCopy;
     this.backupCopies = policy.backupCopies;
     this.res = policy.res;

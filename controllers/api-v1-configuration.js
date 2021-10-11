@@ -1,5 +1,24 @@
 const make = require('../models/api-responses-v1.js');
 
+const uniqueArray = (array) => Array.from(new Set(array)).join(',');
+
+const Days = new Map([
+  [1, 'Sunday'],
+  [2, 'Monday'],
+  [3, 'Tuesday'],
+  [4, 'Wednesday'],
+  [5, 'Thursday'],
+  [6, 'Friday'],
+  [7, 'Saturday'],
+]);
+const Weeks = new Map([
+  [1, 'first'],
+  [2, 'second'],
+  [3, 'third'],
+  [4, 'fourth'],
+  [5, 'last'],
+]);
+
 let policies;
 let slps;
 let jobs;
@@ -11,7 +30,7 @@ const isDailySchedule = (schedule) => schedule._.frequency.match(/\d\d hours/);
 const isMonthlySchedule = (schedule) => schedule.calendar === 1;
 
 const getIncludes = (policies) =>
-  Array.from(new Set(policies.map((policy) => policy.include))).join(',');
+  uniqueArray(policies.map((policy) => policy.include));
 
 const getModel = (backupType) =>
   backupType === 'Full' ? 'Premium' : 'Standard';
@@ -19,13 +38,15 @@ const getModel = (backupType) =>
 const getBackupWindow = (startTimes) =>
   startTimes.match(/^(Any|18|19|20)/) ? '18:00-06:00' : '21:00-09:00';
 
-const getWeekend = (calDayOfWeek) =>
-  calDayOfWeek.match(/7,5/) ? 'Last' : 'Other';
+const getWeekend = (calDayOfWeek) => {
+  const [day, week] = calDayOfWeek.split(',');
+  return `${Days.get(+day)} of ${Weeks.get(+week)} week`;
+};
 
 const getSLPRetention = (slps, name, useFor) =>
   slps.reduce(
     (retention, slp) =>
-      slp.name === name && slp._.useFor === useFor
+      slp.slpName === name && slp._.useFor === useFor
         ? slp._.retention
         : retention,
     null
@@ -99,11 +120,11 @@ const processMonthlySchedule = (policy, schedule) => {
 
 const processSchedules = (policies, scheduleFilter, scheduleMap) => {
   let result = new Set();
-  policies.forEach(({ name, schedules }) =>
+  policies.forEach(({ name, active, schedules }) =>
     schedules
       .filter(scheduleFilter)
       .map((schedule) => scheduleMap(name, schedule))
-      .map((schedule) => result.add(schedule))
+      .map((schedule) => result.add({ enabled: !active, ...schedule }))
   );
   result = Array.from(result);
   if (!result.length) return null;

@@ -6,6 +6,9 @@ module.exports = {
   //API entries
   //module: 'api',
   nbuBinPath: 'c://program files//veritas//netbackup//bin',
+  domain: null,
+  user: null,
+  password: null,
   //PROXY entries
   //module: 'proxy',
   providers: [

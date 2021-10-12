@@ -35,6 +35,9 @@ try {
   const apiConfig = configurator.expect
     .new()
     .path({ nbuBinPath: { arg: 'bin', required: true } })
+    .string('domain')
+    .string('user')
+    .string('password')
     .save();
 
   const proxyConfig = configurator.expect
@@ -51,8 +54,10 @@ try {
   let routes;
   switch (moduleName) {
     case MODULE_API:
-      const { nbuBinPath } = configurator.compile(apiConfig);
-      NBU({ bin: nbuBinPath })
+      const { nbuBinPath, domain, user, password } =
+        configurator.compile(apiConfig);
+      const login = user ? { domain, user, password } : undefined;
+      NBU({ bin: nbuBinPath, login })
         .then((nbu) =>
           console.log(`Started NBU integration with ${nbu.masterServer}.`)
         )

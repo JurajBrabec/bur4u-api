@@ -1,0 +1,88 @@
+#%RAML 1.0
+---
+title: BUR4U API
+baseUri: https://pln-n1-burapi1.env01.mcloud.entsvcs.net/api/v1
+version: v1
+
+types:
+  providers: |
+    {
+      "type": "array",
+      "$schema": "http://json-schema.org/draft/2020-12/schema",
+      "items": provider
+    }
+  provider: |
+    {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "name": {
+          "type": "string",
+          "required": true
+        },
+        "status": {
+          "type": "string",
+          "required": true,
+        },
+        "clients": {
+          "type": "number",
+          "required": true,
+        }
+      }
+    }
+/providers:
+  description: Collection of data providers (only NBU Master Servers for now)
+  get:
+    description: Retrieve a list of all data providers
+    responses:
+      200:
+        body:
+          application/json:
+            type: providers
+            example: |
+              {}
+  /providers/{providerName}:
+    description: A specific data provider
+    get:
+      description: List of clients from a specific data provider
+      responses:
+      200:
+        body:
+        application/json:
+          type: provider
+          example: |
+            {}
+/clients:
+  description: Collection of clients (hosts) from all data providers (NBU Master Servers)
+  get:
+    description: Retrieve list of clients (hosts) from all data providers (NBU Master Servers)
+    responses:
+      200:
+        body:
+          application/json:
+            type:
+            example: |
+              {}
+  /clients/{clientName}
+    description: Information for a specific client (host)
+    get:
+      description: Active jobs and list of policies for a specific client (host)
+      responses:
+        200:
+          body:
+            application/json:
+              type:
+              example: |
+                {}
+  /clients/{clientName}/history
+    description: History for a specific client (host)
+    get:
+      description: List of past jobs for a specific client (host)
+      responses:
+        200:
+          body:
+            application/json:
+              type:
+              example: |
+                {}
+

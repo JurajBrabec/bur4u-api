@@ -14,7 +14,7 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true,
-      "program": "${workspaceFolder}\\npx",
+      "program": "npx",
       "cwd": "${workspaceFolder}",
       "args": ["jest", "--", "--runInBand", "--watchAll=false"]
     }

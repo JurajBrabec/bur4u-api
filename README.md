@@ -7,13 +7,14 @@
 - [Get list of all clients](#get-list-of-all-clients)
 - [Get active jobs and policies for a specific client](#get-active-jobs-and-policies-for-a-specific-client)
 - [Get history of jobs for a specific client](#get-history-of-jobs-for-a-specific-client)
+- [Get configuration for a specific client](#get-configuration-for-a-specific-client)
 
 ### Details
 
-Request should be sent to BUR4U API HTTPS service on port 28748
+Request should be sent to BUR4U API HTTPS service on port 443
 
 ```
-  https://[dc]-burapi1.[suffix]:28748
+  https://[dc]-burapi1.[suffix] or https://[dc]-burapi1.[suffix]:443
 ```
 
 where `[dc]` and `[suffix]` are specific to each datacenter.

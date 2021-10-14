@@ -24,7 +24,9 @@ const saveAllData = async (fileName = 'data') => {
 };
 
 const testClient = (hostName) => {
-  const { allPolicies, allSlps, allJobs } = readJSONFromFile('./response.json');
+  const { allPolicies, allSlps, allJobs } = readJSONFromFile(
+    './tmp/response.json'
+  );
 
   const { configuration } = require('./controllers/api-v1-configuration.js');
   const response = configuration(allPolicies, allSlps, allJobs, hostName);

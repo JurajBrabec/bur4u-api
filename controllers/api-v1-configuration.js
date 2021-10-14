@@ -124,7 +124,9 @@ const processSchedules = (policies, scheduleFilter, scheduleMap) => {
     schedules
       .filter(scheduleFilter)
       .map((schedule) => scheduleMap(name, schedule))
-      .map((schedule) => result.add({ enabled: !active, ...schedule }))
+      .map((schedule) =>
+        result.add({ state: active ? 'Disabled' : 'Enabled', ...schedule })
+      )
   );
   result = Array.from(result);
   if (!result.length) return null;

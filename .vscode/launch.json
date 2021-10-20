@@ -14,9 +14,9 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true,
-      "program": "npx",
+      "program": "${workspaceRoot}\\node_modules\\jest\\bin\\jest.js",
       "cwd": "${workspaceFolder}",
-      "args": ["jest", "--", "--runInBand", "--watchAll=false"]
+      "args": ["--runInBand", "--watchAll=false"]
     }
   ]
 }

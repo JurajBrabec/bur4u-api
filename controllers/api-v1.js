@@ -93,8 +93,8 @@ module.exports.configuration = async (req, res) => {
     ]);
 
     const response = configuration(allPolicies, allSlps, allJobs, hostName);
-    //      res.json(make.ClientConfiguration(response));
-    res.json(response);
+    res.json(make.ClientConfiguration(response));
+    //res.json(response);
   } catch (error) {
     console.log(error);
     res.status(500).json(make.Error(error));

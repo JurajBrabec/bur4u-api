@@ -22,10 +22,9 @@ class ClientHistoryResponse extends Response {
 }
 
 class ClientConfigurationResponse extends Response {
-  constructor(policies, slps) {
+  constructor(configuration) {
     super();
-    this.policies = policies;
-    this.slps = slps;
+    this.configuration = configuration;
   }
 }
 
@@ -114,8 +113,7 @@ module.exports = {
   Client: (data) => new ClientResponse(data),
   ClientHistory: (data) => new ClientHistoryResponse(data),
   ClientDetail: (data1, data2) => new ClientDetailResponse(data1, data2),
-  ClientConfiguration: (data1, data2) =>
-    new ClientConfigurationResponse(data1, data2),
+  ClientConfiguration: (data) => new ClientConfigurationResponse(data),
   Clients: (data) => new ClientsResponse(data),
   Job: (data) => new JobResponse(data),
   Policy: (data) => new PolicyResponse(data),

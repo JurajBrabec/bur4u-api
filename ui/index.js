@@ -215,12 +215,15 @@ const readClientConfiguration = async (name) => {
       const subList = createList();
       item.appendChild(subList);
       const subEntry1 = createListItem(
-        formatClient('Backup types', Object.keys(provider.data).length)
+        formatClient(
+          'Backup types',
+          Object.keys(provider.data.configuration).length
+        )
       );
       subList.appendChild(subEntry1);
       const subList1 = createList();
       subEntry1.appendChild(subList1);
-      fillConfiguration(subList1, provider.data);
+      fillConfiguration(subList1, provider.data.configuration);
       list.appendChild(item);
     });
   } catch (error) {

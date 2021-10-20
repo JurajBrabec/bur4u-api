@@ -145,12 +145,7 @@ describe('API endpoint tests', () => {
         .get(`${root}/clients/${client}/configuration`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200)
-        .then((res) =>
-          apiResponseToHave({
-            body: res.body,
-            arrays: { policies: 1, slps: 1 },
-          })
-        ));
+        .then((res) => apiResponseToHave({ body: res.body })));
   });
 });
 
@@ -284,7 +279,6 @@ describe('PROXY endpoints tests', () => {
           proxyResponseToHave({
             body: res.body,
             providerFields: { name: provider },
-            dataArrays: { policies: 1, slps: 1 },
           })
         ));
   });

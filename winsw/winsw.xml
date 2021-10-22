@@ -6,5 +6,7 @@
   <executable>%BASE%\..\node.exe</executable>
   <workingdirectory>%BASE%\..</workingdirectory>
   <arguments>bur4u-api.js --module api</arguments>
+  <logpath>%BASE%\..\log</logpath>
+  <onfailure action="restart" />
   
 </service>

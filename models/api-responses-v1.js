@@ -50,6 +50,7 @@ class JobResponse {
     this.scheduleType = job._.scheduleType;
     this.started = job._.started;
     this.elapsed = job._.elapsed;
+    this.retention = job._.retentionLevel;
   }
 }
 
@@ -58,7 +59,7 @@ class ScheduleResponse {
     this.name = schedule.name;
     this.backupType = schedule._.backupType;
     this.frequency = schedule._.frequency;
-    this.retention = schedule._.retention;
+    this.retention = schedule._.retentionLevel;
     this.calendar = schedule.calendar;
     this.copies = schedule.copies;
     this.calDayOfWeek = schedule.calDayOfWeek;
@@ -102,7 +103,7 @@ class SLPResponse {
     this.name = slp.slpName;
     this.operationIndex = slp.operationIndex;
     this.useFor = slp._.useFor;
-    this.retention = slp._.retention;
+    this.retention = slp._.retentionLevel;
     this.window = slp.slpWindow;
     this.storageUnit = slp.storageUnit;
   }

@@ -1,5 +1,3 @@
-const make = require('../models/api-responses-v1.js');
-
 const uniqueArray = (array) => Array.from(new Set(array)).join(',');
 
 const Days = new Map([
@@ -47,7 +45,7 @@ const getSLPRetention = (slps, name, useFor) =>
   slps.reduce(
     (retention, slp) =>
       slp.slpName === name && slp._.useFor === useFor
-        ? slp._.retention
+        ? slp._.retentionLevel
         : retention,
     null
   );
@@ -68,7 +66,7 @@ const getLastJob = (jobs, policy, scheduleType) => {
 
 const processDailySchedule = (policy, schedule) => {
   const { schedRes } = schedule;
-  const { backupType, frequency, retention } = schedule._;
+  const { backupType, frequency, retentionLevel } = schedule._;
   const lastJob = getLastJob(jobs, policy, backupType);
 
   const startTimes = Array.from(
@@ -91,7 +89,7 @@ const processDailySchedule = (policy, schedule) => {
     timeWindow: getBackupWindow(startTimes),
     backupRetention: schedRes
       ? getSLPRetention(slps, schedRes, 'Backup')
-      : retention,
+      : retentionLevel,
     copyRetention: schedRes
       ? getSLPRetention(slps, schedRes, 'Duplication')
       : null,
@@ -101,7 +99,7 @@ const processDailySchedule = (policy, schedule) => {
 
 const processMonthlySchedule = (policy, schedule) => {
   const { calDayOfWeek, schedRes } = schedule;
-  const { backupType, frequency, retention } = schedule._;
+  const { backupType, frequency, retentionLevel } = schedule._;
   const lastJob = getLastJob(jobs, policy, backupType);
 
   return {
@@ -110,7 +108,7 @@ const processMonthlySchedule = (policy, schedule) => {
     copyWeekend: getWeekend(calDayOfWeek),
     backupRetention: schedRes
       ? getSLPRetention(slps, schedRes, 'Backup')
-      : retention,
+      : retentionLevel,
     copyRetention: schedRes
       ? getSLPRetention(slps, schedRes, 'Duplication')
       : null,

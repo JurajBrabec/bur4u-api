@@ -1,10 +1,6 @@
-const { configurator, NBU } = require('./modules.js');
+const { configurator } = require('./modules.js');
 const express = require('./services/express.js');
 const server = require('./services/server.js');
-const Providers = require('./services/providers.js');
-const Proxyv1Routes = require('./routes/proxy-v1.js');
-const APIv1Routes = require('./routes/api-v1.js');
-const tokenService = require('./services/tokenServiceAPI.js');
 
 const API_ROOT = '/api/v1';
 const CACHE_INTERVAL = '15 seconds';
@@ -54,19 +50,25 @@ try {
   let routes;
   switch (moduleName) {
     case MODULE_API:
+      const { NBU } = require('./modules.js');
+      const jwt = require('./services/jwtAPI.js');
+      routes = require('./routes/api-v1.js');
       const { nbuBinPath, domain, user, password } =
         configurator.compile(apiConfig);
       const login = user ? { domain, user, password } : undefined;
       NBU({ bin: nbuBinPath, login })
-        .then((nbu) =>
-          console.log(`Started NBU integration with ${nbu.masterServer}.`)
-        )
+        .then((nbu) => {
+          jwt.setIssuer(nbu.masterServer);
+          console.log(`Started NBU integration with ${nbu.masterServer}.`);
+        })
         .catch((error) => {
           throw new Error(`Error ${error.message} starting NBU integration.`);
         });
-      routes = APIv1Routes;
       break;
     case MODULE_PROXY:
+      const tokenService = require('./services/tokenServiceAPI.js');
+      const Providers = require('./services/providers.js');
+      routes = require('./routes/proxy-v1.js');
       const { providers, queryInterval, tsaEnv } =
         configurator.compile(proxyConfig);
       if (tsaEnv) tokenService.setEnvironment(tsaEnv);
@@ -81,7 +83,6 @@ try {
         .catch((error) => {
           throw new Error(`Error ${error.message} importing providers.`);
         });
-      routes = Proxyv1Routes;
       break;
     default:
       throw new Error(`Wrong parameter --module '${moduleName}'.`);

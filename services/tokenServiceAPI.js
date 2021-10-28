@@ -111,17 +111,19 @@ class TokenServiceAPI extends TokenService {
   }
 }
 
-const api = new TokenServiceAPI({
-  id: '2242189293e5412ba71a8f2086a3ef0c',
-  environment: 'FT1',
-  authHeader: 'x-auth-token',
-  authSubjectHeader: 'x-subject-token',
-  isAuthorized: (token) =>
-    token.roles.reduce(
-      (found, role) => found || role.name === 'bur4u_api_consumer',
-      false
-    ),
-  useCache: true,
-});
+let tokenServiceAPI;
+if (!tokenServiceAPI)
+  tokenServiceAPI = new TokenServiceAPI({
+    id: '2242189293e5412ba71a8f2086a3ef0c',
+    environment: 'FT1',
+    authHeader: 'x-auth-token',
+    authSubjectHeader: 'x-subject-token',
+    isAuthorized: (token) =>
+      token.roles.reduce(
+        (found, role) => found || role.name === 'bur4u_api_consumer',
+        false
+      ),
+    useCache: true,
+  });
 
-module.exports = api;
+module.exports = tokenServiceAPI;

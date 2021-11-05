@@ -1,7 +1,8 @@
 const server = require('./server.js');
 const make = require('../models/proxy-responses-v1.js');
 
-let _providers = [];
+let _providers;
+if (!_providers) _providers = [];
 module.exports.get = () => _providers;
 
 module.exports.resolve = function (req, res, next) {

@@ -116,6 +116,23 @@ If the authorization is successful, depending on the API end point, one of follo
 | `timeStamp` | `integer` | seconds since epoch                                     |
 | `providers` | `array`   | one or more [ProviderHistory](#providerhistory) objects |
 
+#### Get configuration for a specific client
+
+```https
+  GET /api/v1/clients/${client}/configuration
+```
+
+| Parameter | Type     | Description                               |
+| :-------- | :------- | :---------------------------------------- |
+| `client`  | `string` | **Required**. Name of the client to fetch |
+
+##### Returns
+
+| Property    | Type      | Description                                                         |
+| :---------- | :-------- | :------------------------------------------------------------------ |
+| `timeStamp` | `integer` | seconds since epoch                                                 |
+| `providers` | `array`   | one or more [ProviderConfiguration](#providerconfiguration) objects |
+
 ### Objects
 
 #### ProviderList
@@ -153,6 +170,15 @@ If the authorization is successful, depending on the API end point, one of follo
 | `status`    | `string`  | status of the provider          |
 | `data`      | `object`  | [ClientHistory](#clienthistory) |
 
+##### ProviderConfiguration
+
+| Property    | Type      | Description                                 |
+| :---------- | :-------- | :------------------------------------------ |
+| `timeStamp` | `integer` | seconds since epoch                         |
+| `name`      | `string`  | name of the provider                        |
+| `status`    | `string`  | status of the provider                      |
+| `data`      | `object`  | [ClientConfiguration](#clientconfiguration) |
+
 ##### Clients
 
 | Property    | Type      | Description                           |
@@ -183,6 +209,13 @@ If the authorization is successful, depending on the API end point, one of follo
 | `timeStamp` | `integer` | seconds since epoch             |
 | `jobs`      | `array`   | one or more [Job](#job) objects |
 
+##### ClientConfiguration
+
+| Property        | Type      | Description                                   |
+| :-------------- | :-------- | :-------------------------------------------- |
+| `timeStamp`     | `integer` | seconds since epoch                           |
+| `configuration` | `object`  | one or more [BackupType](#backuptype) objects |
+
 ##### Job
 
 | Property       | Type       | Description           |
@@ -206,3 +239,58 @@ If the authorization is successful, depending on the API end point, one of follo
 | :----------- | :------- | :----------------- |
 | `name`       | `string` | name of the policy |
 | `policyType` | `string` | type of the policy |
+
+##### BackupType
+
+| Property   | Type     | Description                                                            |
+| :--------- | :------- | :--------------------------------------------------------------------- |
+| `includes` | `string` | NetBackup entry for included files                                     |
+| `daily`    | `array`  | one or more more [DailyConfiguration](#dailyconfiguration) objects     |
+| `monthly`  | `array`  | one or more more [MonthlyConfiguration](#monthlyconfiguration) objects |
+| `yearly`   | `array`  | one or more more [YearlyConfiguration](#yearlyconfiguration) objects   |
+
+##### DailyConfiguration
+
+| Property          | Type     | Description                                          |
+| :---------------- | :------- | :--------------------------------------------------- |
+| `state`           | `string` | _Enabled_ or _Disabled_                              |
+| `model`           | `string` | _Standard_ (one Full) or _Premium_ (always Full)     |
+| `frequency`       | `string` | How ofter a daily backup runs                        |
+| `type`            | `string` | Type of the daily backup (_Full_ if _Premium_ model) |
+| `encryption`      | `bool`   | Whether the daily backup is encrypted                |
+| `timeWindow`      | `string` | _18:00-06:00_ or _21:00-09:00_                       |
+| `backupRetention` | `string` | Retention of the daily backup                        |
+| `copyRetention`   | `string` | Retention of for the copy (_null_ if no duplication) |
+| `lastJob`         | `object` | A [ConfigurationJob](#configurationjob) object       |
+
+##### MonthlyConfiguration
+
+| Property          | Type     | Description                                          |
+| :---------------- | :------- | :--------------------------------------------------- |
+| `state`           | `string` | _Enabled_ or _Disabled_                              |
+| `frequency`       | `string` | How ofter a monthly backup runs                      |
+| `calendar`        | `string` | NetBackup calendar entry                             |
+| `copyWeekend`     | `string` | When the monthly backup starts                       |
+| `backupRetention` | `string` | Retention of the monthly backup                      |
+| `copyRetention`   | `string` | Retention of for the copy (_null_ if no duplication) |
+| `lastJob`         | `object` | A [ConfigurationJob](#configurationjob) object       |
+
+##### YearlyConfiguration
+
+| Property          | Type     | Description                                          |
+| :---------------- | :------- | :--------------------------------------------------- |
+| `state`           | `string` | _Enabled_ or _Disabled_                              |
+| `frequency`       | `string` | How ofter a monthly backup runs                      |
+| `calendar`        | `string` | NetBackup calendar entry                             |
+| `copyWeekend`     | `string` | When the monthly backup starts                       |
+| `backupRetention` | `string` | Retention of the monthly backup                      |
+| `copyRetention`   | `string` | Retention of for the copy (_null_ if no duplication) |
+| `lastJob`         | `object` | A [ConfigurationJob](#configurationjob) object       |
+
+##### ConfigurationJob
+
+| Property  | Type       | Description           |
+| :-------- | :--------- | :-------------------- |
+| `jobId`   | `integer`  | backup job ID         |
+| `started` | `dateTime` | start time of the job |
+| `status`  | `integer`  | status of the job     |

@@ -293,7 +293,7 @@ const fillConfiguration = (el, configuration) =>
         createListItem(`<span class="status-green">Daily </span>`)
       );
       const entry1 = createList();
-      (Array.isArray(data.daily) ? data.daily : [data.daily]).map((daily) => {
+      data.daily.map((daily) => {
         entry1.appendChild(
           createListItem(
             `Model:<span class="id">${daily.model} (${daily.type})</span> 
@@ -328,13 +328,12 @@ const fillConfiguration = (el, configuration) =>
         createListItem(`<span class="status-green">Monthly </span>`)
       );
       const entry1 = createList();
-      (Array.isArray(data.monthly) ? data.monthly : [data.monthly]).map(
-        (monthly) => {
-          entry1.appendChild(
-            createListItem(
-              `Copy weekend:<span class="id">${monthly.copyWeekend} (${
-                monthly.calendar
-              })</span> 
+      data.monthly.map((monthly) => {
+        entry1.appendChild(
+          createListItem(
+            `Copy weekend:<span class="id">${monthly.copyWeekend} (${
+              monthly.calendar
+            })</span> 
                Freq:<span class="ts">${monthly.frequency}</span> 
                Backup retention:<span class="${
                  monthly.backupRetention ? 'client' : 'status-red'
@@ -349,10 +348,9 @@ const fillConfiguration = (el, configuration) =>
                        `<span class="ts">@${monthly.lastJob.started}`
                      : '<span class="status-red">null</span>'
                  }`
-            )
-          );
-        }
-      );
+          )
+        );
+      });
       entry.appendChild(entry1);
     }
     el.appendChild(entry);
@@ -366,13 +364,12 @@ const fillConfiguration = (el, configuration) =>
         createListItem(`<span class="status-green">Yearly </span>`)
       );
       const entry1 = createList();
-      (Array.isArray(data.yearly) ? data.yearly : [data.yearly]).map(
-        (yearly) => {
-          entry1.appendChild(
-            createListItem(
-              `Copy weekend:<span class="id">${yearly.copyWeekend} (${
-                yearly.calendar
-              })</span> 
+      data.yearly.map((yearly) => {
+        entry1.appendChild(
+          createListItem(
+            `Copy weekend:<span class="id">${yearly.copyWeekend} (${
+              yearly.calendar
+            })</span> 
               Freq:<span class="ts">${yearly.frequency}</span> 
               Backup retention:<span class="${
                 yearly.backupRetention ? 'client' : 'status-red'
@@ -387,10 +384,9 @@ const fillConfiguration = (el, configuration) =>
                       `<span class="ts">@${yearly.lastJob.started}`
                     : '<span class="status-red">null</span>'
                 }`
-            )
-          );
-        }
-      );
+          )
+        );
+      });
       entry.appendChild(entry1);
     }
     el.appendChild(entry);

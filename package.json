@@ -4,15 +4,16 @@
   "description": "BUR 4U API",
   "main": "./bur4u-api.js",
   "scripts": {
-    "build": "esbuild bur4u-api.js --bundle --minify --platform=node --outfile=./build/bur4u-api.js",
-    "build-modules": "esbuild modules.js --bundle --minify --platform=node --outfile=./build/modules.js",
+    "build": "esbuild bur4u-api.js --bundle --minify --platform=node --outfile=./dist/bur4u-api.js",
+    "build-modules": "esbuild modules.js --bundle --minify --platform=node --outfile=./dist/modules.js",
     "dev-api": "nodemon bur4u-api.js --module api",
     "dev-proxy": "nodemon bur4u-api.js --module proxy --port 443",
-    "prod-api": "node build\\bur4u-api.js --module api",
-    "prod-proxy": "node build\\bur4u-api.js --module proxy --port 443",
+    "prod-api": "node dist\\bur4u-api.js --module api",
+    "prod-proxy": "node dist\\bur4u-api.js --module proxy --port 443",
     "test": "jest"
   },
   "author": "Juraj Brabec",
+  "homepage": "https://github.com/JurajBrabec/bur4u-api",
   "license": "ISC",
   "devDependencies": {
     "esbuild": "^0.13.4",

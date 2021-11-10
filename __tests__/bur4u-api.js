@@ -1,8 +1,8 @@
 const supertest = require('supertest');
 const express = require('../services/express.js');
 
-const NBU = require('../lib/netBackup-cli.js');
-jest.mock('../lib/netBackup-cli');
+const NBU = require('../lib/nbu-cli.js');
+jest.mock('../lib/nbu-cli');
 
 const root = '/api/v1';
 const JWTtoken = /eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9./;

@@ -1,5 +1,5 @@
 const supertest = require('supertest');
-const express = require('../services/express.js');
+const express = require('../src/services/express.js');
 
 const NBU = require('../lib/nbu-cli.js');
 jest.mock('../lib/nbu-cli');
@@ -59,7 +59,7 @@ const proxyResponseToHave = ({
 
 describe('API endpoint tests', () => {
   beforeAll(() => {
-    const routes = require('../routes/api-v1.js');
+    const routes = require('../src/routes/api-v1.js');
     const app = express({ root, routes });
     request = supertest(app);
   });
@@ -151,7 +151,7 @@ describe('API endpoint tests', () => {
 
 describe('PROXY endpoints tests', () => {
   beforeAll(() => {
-    const routes = require('../routes/proxy-v1.js');
+    const routes = require('../src/routes/proxy-v1.js');
     const app = express({ root, routes });
     request = supertest(app);
   });
@@ -190,7 +190,7 @@ describe('PROXY endpoints tests', () => {
   });
 
   describe('With TSA token', () => {
-    jest.mock('../services/providers.js');
+    jest.mock('../src/services/providers.js');
     let token;
 
     beforeAll(() =>

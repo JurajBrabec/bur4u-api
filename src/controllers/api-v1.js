@@ -25,13 +25,15 @@ module.exports.client = async (req, res) => {
   try {
     const { hostName } = req.params;
     const nbu = await NBU();
-    const [jobs, policies] = await Promise.all([
+    const [config, jobs, policies] = await Promise.all([
+      nbu.config({ client: hostName }),
       nbu.jobs({ daysBack: 1 }),
       nbu.policies(),
     ]);
 
     res.json(
       make.ClientDetail(
+        config,
         jobs
           .filter((job) => job.state === 1 && job.client === hostName)
           .sort((a, b) => a.jobId > b.jobId)
@@ -86,13 +88,20 @@ module.exports.configuration = async (req, res) => {
   try {
     const { hostName } = req.params;
     const nbu = await NBU();
-    const [allPolicies, allSlps, allJobs] = await Promise.all([
+    const [config, allPolicies, allSlps, allJobs] = await Promise.all([
+      nbu.config({ client: hostName }),
       nbu.policies(),
       nbu.slps(),
       nbu.jobs(),
     ]);
 
-    const response = configuration(allPolicies, allSlps, allJobs, hostName);
+    const response = configuration(
+      config,
+      allPolicies,
+      allSlps,
+      allJobs,
+      hostName
+    );
     res.json(make.ClientConfiguration(response));
     //res.json(response);
   } catch (error) {

@@ -7,8 +7,9 @@ class ClientsResponse extends Response {
   }
 }
 class ClientDetailResponse extends Response {
-  constructor(activeJobs, policies) {
+  constructor(config, activeJobs, policies) {
     super();
+    this.config = config;
     this.activeJobs = activeJobs;
     this.policies = policies;
   }
@@ -113,7 +114,8 @@ module.exports = {
   Error,
   Client: (data) => new ClientResponse(data),
   ClientHistory: (data) => new ClientHistoryResponse(data),
-  ClientDetail: (data1, data2) => new ClientDetailResponse(data1, data2),
+  ClientDetail: (data1, data2, data3) =>
+    new ClientDetailResponse(data1, data2, data3),
   ClientConfiguration: (data) => new ClientConfigurationResponse(data),
   Clients: (data) => new ClientsResponse(data),
   Job: (data) => new JobResponse(data),

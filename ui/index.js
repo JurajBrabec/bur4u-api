@@ -149,6 +149,14 @@ const readClientStatus = async (name) => {
       );
       const subList = createList();
       item.appendChild(subList);
+
+      const subEntry0 = createListItem(
+        formatClient(
+          provider.data.config[0].product,
+          provider.data.config[0].versionName
+        )
+      );
+      subList.appendChild(subEntry0);
       const subEntry1 = createListItem(
         formatClient('Active Jobs', provider.data.activeJobs.length)
       );
@@ -214,6 +222,13 @@ const readClientConfiguration = async (name) => {
       );
       const subList = createList();
       item.appendChild(subList);
+      const subEntry0 = createListItem(
+        formatClient(
+          provider.data.configuration.config[0].product,
+          provider.data.configuration.config[0].versionName
+        )
+      );
+      subList.appendChild(subEntry0);
       const subEntry1 = createListItem(
         formatClient(
           'Backup types',
@@ -271,33 +286,36 @@ const fillJobs = (el, jobs) =>
   );
 
 const fillConfiguration = (el, configuration) =>
-  Object.keys(configuration).map((type) => {
-    const data = configuration[type];
-    console.log(type, data);
-    el.innerHTML += `<span class="client">${type}</span>`;
-    const entry = createList();
-    entry.appendChild(
-      createListItem(
-        `includes<span class="client">${
-          data.includes === '' ? 'null' : data.includes
-        }</span>`
-      )
-    );
+  Object.keys(configuration)
+    .filter((type) => type !== 'config')
+    .map((type) => {
+      const data = configuration[type];
+      console.log(type, data);
+      el.innerHTML += `<span class="client">${type}</span>`;
+      const entry = createList();
+      entry.appendChild(
+        createListItem(
+          `includes<span class="client">${
+            data.includes === '' ? 'null' : data.includes
+          }</span>`
+        )
+      );
 
-    if (data.daily === null) {
-      entry.appendChild(
-        createListItem(`<span class="status-red">No Daily</span>`)
-      );
-    } else {
-      entry.appendChild(
-        createListItem(`<span class="status-green">Daily </span>`)
-      );
-      const entry1 = createList();
-      data.daily.map((daily) => {
-        entry1.appendChild(
-          createListItem(
-            `Model:<span class="id">${daily.model} (${daily.type})</span> 
+      if (data.daily === null) {
+        entry.appendChild(
+          createListItem(`<span class="status-red">No Daily</span>`)
+        );
+      } else {
+        entry.appendChild(
+          createListItem(`<span class="status-green">Daily </span>`)
+        );
+        const entry1 = createList();
+        data.daily.map((daily) => {
+          entry1.appendChild(
+            createListItem(
+              `Model:<span class="id">${daily.model} (${daily.type})</span> 
             Freq:<span class="ts">${daily.frequency}</span> 
+            StartTime:<span class="ts">${daily.startTime}</span> 
             Window:<span class="ts">${daily.timeWindow}</span> 
             Backup retention:<span class="${
               daily.backupRetention ? 'client' : 'status-red'
@@ -312,28 +330,28 @@ const fillConfiguration = (el, configuration) =>
                   `<span class="ts">@${daily.lastJob.started}`
                 : '<span class="status-red">null</span>'
             }`
-          )
-        );
-      });
-      entry.appendChild(entry1);
-    }
-    el.appendChild(entry);
+            )
+          );
+        });
+        entry.appendChild(entry1);
+      }
+      el.appendChild(entry);
 
-    if (data.monthly === null) {
-      entry.appendChild(
-        createListItem(`<span class="status-yellow">No Monthly</span>`)
-      );
-    } else {
-      entry.appendChild(
-        createListItem(`<span class="status-green">Monthly </span>`)
-      );
-      const entry1 = createList();
-      data.monthly.map((monthly) => {
-        entry1.appendChild(
-          createListItem(
-            `Copy weekend:<span class="id">${monthly.copyWeekend} (${
-              monthly.calendar
-            })</span> 
+      if (data.monthly === null) {
+        entry.appendChild(
+          createListItem(`<span class="status-yellow">No Monthly</span>`)
+        );
+      } else {
+        entry.appendChild(
+          createListItem(`<span class="status-green">Monthly </span>`)
+        );
+        const entry1 = createList();
+        data.monthly.map((monthly) => {
+          entry1.appendChild(
+            createListItem(
+              `Copy weekend:<span class="id">${monthly.copyWeekend} (${
+                monthly.calendar
+              })</span> 
                Freq:<span class="ts">${monthly.frequency}</span> 
                Backup retention:<span class="${
                  monthly.backupRetention ? 'client' : 'status-red'
@@ -348,28 +366,28 @@ const fillConfiguration = (el, configuration) =>
                        `<span class="ts">@${monthly.lastJob.started}`
                      : '<span class="status-red">null</span>'
                  }`
-          )
-        );
-      });
-      entry.appendChild(entry1);
-    }
-    el.appendChild(entry);
+            )
+          );
+        });
+        entry.appendChild(entry1);
+      }
+      el.appendChild(entry);
 
-    if (data.yearly === null) {
-      entry.appendChild(
-        createListItem(`<span class="status-yellow">No Yearly</span>`)
-      );
-    } else {
-      entry.appendChild(
-        createListItem(`<span class="status-green">Yearly </span>`)
-      );
-      const entry1 = createList();
-      data.yearly.map((yearly) => {
-        entry1.appendChild(
-          createListItem(
-            `Copy weekend:<span class="id">${yearly.copyWeekend} (${
-              yearly.calendar
-            })</span> 
+      if (data.yearly === null) {
+        entry.appendChild(
+          createListItem(`<span class="status-yellow">No Yearly</span>`)
+        );
+      } else {
+        entry.appendChild(
+          createListItem(`<span class="status-green">Yearly </span>`)
+        );
+        const entry1 = createList();
+        data.yearly.map((yearly) => {
+          entry1.appendChild(
+            createListItem(
+              `Copy weekend:<span class="id">${yearly.copyWeekend} (${
+                yearly.calendar
+              })</span> 
               Freq:<span class="ts">${yearly.frequency}</span> 
               Backup retention:<span class="${
                 yearly.backupRetention ? 'client' : 'status-red'
@@ -384,13 +402,13 @@ const fillConfiguration = (el, configuration) =>
                       `<span class="ts">@${yearly.lastJob.started}`
                     : '<span class="status-red">null</span>'
                 }`
-          )
-        );
-      });
-      entry.appendChild(entry1);
-    }
-    el.appendChild(entry);
-  });
+            )
+          );
+        });
+        entry.appendChild(entry1);
+      }
+      el.appendChild(entry);
+    });
 
 const fillPolicies = (el, policies) =>
   policies.map((policy) =>

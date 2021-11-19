@@ -127,7 +127,7 @@ describe('API endpoint tests', () => {
         .then((res) =>
           apiResponseToHave({
             body: res.body,
-            arrays: { activeJobs: 1, policies: 1 },
+            arrays: { activeJobs: 1, config: 1, policies: 1 },
           })
         ));
 

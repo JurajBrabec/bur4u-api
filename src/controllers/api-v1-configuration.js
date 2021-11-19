@@ -87,6 +87,7 @@ const processDailySchedule = (policy, schedule) => {
     type: backupType,
     encryption: true,
     timeWindow: getBackupWindow(startTimes),
+    startTime: startTimes,
     backupRetention: schedRes
       ? getSLPRetention(slps, schedRes, 'Backup')
       : retentionLevel,
@@ -153,7 +154,13 @@ const processPolicies = (policies) => {
   };
 };
 
-module.exports.configuration = (allPolicies, allSlps, allJobs, hostName) => {
+module.exports.configuration = (
+  config,
+  allPolicies,
+  allSlps,
+  allJobs,
+  hostName
+) => {
   policies = allPolicies
     .filter((policy) =>
       policy.clients.find((client) => client.name === hostName)
@@ -176,7 +183,7 @@ module.exports.configuration = (allPolicies, allSlps, allJobs, hostName) => {
     .filter((job) => job.client === hostName)
     .sort((a, b) => b.started - a.started);
 
-  const response = {};
+  const response = { config };
 
   new Set(policies.map((policy) => policy._.policyType)).forEach((type) => {
     response[type] = processPolicies(

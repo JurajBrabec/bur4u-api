@@ -129,7 +129,6 @@ const processSchedules = (policies, scheduleFilter, scheduleMap) => {
   );
   result = Array.from(result);
   if (!result.length) return null;
-  //  if (result.length === 1) result = result[0];
   return result;
 };
 

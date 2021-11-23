@@ -103,7 +103,6 @@ module.exports.configuration = async (req, res) => {
       hostName
     );
     res.json(make.ClientConfiguration(response));
-    //res.json(response);
   } catch (error) {
     console.log(error);
     res.status(500).json(make.Error(error));

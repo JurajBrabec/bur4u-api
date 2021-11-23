@@ -288,7 +288,7 @@ const fillJobs = (el, jobs) =>
 const fillConfiguration = (el, configuration) =>
   Object.keys(configuration)
     .filter((type) => type !== 'config')
-    .map((type) => {
+    .forEach((type) => {
       const data = configuration[type];
       console.log(type, data);
       el.innerHTML += `<span class="client">${type}</span>`;

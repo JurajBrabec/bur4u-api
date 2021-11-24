@@ -154,11 +154,11 @@ const processPolicies = (policies) => {
 };
 
 module.exports.configuration = (
+  hostName,
   config,
   allPolicies,
   allSlps,
-  allJobs,
-  hostName
+  allJobs
 ) => {
   policies = allPolicies
     .filter((policy) =>

@@ -1,7 +1,7 @@
 const { NBU } = require('../modules.js');
 const make = require('../models/api-responses-v1.js');
 const jwt = require('../services/jwtAPI.js');
-const { configuration } = require('./api-v1-configuration.js');
+const { configuration } = require('./api-configuration-v1.js');
 
 const version = '1.0.0';
 
@@ -88,21 +88,18 @@ module.exports.configuration = async (req, res) => {
   try {
     const { hostName } = req.params;
     const nbu = await NBU();
-    const [config, allPolicies, allSlps, allJobs] = await Promise.all([
+    const [config, policies, slps, jobs] = await Promise.all([
       nbu.config({ client: hostName }),
       nbu.policies(),
       nbu.slps(),
       nbu.jobs(),
     ]);
 
-    const response = configuration(
-      config,
-      allPolicies,
-      allSlps,
-      allJobs,
-      hostName
+    res.json(
+      make.ClientConfiguration(
+        configuration(hostName, config, policies, slps, jobs)
+      )
     );
-    res.json(make.ClientConfiguration(response));
   } catch (error) {
     console.log(error);
     res.status(500).json(make.Error(error));

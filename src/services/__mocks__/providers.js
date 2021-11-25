@@ -35,13 +35,21 @@ module.exports.query = async (provider, url) => {
       data = { timeStamp, clients };
       break;
     case `/api/v1/clients/${client}`:
+      const settings = await nbu.config();
       const activeJobs = await nbu.jobs({ daysBack: 1 });
       const policies = await nbu.policies();
-      data = { timeStamp, activeJobs, policies };
+      data = { timeStamp, settings, activeJobs, policies };
       break;
     case `/api/v1/clients/${client}/history`:
       const jobs = await nbu.jobs();
       data = { timeStamp, jobs };
+      break;
+    case `/api/v1/clients/${client}/configuration`:
+      const settings = await nbu.config();
+      const policies = await nbu.policies();
+      const slps = await nbu.slps();
+      const jobs = await nbu.jobs();
+      data = { timeStamp, settings, backupTypes: [] };
       break;
     default:
       data = { timeStamp, error: `No data for "${url}" endpoint` };

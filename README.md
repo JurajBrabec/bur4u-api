@@ -259,7 +259,7 @@ If the authorization is successful, depending on the API end point, one of follo
 
 | Property   | Type     | Description                                                            |
 | :--------- | :------- | :--------------------------------------------------------------------- |
-| `name      | `string` | name of the Backup Type files                                          |
+| `name`     | `string` | name of the Backup Type files                                          |
 | `includes` | `string` | NetBackup entry for included files                                     |
 | `daily`    | `array`  | one or more more [DailyConfiguration](#dailyconfiguration) objects     |
 | `monthly`  | `array`  | one or more more [MonthlyConfiguration](#monthlyconfiguration) objects |

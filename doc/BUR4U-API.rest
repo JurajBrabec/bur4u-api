@@ -45,7 +45,6 @@ GET {{proxyUrl}}/api/v1/clients
 X-Auth-Token: {{authToken}}
 
 @client1 = {{getClients.response.body.providers[0].data.clients[0].name}}
-@client1 = lis9-sipd60.11667.1448.ecs.hp.com
 ###
 GET {{proxyUrl}}/api/v1/clients/{{client1}}
 X-Auth-Token: {{authToken}}

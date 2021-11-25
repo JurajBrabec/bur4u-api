@@ -151,8 +151,8 @@ const readClientStatus = async (name) => {
 
       const subEntry0 = createListItem(
         formatClient(
-          provider.data.config.product,
-          provider.data.config.versionName
+          provider.data.settings.product,
+          provider.data.settings.versionName
         )
       );
       subList.appendChild(subEntry0);
@@ -223,21 +223,18 @@ const readClientConfiguration = async (name) => {
       item.appendChild(subList);
       const subEntry0 = createListItem(
         formatClient(
-          provider.data.configuration.settings.product,
-          provider.data.configuration.settings.versionName
+          provider.data.settings.product,
+          provider.data.settings.versionName
         )
       );
       subList.appendChild(subEntry0);
       const subEntry1 = createListItem(
-        formatClient(
-          'Backup types',
-          provider.data.configuration.backupTypes.length
-        )
+        formatClient('Backup types', provider.data.backupTypes.length)
       );
       subList.appendChild(subEntry1);
       const subList1 = createList();
       subEntry1.appendChild(subList1);
-      fillBackupTypes(subList1, provider.data.configuration.backupTypes);
+      fillBackupTypes(subList1, provider.data.backupTypes);
       list.appendChild(item);
     });
   } catch (error) {

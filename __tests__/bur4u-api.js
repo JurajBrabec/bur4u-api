@@ -12,9 +12,14 @@ const { client, masterServer: provider } = NBU;
 
 let request;
 
-const apiResponseToHave = ({ body, arrays }) => {
+const apiResponseToHave = ({ body, arrays, fields }) => {
   expect(body).toHaveProperty('timeStamp');
   expect(typeof body.timeStamp).toBe('number');
+  if (fields)
+    Object.keys(fields).forEach((key) => {
+      expect(body).toHaveProperty(key);
+      expect(typeof body[key]).toBe(fields[key]);
+    });
   if (arrays)
     Object.keys(arrays).forEach((key) => {
       expect(body).toHaveProperty(key);
@@ -127,7 +132,8 @@ describe('API endpoint tests', () => {
         .then((res) =>
           apiResponseToHave({
             body: res.body,
-            arrays: { activeJobs: 1, config: 1, policies: 1 },
+            fields: { settings: 'object' },
+            arrays: { activeJobs: 1, policies: 1 },
           })
         ));
 
@@ -145,7 +151,13 @@ describe('API endpoint tests', () => {
         .get(`${root}/clients/${client}/configuration`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200)
-        .then((res) => apiResponseToHave({ body: res.body })));
+        .then((res) =>
+          apiResponseToHave({
+            body: res.body,
+            fields: { settings: 'object' },
+            arrays: { backupTypes: 1 },
+          })
+        ));
   });
 });
 
@@ -279,6 +291,7 @@ describe('PROXY endpoints tests', () => {
           proxyResponseToHave({
             body: res.body,
             providerFields: { name: provider },
+            dataArrays: { backupTypes: 1 },
           })
         ));
   });

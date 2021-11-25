@@ -153,14 +153,9 @@ const processPolicies = (policies) => {
     ),
   };
 };
+module.exports.settings = (config) => config[0];
 
-module.exports.configuration = (
-  hostName,
-  config,
-  allPolicies,
-  allSlps,
-  allJobs
-) => {
+module.exports.backupTypes = (hostName, allPolicies, allSlps, allJobs) => {
   policies = allPolicies
     .filter((policy) =>
       policy.clients.find((client) => client.name === hostName)
@@ -189,7 +184,5 @@ module.exports.configuration = (
       processPolicies(policies.filter((policy) => policy._.policyType === type))
     )
   );
-  const response = { settings: config[0], backupTypes };
-
-  return response;
+  return backupTypes;
 };

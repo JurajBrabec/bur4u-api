@@ -29,7 +29,6 @@ GET {{apiUrl}}/api/v1/clients
 Authorization: Bearer {{JWToken}}
 
 @apiClient1 = {{apiGetClients.response.body.clients[0].name}}
-@apiClient2 = lis9-sipd60.11667.1448.ecs.hp.com
 ###
 GET {{apiUrl}}/api/v1/clients/{{apiClient1}}
 Authorization: Bearer {{JWToken}}

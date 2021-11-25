@@ -1,7 +1,7 @@
 const { NBU } = require('../modules.js');
 const make = require('../models/api-responses-v1.js');
 const jwt = require('../services/jwtAPI.js');
-const { configuration } = require('./api-configuration-v1.js');
+const { settings, backupTypes } = require('./api-configuration-v1.js');
 
 const version = '1.0.0';
 
@@ -97,7 +97,8 @@ module.exports.configuration = async (req, res) => {
 
     res.json(
       make.ClientConfiguration(
-        configuration(hostName, config, policies, slps, jobs)
+        settings(config),
+        backupTypes(hostName, policies, slps, jobs)
       )
     );
   } catch (error) {

@@ -196,11 +196,12 @@ If the authorization is successful, depending on the API end point, one of follo
 
 ##### ClientStatus
 
-| Property     | Type      | Description                           |
-| :----------- | :-------- | :------------------------------------ |
-| `timeStamp`  | `integer` | seconds since epoch                   |
-| `activeJobs` | `array`   | one or more [Job](#job) objects       |
-| `policies`   | `array`   | one or more [Policy](#policy) objects |
+| Property     | Type      | Description                              |
+| :----------- | :-------- | :--------------------------------------- |
+| `timeStamp`  | `integer` | seconds since epoch                      |
+| `settings`   | `object`  | [ClientSettings](#clientsettings) object |
+| `activeJobs` | `array`   | one or more [Job](#job) objects          |
+| `policies`   | `array`   | one or more [Policy](#policy) objects    |
 
 ##### ClientHistory
 
@@ -211,10 +212,10 @@ If the authorization is successful, depending on the API end point, one of follo
 
 ##### ClientConfiguration
 
-| Property        | Type      | Description                                   |
-| :-------------- | :-------- | :-------------------------------------------- |
-| `timeStamp`     | `integer` | seconds since epoch                           |
-| `configuration` | `object`  | one or more [BackupType](#backuptype) objects |
+| Property        | Type      | Description                            |
+| :-------------- | :-------- | :------------------------------------- |
+| `timeStamp`     | `integer` | seconds since epoch                    |
+| `configuration` | `object`  | [Configuration](#configuration) object |
 
 ##### Job
 
@@ -240,10 +241,31 @@ If the authorization is successful, depending on the API end point, one of follo
 | `name`       | `string` | name of the policy |
 | `policyType` | `string` | type of the policy |
 
+#### Configuration
+
+| Property      | Type     | Description                                   |
+| :------------ | :------- | :-------------------------------------------- |
+| `settings`    | `object` | [ClientSettings](#clientsettings) object      |
+| `backupTypes` | `array`  | one or more [BackupType](#backuptype) objects |
+
+#### ClientSettings
+
+| Property           | Type     | Description                          |
+| :----------------- | :------- | :----------------------------------- |
+| `clientMaster`     | `string` | name of the client's Master Server   |
+| `platform`         | `string` | OS platform of the client            |
+| `protocolLevel`    | `string` | NetBackup protocol level             |
+| `product`          | `string` | NetBackup                            |
+| `versionName`      | `string` | NetBackup version as string          |
+| `versionNumber`    | `number` | NetBackup version as number          |
+| `installationPath` | `string` | client's NetBackup installation path |
+| `os`               | `string` | client's operating system            |
+
 ##### BackupType
 
 | Property   | Type     | Description                                                            |
 | :--------- | :------- | :--------------------------------------------------------------------- |
+| `name      | `string` | name of the Backup Type files                                          |
 | `includes` | `string` | NetBackup entry for included files                                     |
 | `daily`    | `array`  | one or more more [DailyConfiguration](#dailyconfiguration) objects     |
 | `monthly`  | `array`  | one or more more [MonthlyConfiguration](#monthlyconfiguration) objects |
@@ -259,6 +281,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | `type`            | `string` | Type of the daily backup (_Full_ if _Premium_ model) |
 | `encryption`      | `bool`   | Whether the daily backup is encrypted                |
 | `timeWindow`      | `string` | _18:00-06:00_ or _21:00-09:00_                       |
+| `startTime`       | `string` | start time of the backup window                      |
 | `backupRetention` | `string` | Retention of the daily backup                        |
 | `copyRetention`   | `string` | Retention of for the copy (_null_ if no duplication) |
 | `lastJob`         | `object` | A [ConfigurationJob](#configurationjob) object       |

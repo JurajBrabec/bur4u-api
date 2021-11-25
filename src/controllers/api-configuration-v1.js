@@ -134,6 +134,7 @@ const processSchedules = (policies, scheduleFilter, scheduleMap) => {
 
 const processPolicies = (policies) => {
   return {
+    name: policies[0]._.policyType,
     includes: getIncludes(policies),
     daily: processSchedules(
       policies.filter(isDailyPolicy),
@@ -182,13 +183,13 @@ module.exports.configuration = (
     .filter((job) => job.client === hostName)
     .sort((a, b) => b.started - a.started);
 
-  const response = { config };
-
-  new Set(policies.map((policy) => policy._.policyType)).forEach((type) => {
-    response[type] = processPolicies(
-      policies.filter((policy) => policy._.policyType === type)
-    );
-  });
+  const backupTypes = [];
+  new Set(policies.map((policy) => policy._.policyType)).forEach((type) =>
+    backupTypes.push(
+      processPolicies(policies.filter((policy) => policy._.policyType === type))
+    )
+  );
+  const response = { settings: config[0], backupTypes };
 
   return response;
 };

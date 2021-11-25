@@ -9,7 +9,7 @@ class ClientsResponse extends Response {
 class ClientDetailResponse extends Response {
   constructor(config, activeJobs, policies) {
     super();
-    this.config = config;
+    this.settings = config;
     this.activeJobs = activeJobs;
     this.policies = policies;
   }

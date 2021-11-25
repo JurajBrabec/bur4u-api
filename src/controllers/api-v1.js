@@ -33,7 +33,7 @@ module.exports.client = async (req, res) => {
 
     res.json(
       make.ClientDetail(
-        config,
+        config[0],
         jobs
           .filter((job) => job.state === 1 && job.client === hostName)
           .sort((a, b) => a.jobId > b.jobId)

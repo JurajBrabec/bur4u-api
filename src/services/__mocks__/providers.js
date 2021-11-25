@@ -28,28 +28,24 @@ module.exports.resolve = function (req, res, next) {
 
 module.exports.query = async (provider, url) => {
   const nbu = await NBU();
+  const clients = await nbu.clients();
+  const config = await nbu.config();
+  const policies = await nbu.policies();
+  const slps = await nbu.slps();
+  const jobs = await nbu.jobs();
   let data;
   switch (url) {
     case '/api/v1/clients':
-      const clients = await nbu.clients();
       data = { timeStamp, clients };
       break;
     case `/api/v1/clients/${client}`:
-      const settings = await nbu.config();
-      const activeJobs = await nbu.jobs({ daysBack: 1 });
-      const policies = await nbu.policies();
-      data = { timeStamp, settings, activeJobs, policies };
+      data = { timeStamp, settings: config, activeJobs: jobs, policies };
       break;
     case `/api/v1/clients/${client}/history`:
-      const jobs = await nbu.jobs();
       data = { timeStamp, jobs };
       break;
     case `/api/v1/clients/${client}/configuration`:
-      const settings = await nbu.config();
-      const policies = await nbu.policies();
-      const slps = await nbu.slps();
-      const jobs = await nbu.jobs();
-      data = { timeStamp, settings, backupTypes: [] };
+      data = { timeStamp, settings: config, backupTypes: ['TEST'] };
       break;
     default:
       data = { timeStamp, error: `No data for "${url}" endpoint` };

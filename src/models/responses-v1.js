@@ -7,7 +7,7 @@ class Response {
 class ErrorResponse extends Response {
   constructor(error) {
     super();
-    this.error = error;
+    this.error = error.message || error;
   }
 }
 

@@ -37,6 +37,7 @@ const getBackupWindow = (startTimes) =>
   startTimes.match(/^(Any|18|19|20)/) ? '18:00-06:00' : '21:00-09:00';
 
 const getWeekend = (calDayOfWeek) => {
+  if (!calDayOfWeek) return null;
   const [day, week] = calDayOfWeek.split(',');
   return `${Days.get(+day)} of ${Weeks.get(+week)} week`;
 };

@@ -1,9 +1,21 @@
 const URL = '/api/v1';
 let token;
 
+const TS_ICON = String.fromCodePoint(9201);
+const PROVIDER_ICON = String.fromCodePoint(128737);
+const CLIENT_ICON = String.fromCodePoint(128187);
+const STATUS_ICON = String.fromCodePoint(128270);
+const HISTORY_ICON = String.fromCodePoint(128200);
+const CONFIG_ICON = String.fromCodePoint(9881);
+const VERSION_ICON = String.fromCodePoint(128192);
+const TYPE_ICON = String.fromCodePoint(128197);
+const POLICIES_ICON = String.fromCodePoint(127359);
+const JOBS_ICON = String.fromCodePoint(128450);
+
 const fetchJSON = async (url) => {
   let response;
-  setLabel('error', '');
+  set.text('error', '');
+  set.text('loading', 'Loading...');
   if (!token) {
     response = await fetch(`${URL}/token?local`);
     if (response.ok) token = await response.text();
@@ -13,432 +25,430 @@ const fetchJSON = async (url) => {
     const error = await response.text();
     throw new Error(`${response.status} ${response.statusText} - ${error}`);
   }
-  return response.json();
+  set.text('loading', '');
+  const data = await response.json();
+  console.log({ url, data });
+  return data;
 };
 
-const formatTimeStamp = (timeStamp) =>
-  `@<span class="ts">${new Date(timeStamp)}</span>`;
+const set = {
+  list: (id, ...children) => {
+    const el = getEl(id);
+    el.innerHTML = '';
+    children.forEach((child) => el.appendChild(child));
+    return el;
+  },
+  text: (id, text = '') => {
+    const el = getEl(id);
+    el.innerText = text;
+    if (id === 'loading' || id === 'error')
+      el.parentNode.style.display = text ? 'inline' : 'none';
+    return el;
+  },
+  value: (id, value) => {
+    const el = getEl(id);
+    el.value = value;
+    return el;
+  },
+};
+const getEl = (name) =>
+  name instanceof Element ? name : document.getElementById(name);
 
-const formatPolicy = (name, type, state) =>
-  `<span class="client">${name} (<span class="detail">${type}</span>)
-  </span><span class="${
-    state === 'Enabled' ? 'status-green' : 'status-red'
-  }">${state}</span>`;
+const getNewEl = (name, children = []) => {
+  const el = document.createElement(name);
+  children.forEach((child) =>
+    child instanceof Element
+      ? el.appendChild(child)
+      : el.appendChild(document.createTextNode(child))
+  );
+  return el;
+};
 
-const formatClient = (name, detail) =>
-  `<span class="client">${name} (<span class="detail">${detail}</span>)</span>`;
+const get = {
+  el: getEl,
+  list: (...children) => getNewEl('ul', children),
+  listItem: (...children) => getNewEl('li', children),
+  span: (...children) => getNewEl('span', children),
+  table: (...children) => getNewEl('table', children),
+  tableHead: (...children) => getNewEl('thead', children),
+  headCell: (...children) => getNewEl('th', children),
+  tableBody: (...children) => getNewEl('tbody', children),
+  row: (...children) => getNewEl('tr', children),
+  cell: (...children) => getNewEl('td', children),
+  text: (id) => getEl(id).innerText,
+  value: (id) => getEl(id).value,
+};
 
-const formatJobStatus = (status) =>
-  `<span class="${
-    status === 0
-      ? 'status-green'
-      : status === 1
-      ? 'status-yellow'
-      : 'status-red'
-  }">${status}</span>`;
-
-const formatJobId = (jobId, parentJob) =>
-  `<span class="id">${
+get.client = (name, os) => get.listItem(CLIENT_ICON, get.name(name, os));
+get.jobId = (jobId, parentJob) => {
+  const el = get.span(
     parentJob !== jobId && parentJob ? `${parentJob}-${jobId}` : `${jobId}`
-  }</span>`;
-
-const setLabel = (id, text) => (document.getElementById(id).innerHTML = text);
-
-const createList = (el) => {
-  const ul = document.createElement('ul');
-  el && ul.appendChild(el);
-  return ul;
+  );
+  el.classList.add('id');
+  return el;
 };
-
-const getList = (id) => {
-  const li = document.getElementById(id);
-  li.innerHTML = '';
-  return li;
+get.jobStatus = (status) => {
+  const el = get.span(status);
+  el.classList.add(
+    `status-${status === 0 ? 'green' : status === 1 ? 'yellow' : 'red'}`
+  );
+  return el;
 };
-
-const createListItem = (text) => {
-  const li = document.createElement('li');
-  li.innerHTML = text;
-  return li;
-};
-
-const createButton = (text, onclick) => {
-  const btn = document.createElement('button');
-  btn.innerHTML = text;
-  btn.onclick = onclick;
-  return btn;
-};
-
-const readClients = async () => {
-  try {
-    const data = await fetchJSON(`${URL}/clients`);
-
-    setLabel('clientsLabel', formatTimeStamp(data.timeStamp));
-    const list = getList('clientsList');
-
-    data.providers.map((provider) => {
-      const item = createListItem(
-        formatClient(provider.name, formatTimeStamp(provider.timeStamp))
-      );
-      const subList = createList();
-
-      fillClients(subList, provider.data.clients);
-      item.appendChild(subList);
-      list.appendChild(item);
-      document.getElementById('clientsFilter').value = '';
-      document.getElementById(
-        'clientsFiltered'
-      ).innerHTML = `${provider.data.clients.length} clients`;
-    });
-  } catch (error) {
-    setLabel('error', error.message);
+get.name = (name, detail) => {
+  const el = get.span(name);
+  el.classList.add('name');
+  if (detail || detail === 0) {
+    const el2 = get.span(detail);
+    el2.classList.add('detail');
+    const el1 = get.span(' (', el2, ')');
+    el1.classList.add('name');
+    el.appendChild(el1);
   }
+  return el;
 };
-
-const readProviders = async () => {
-  try {
-    const data = await fetchJSON(`${URL}/providers`);
-
-    setLabel('providersLabel', formatTimeStamp(data.timeStamp));
-    const list = getList('providersList');
-
-    data.providers.map((provider) => {
-      const item = createListItem(formatClient(provider.name, provider.status));
-      item.appendChild(
-        createButton(`${provider.clients} clients`, () =>
-          readProviderClients(provider.name)
-        )
-      );
-      list.appendChild(item);
-    });
-  } catch (error) {
-    setLabel('error', error.message);
-  }
+get.policy = (name, type, state) => {
+  const el1 = get.span(state);
+  el1.classList.add(`status-${state === 'Enabled' ? 'green' : 'red'}`);
+  return get.span(el1, get.name(name, type));
 };
-
-const readProviderClients = async (provider) => {
-  try {
-    const data = await fetchJSON(`${URL}/providers/${provider}`);
-
-    setLabel('clientsLabel', formatTimeStamp(data.timeStamp));
-    const list = getList('clientsList');
-    const clients = data.data?.clients || [];
-
-    fillClients(list, clients);
-    document.getElementById('clientsFilter').value = '';
-    document.getElementById(
-      'clientsFiltered'
-    ).innerHTML = `${clients.length} clients`;
-  } catch (error) {
-    setLabel('error', error.message);
-  }
+get.time = (timeStamp) => TS_ICON + ' ' + new Date(timeStamp);
+get.timeStamp = (timeStamp = Date.now()) => {
+  const el = get.span(get.time(timeStamp));
+  el.classList.add('ts');
+  return el;
 };
-
-const readClientStatus = async (name) => {
-  try {
-    const data = await fetchJSON(`${URL}/clients/${name}`);
-
-    document.getElementById('clientName').value = name;
-    setLabel('clientLabel', formatTimeStamp(data.timeStamp));
-    const list = getList('clientList');
-
-    data.providers.map((provider) => {
-      const item = createListItem(
-        formatClient(provider.name, formatTimeStamp(provider.timeStamp))
-      );
-      const subList = createList();
-      item.appendChild(subList);
-
-      const subEntry0 = createListItem(
-        formatClient(
-          provider.data.settings.product,
-          provider.data.settings.versionName
-        )
-      );
-      subList.appendChild(subEntry0);
-      const subEntry1 = createListItem(
-        formatClient('Active Jobs', provider.data.activeJobs.length)
-      );
-      subList.appendChild(subEntry1);
-      const subList1 = createList();
-      subEntry1.appendChild(subList1);
-      fillJobs(subList1, provider.data.activeJobs);
-
-      const subEntry2 = createListItem(
-        formatClient('Policies', provider.data.policies.length)
-      );
-      subList.appendChild(subEntry2);
-      const subList2 = createList();
-      subEntry2.appendChild(subList2);
-      fillPolicies(subList2, provider.data.policies);
-      list.appendChild(item);
-    });
-  } catch (error) {
-    setLabel('error', error.message);
-  }
-};
-
-const readClientHistory = async (name) => {
-  try {
-    const data = await fetchJSON(`${URL}/clients/${name}/history`);
-
-    document.getElementById('clientName').value = name;
-    setLabel('clientLabel', formatTimeStamp(data.timeStamp));
-    const list = getList('clientList');
-
-    data.providers.map((provider) => {
-      const item = createListItem(
-        formatClient(provider.name, formatTimeStamp(provider.timeStamp))
-      );
-      const subList = createList();
-      item.appendChild(subList);
-      const subEntry = createListItem(
-        formatClient('History', provider.data.jobs.length)
-      );
-      subList.appendChild(subEntry);
-      const subList1 = createList();
-      subEntry.appendChild(subList1);
-      fillJobs(subList1, provider.data.jobs);
-      list.appendChild(item);
-    });
-  } catch (error) {
-    setLabel('error', error.message);
-  }
-};
-
-const readClientConfiguration = async (name) => {
-  try {
-    const data = await fetchJSON(`${URL}/clients/${name}/configuration`);
-    console.log(data);
-
-    document.getElementById('clientName').value = name;
-    setLabel('clientLabel', formatTimeStamp(data.timeStamp));
-    const list = getList('clientList');
-
-    data.providers.map((provider) => {
-      const item = createListItem(
-        formatClient(provider.name, formatTimeStamp(provider.timeStamp))
-      );
-      const subList = createList();
-      item.appendChild(subList);
-      const subEntry0 = createListItem(
-        formatClient(
-          provider.data.settings.product,
-          provider.data.settings.versionName
-        )
-      );
-      subList.appendChild(subEntry0);
-      const subEntry1 = createListItem(
-        formatClient('Backup types', provider.data.backupTypes.length)
-      );
-      subList.appendChild(subEntry1);
-      const subList1 = createList();
-      subEntry1.appendChild(subList1);
-      fillBackupTypes(subList1, provider.data.backupTypes);
-      list.appendChild(item);
-    });
-  } catch (error) {
-    setLabel('error', error.message);
-  }
-};
-
-const getInput = () => {
-  const result = document.getElementById('clientName').value;
-  if (!result) alert('to search, enter a host name first');
-  return result;
-};
-const clientStatus = () => getInput() && readClientStatus(getInput());
-const clientHistory = () => getInput() && readClientHistory(getInput());
-const clientConfiguration = () =>
-  getInput() && readClientConfiguration(getInput());
-
-const fillClients = (el, clients) =>
-  clients.map((client) => {
-    const entry = createListItem(formatClient(client.name, client.os));
-    entry.appendChild(
-      createButton('Status', () => readClientStatus(client.name))
+get.backupType = (
+  name,
+  type,
+  frequency,
+  startTime,
+  backupRetention,
+  copyRetention,
+  lastJob
+) => {
+  let row;
+  const nameCell = get.cell(name);
+  if (type) {
+    nameCell.classList.add('status-green');
+    const brCell = get.cell(backupRetention || 'N/A');
+    const crCell = get.cell(copyRetention || 'N/A');
+    backupRetention || brCell.classList.add('status-red');
+    copyRetention || crCell.classList.add('status-yellow');
+    const lj = lastJob
+      ? get.jobId(lastJob.jobId) +
+        get(monthly.lastJob.status) +
+        `<span class="ts">@${monthly.lastJob.started}</span>`
+      : 'N/A';
+    const ljCell = get.cell(lj);
+    lastJob || ljCell.classList.add('status-red');
+    row = get.row(
+      nameCell,
+      get.cell(type),
+      get.cell(frequency),
+      get.cell(startTime),
+      brCell,
+      crCell,
+      ljCell
     );
-    entry.appendChild(
-      createButton('History', () => readClientHistory(client.name))
-    );
-    entry.appendChild(
-      createButton('Configuration', () => readClientConfiguration(client.name))
-    );
-    el.appendChild(entry);
-  });
-
-const fillJobs = (el, jobs) =>
-  jobs.map((job) =>
-    el.appendChild(
-      createListItem(
-        `${formatJobId(job.jobId, job.parentJob)}
-        ${formatJobStatus(job.status)}
-        <span>${job.jobType} ${job.subType} ${job.state}</span>
-        @<span class="ts">${job.started} (${job.elapsed})</span>
-        ${formatClient(job.policy, job.policyType)} 
-        / ${formatClient(job.schedule, job.scheduleType)}`
+  } else {
+    const cell = get.cell('N/A');
+    cell.classList.add('status-red');
+    cell.setAttribute('colSpan', '6');
+    row = get.row(nameCell, cell);
+    row.classList.add('status-yellow');
+  }
+  return row;
+};
+get.backupTypes = ({ daily, monthly, yearly }) =>
+  get.table(
+    get.tableHead(
+      get.row(
+        ...[
+          'Retention type',
+          'Backup type',
+          'Frequency',
+          'Start time',
+          'Backup retention',
+          'Copy retention',
+          'Last job',
+        ].map((title) => get.headCell(title))
+      )
+    ),
+    get.tableBody(
+      ...(daily || [{}]).map(
+        ({
+          type,
+          frequency,
+          startTime,
+          backupRetention,
+          copyRetention,
+          lastJob,
+        }) =>
+          get.backupType(
+            'Daily',
+            type,
+            frequency,
+            startTime,
+            backupRetention,
+            copyRetention,
+            lastJob
+          )
+      ),
+      ...(monthly || [{}]).map(
+        ({ copyWeekend, frequency, backupRetention, copyRetention, lastJob }) =>
+          get.backupType(
+            'Monthly',
+            frequency ? 'Full' : '',
+            frequency,
+            copyWeekend,
+            backupRetention,
+            copyRetention,
+            lastJob
+          )
+      ),
+      ...(yearly || [{}]).map(
+        ({ copyWeekend, frequency, backupRetention, copyRetention, lastJob }) =>
+          get.backupType(
+            'Yearly',
+            frequency ? 'Full' : '',
+            frequency,
+            copyWeekend,
+            backupRetention,
+            copyRetention,
+            lastJob
+          )
       )
     )
   );
-
-const fillBackupTypes = (el, backupTypes) =>
-  backupTypes.forEach((backupType) => {
-    console.log(backupType);
-    el.innerHTML += `<span class="client">${backupType.name}</span>`;
-    const entry = createList();
-    entry.appendChild(
-      createListItem(
-        `includes<span class="client">${
-          backupType.includes === '' ? 'null' : backupType.includes
-        }</span>`
+get.clients = ({ name, timeStamp, data: { clients } }) =>
+  get.listItem(
+    PROVIDER_ICON,
+    get.name(name, get.timeStamp(timeStamp)),
+    get.list(...fillClients(clients))
+  );
+get.clientConfig = ({
+  name,
+  timeStamp,
+  data: {
+    settings: { product, versionName },
+    backupTypes,
+  },
+}) => {
+  const el = get.listItem(
+    CLIENT_ICON,
+    get.name(name, get.timeStamp(timeStamp))
+  );
+  el.appendChild(
+    get.list(
+      get.listItem(VERSION_ICON, get.name(product, versionName)),
+      get.listItem(
+        TYPE_ICON,
+        get.name('Backup types', backupTypes.length),
+        get.list(...fillBackupTypes(backupTypes))
       )
-    );
-
-    if (backupType.daily === null) {
-      entry.appendChild(
-        createListItem(`<span class="status-red">No Daily</span>`)
-      );
-    } else {
-      entry.appendChild(
-        createListItem(`<span class="status-green">Daily </span>`)
-      );
-      const entry1 = createList();
-      backupType.daily.map((daily) => {
-        entry1.appendChild(
-          createListItem(
-            `Model:<span class="id">${daily.model} (${daily.type})</span> 
-            Freq:<span class="ts">${daily.frequency}</span> 
-            StartTime:<span class="ts">${daily.startTime}</span> 
-            Window:<span class="ts">${daily.timeWindow}</span> 
-            Backup retention:<span class="${
-              daily.backupRetention ? 'client' : 'status-red'
-            }">${daily.backupRetention}</span> 
-            Copy retention:<span class="${
-              daily.copyRetention ? 'detail' : 'status-yellow'
-            }">${daily.copyRetention}</span> 
-            Last job:${
-              daily.lastJob
-                ? formatJobId(daily.lastJob.jobId) +
-                  formatJobStatus(daily.lastJob.status) +
-                  `<span class="ts">@${daily.lastJob.started}`
-                : '<span class="status-red">null</span>'
-            }`
-          )
-        );
-      });
-      entry.appendChild(entry1);
-    }
-    el.appendChild(entry);
-
-    if (backupType.monthly === null) {
-      entry.appendChild(
-        createListItem(`<span class="status-yellow">No Monthly</span>`)
-      );
-    } else {
-      entry.appendChild(
-        createListItem(`<span class="status-green">Monthly </span>`)
-      );
-      const entry1 = createList();
-      backupType.monthly.map((monthly) => {
-        entry1.appendChild(
-          createListItem(
-            `Copy weekend:<span class="id">${monthly.copyWeekend} (${
-              monthly.calendar
-            })</span> 
-               Freq:<span class="ts">${monthly.frequency}</span> 
-               Backup retention:<span class="${
-                 monthly.backupRetention ? 'client' : 'status-red'
-               }">${monthly.backupRetention}</span> 
-              Copy retention:<span class="${
-                monthly.copyRetention ? 'detail' : 'status-yellow'
-              }">${monthly.copyRetention}</span> 
-                 Last job:${
-                   monthly.lastJob
-                     ? formatJobId(monthly.lastJob.jobId) +
-                       formatJobStatus(monthly.lastJob.status) +
-                       `<span class="ts">@${monthly.lastJob.started}`
-                     : '<span class="status-red">null</span>'
-                 }`
-          )
-        );
-      });
-      entry.appendChild(entry1);
-    }
-    el.appendChild(entry);
-
-    if (backupType.yearly === null) {
-      entry.appendChild(
-        createListItem(`<span class="status-yellow">No Yearly</span>`)
-      );
-    } else {
-      entry.appendChild(
-        createListItem(`<span class="status-green">Yearly </span>`)
-      );
-      const entry1 = createList();
-      backupType.yearly.map((yearly) => {
-        entry1.appendChild(
-          createListItem(
-            `Copy weekend:<span class="id">${yearly.copyWeekend} (${
-              yearly.calendar
-            })</span> 
-              Freq:<span class="ts">${yearly.frequency}</span> 
-              Backup retention:<span class="${
-                yearly.backupRetention ? 'client' : 'status-red'
-              }">${yearly.backupRetention}</span> 
-              Copy retention:<span class="${
-                yearly.copyRetention ? 'detail' : 'status-yellow'
-              }">${yearly.copyRetention}</span> 
-                Last job:${
-                  yearly.lastJob
-                    ? formatJobId(yearly.lastJob.jobId) +
-                      formatJobStatus(yearly.lastJob.status) +
-                      `<span class="ts">@${yearly.lastJob.started}`
-                    : '<span class="status-red">null</span>'
-                }`
-          )
-        );
-      });
-      entry.appendChild(entry1);
-    }
-    el.appendChild(entry);
-  });
-
-const fillPolicies = (el, policies) =>
-  policies.map((policy) =>
-    el.appendChild(
-      createListItem(formatPolicy(policy.name, policy.policyType, policy.state))
     )
   );
+  return el;
+};
+get.clientStatus = ({
+  name,
+  timeStamp,
+  data: {
+    settings: { product, versionName },
+    activeJobs,
+    policies,
+  },
+}) => {
+  const el = get.listItem(
+    CLIENT_ICON,
+    get.name(name, get.timeStamp(timeStamp))
+  );
+  el.appendChild(
+    get.list(
+      get.listItem(VERSION_ICON, get.name(product, versionName)),
+      get.listItem(
+        JOBS_ICON,
+        get.name('Active jobs', activeJobs.length),
+        get.list(...fillJobs(activeJobs))
+      ),
+      get.listItem(
+        POLICIES_ICON,
+        get.name('Policies', policies.length),
+        get.list(...fillPolicies(policies))
+      )
+    )
+  );
+  return el;
+};
+get.clientHistory = ({ name, timeStamp, data: { jobs } }) => {
+  const el = get.listItem(
+    CLIENT_ICON,
+    get.name(name, get.timeStamp(timeStamp))
+  );
+  el.appendChild(
+    get.list(
+      get.listItem(
+        HISTORY_ICON,
+        get.name('History', jobs.length),
+        get.list(...fillJobs(jobs))
+      )
+    )
+  );
+  return el;
+};
+get.provider = ({ name, status, clients }) => {
+  const detail = status === 'OK' ? `${clients} clients` : status;
+  const el = get.listItem(PROVIDER_ICON, get.name(name, detail));
+  el.classList.add('clickable');
+  el.addEventListener('click', () => read.providerClients(name));
+  return el;
+};
+
+const read = {
+  client: (source) => () => source(get.value('name')),
+  status: async (name) => {
+    try {
+      if (!name) throw new Error('Client name is required');
+      const { timeStamp, providers } = await fetchJSON(
+        `${URL}/clients/${name}`
+      );
+      set.text('client', get.time(timeStamp));
+      set.value('name', name);
+      set.list('clientList', ...providers.map(get.clientStatus));
+    } catch (error) {
+      console.log(error);
+      set.text('error', error.message);
+    }
+  },
+  history: async (name) => {
+    try {
+      if (!name) throw new Error('Client name is required');
+      const { timeStamp, providers } = await fetchJSON(
+        `${URL}/clients/${name}/history`
+      );
+      set.text('client', get.time(timeStamp));
+      set.value('name', name);
+      set.list('clientList', ...providers.map(get.clientHistory));
+    } catch (error) {
+      console.log(error);
+      set.text('error', error.message);
+    }
+  },
+  config: async (name) => {
+    try {
+      if (!name) throw new Error('Client name is required');
+      const { timeStamp, providers } = await fetchJSON(
+        `${URL}/clients/${name}/configuration`
+      );
+      set.text('client', get.time(timeStamp));
+      set.value('name', name);
+      set.list('clientList', ...providers.map(get.clientConfig));
+    } catch (error) {
+      console.log(error);
+      set.text('error', error.message);
+    }
+  },
+  clients: async () => {
+    let count = 0;
+    try {
+      const { timeStamp, providers } = await fetchJSON(`${URL}/clients`);
+      set.text('clients', get.time(timeStamp));
+      set.list('clientsList', ...providers.map(get.clients));
+      count = providers.reduce(
+        (count, { data: { clients } }) => count + clients.length,
+        0
+      );
+    } catch (error) {
+      console.log(error);
+      set.text('error', error.message);
+    }
+    set.value('filter', '');
+    set.text('filtered', count);
+  },
+  providers: async () => {
+    try {
+      const { timeStamp, providers } = await fetchJSON(`${URL}/providers`);
+      set.text('providers', get.time(timeStamp));
+      set.list('providersList', ...providers.map(get.provider));
+    } catch (error) {
+      console.log(error);
+      set.text('error', error.message);
+    }
+  },
+  providerClients: async (name) => {
+    let count = 0;
+    try {
+      if (!name) throw new Error('Provider name is required');
+      const { timeStamp, data } = await fetchJSON(`${URL}/providers/${name}`);
+      set.text('clients', get.time(timeStamp));
+      set.list('clientsList', get.clients({ name, timeStamp, data }));
+      count = data.clients.length;
+    } catch (error) {
+      console.log(error);
+      set.text('error', error.message);
+    }
+    set.value('filter', '');
+    set.text('filtered', count);
+  },
+};
+
+const fillClients = (clients) =>
+  clients.map(({ name, os }) => {
+    const el = get.listItem(get.client(name, os));
+    el.classList.add('clickable');
+    el.addEventListener('click', () => read.status(name));
+    return el;
+  });
+
+const fillJobs = (jobs) =>
+  jobs.map((job) => {
+    const el = get.listItem(
+      get.jobId(job.jobId, job.parentJob),
+      get.jobStatus(job.status)
+    );
+    return el;
+    // `${formatJobId(job.jobId, job.parentJob)}
+    // ${formatJobStatus(job.status)}
+    // <span>${job.jobType} ${job.subType} ${job.state}</span>
+    // @<span class="ts">${job.started} (${job.elapsed})</span>
+    // ${formatClient(job.policy, job.policyType)}
+    // / ${formatClient(job.schedule, job.scheduleType)}`
+  });
+
+const fillPolicies = (policies) =>
+  policies.map(({ name, policyType, state }) => {
+    const el = get.listItem(get.policy(name, policyType, state));
+    return el;
+  });
+
+const fillBackupTypes = (backupTypes) =>
+  backupTypes.map(({ name, includes, daily, montlhy, yearly }) => {
+    const el = get.listItem(
+      get.name(name, includes),
+      get.backupTypes({ daily, montlhy, yearly })
+    );
+    return el;
+  });
 
 const filterClients = () => {
-  const filter = document.getElementById('clientsFilter').value.toUpperCase();
-  const clients = document
-    .getElementById('clientsList')
-    .getElementsByTagName('li');
-  let filtered = 0;
-  for (let client of clients)
-    if (client.innerText.toUpperCase().indexOf(filter) >= 1) {
+  const filter = get.value('filter').toUpperCase();
+  const clients = get.el('clientsList').getElementsByTagName('li');
+  let count = 0;
+  for (let client of clients) {
+    if (!client.classList.contains('clickable')) continue;
+    if (!filter || get.text(client).toUpperCase().indexOf(filter) >= 1) {
       client.style.display = 'list-item';
-      filtered++;
+      count++;
     } else {
       client.style.display = 'none';
     }
-  document.getElementById('clientsFiltered').innerHTML = `${filtered} clients`;
+  }
+  set.text('filtered', count);
 };
 
-document
-  .getElementById('allProviders')
-  .addEventListener('click', readProviders);
-
-document.getElementById('allClients').addEventListener('click', readClients);
-document.getElementById('clientStatus').addEventListener('click', clientStatus);
-document
-  .getElementById('clientHistory')
-  .addEventListener('click', clientHistory);
-document
-  .getElementById('clientConfiguration')
-  .addEventListener('click', clientConfiguration);
-
-document
-  .getElementById('clientsFilter')
-  .addEventListener('keyup', filterClients);
+get.el('allProviders').addEventListener('click', read.providers);
+get.el('allClients').addEventListener('click', read.clients);
+get.el('status').addEventListener('click', read.client(read.status));
+get.el('history').addEventListener('click', read.client(read.history));
+get.el('config').addEventListener('click', read.client(read.config));
+get.el('filter').addEventListener('keyup', filterClients);

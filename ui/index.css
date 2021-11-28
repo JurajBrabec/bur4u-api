@@ -1,15 +1,123 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
   font-size: 13px;
+  background-color: rgb(207, 207, 207);
+  display: grid;
+  grid-template-areas:
+    'header header'
+    'nav article'
+    'footer footer';
+  grid-template-rows: 85px 1fr;
+  grid-template-columns: 33% 1fr;
+  grid-row-gap: 10px;
+  grid-column-gap: 10px;
+  height: 100vh;
+  margin: 0;
+}
+header,
+footer,
+article,
+nav,
+div {
+  background-color: white;
+  padding: 1.2em;
+}
+#header {
+  grid-area: header;
+}
+#footer {
+  grid-area: footer;
+}
+#main {
+  grid-area: article;
+}
+#nav {
+  grid-area: nav;
+}
+/* Stack the layout on small devices/viewports. */
+@media all and (max-width: 575px) {
+  body {
+    grid-template-areas:
+      'header'
+      'article'
+      'nav'
+      'footer';
+    grid-template-rows: 85px 1fr 1fr 70px;
+    grid-template-columns: 1fr;
+  }
+}
+button {
+  padding: 5px;
+  width: 95px;
 }
 input {
-  width: 250px;
   padding: 5px;
+  width: 300px;
+}
+ul {
+  padding: 0px 20px;
+}
+li {
+  margin: 5px 0px;
+}
+
+li table {
+  margin: 15px;
+  padding: 5px;
+  border: 1px solid black;
+  width: 100%;
+}
+pre {
+  margin-top: 30px;
+  font-size: smaller;
+  color: #666;
+}
+span {
+  margin: 0px 5px;
+}
+i {
+  display: inline-block;
+  width: 20px;
+  text-align: left;
+  font-style: normal;
+  font-weight: bold;
+}
+.footer {
+  font-size: 1.2em;
+  color: rgb(192, 110, 110);
+}
+.error,
+.loading {
+  display: none;
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20%;
+  outline: 1px solid black;
+  padding: 20px;
+  text-align: center;
 }
 .error {
-  background-color: darksalmon;
-  color: red;
-  padding: 15px;
+  color: #ba3939;
+  background: #ffe0e0;
+  outline-color: #a33a3a;
+}
+.loading {
+  color: #39ba4a;
+  background: #ecffe0;
+  outline-color: #3ea33a;
+}
+.container {
+  padding: 0px;
+}
+.clickable {
+  cursor: pointer;
+}
+.clickable:hover {
+  background-color: #f0f0f0;
 }
 .id {
   color: darkred;
@@ -29,21 +137,10 @@ input {
 .ts {
   color: forestgreen;
 }
-.client {
+.name {
   color: royalblue;
 }
 .detail {
   color: navy;
   font-style: italic;
-}
-li {
-  margin: 2px 0px;
-}
-
-li button {
-  margin: 0px 0px 0px 5px;
-}
-
-span {
-  margin: 0px 5px;
 }

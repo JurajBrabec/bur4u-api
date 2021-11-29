@@ -66,6 +66,7 @@ const getNewEl = (name, children = []) => {
 
 const get = {
   el: getEl,
+  new: getNewEl,
   list: (...children) => getNewEl('ul', children),
   listItem: (...children) => getNewEl('li', children),
   span: (...children) => getNewEl('span', children),
@@ -80,10 +81,8 @@ const get = {
 };
 
 get.client = (name, os) => get.listItem(CLIENT_ICON, get.name(name, os));
-get.jobId = (jobId, parentJob) => {
-  const el = get.span(
-    parentJob !== jobId && parentJob ? `${parentJob}-${jobId}` : `${jobId}`
-  );
+get.jobId = (jobId) => {
+  const el = get.span(jobId);
   el.classList.add('id');
   return el;
 };
@@ -112,6 +111,7 @@ get.policy = (name, type, state) => {
   return get.span(el1, get.name(name, type));
 };
 get.time = (timeStamp) => TS_ICON + ' ' + new Date(timeStamp);
+get.shortTime = (timeStamp) => new Date(timeStamp).toLocaleString('de-DE');
 get.timeStamp = (timeStamp = Date.now()) => {
   const el = get.span(get.time(timeStamp));
   el.classList.add('ts');
@@ -134,13 +134,28 @@ get.backupType = (
     const crCell = get.cell(copyRetention || 'N/A');
     backupRetention || brCell.classList.add('status-red');
     copyRetention || crCell.classList.add('status-yellow');
-    const lj = lastJob
-      ? get.jobId(lastJob.jobId) +
-        get(monthly.lastJob.status) +
-        `<span class="ts">@${monthly.lastJob.started}</span>`
-      : 'N/A';
-    const ljCell = get.cell(lj);
-    lastJob || ljCell.classList.add('status-red');
+    let ljCell;
+    if (lastJob) {
+      ljCell = get.cell(
+        get.span(
+          lastJob.jobId,
+          get.jobStatus(lastJob.status),
+          get.shortTime(lastJob.started)
+        )
+      );
+      ljCell.classList.add(
+        `status-${
+          lastJob.status === 0
+            ? 'green'
+            : lastJob.status === 1
+            ? 'yellow'
+            : 'red'
+        }`
+      );
+    } else {
+      ljCell = get.cell('N/A');
+      ljCell.classList.add('status-red');
+    }
     row = get.row(
       nameCell,
       get.cell(type),
@@ -269,7 +284,7 @@ get.clientStatus = ({
       get.listItem(
         JOBS_ICON,
         get.name('Active jobs', activeJobs.length),
-        get.list(...fillJobs(activeJobs))
+        get.jobs(activeJobs)
       ),
       get.listItem(
         POLICIES_ICON,
@@ -290,12 +305,45 @@ get.clientHistory = ({ name, timeStamp, data: { jobs } }) => {
       get.listItem(
         HISTORY_ICON,
         get.name('History', jobs.length),
-        get.list(...fillJobs(jobs))
+        get.jobs(jobs)
       )
     )
   );
   return el;
 };
+get.jobs = (jobs) =>
+  !jobs.length
+    ? ''
+    : get.table(
+        get.tableHead(
+          get.row(
+            ...[
+              'Job ID',
+              'Parent Job',
+              'Status',
+              'Type',
+              'Started',
+              'Elapsed',
+              'Policy',
+              'Schedule',
+            ].map((title) => get.headCell(title))
+          )
+        ),
+        get.tableBody(
+          ...jobs.map((job) =>
+            get.row(
+              get.cell(get.jobId(job.jobId)),
+              get.cell(job.parentJob),
+              get.cell(get.jobStatus(job.status)),
+              get.cell(get.name(job.jobType, job.subType)),
+              get.cell(get.shortTime(job.started)),
+              get.cell(job.elapsed),
+              get.cell(get.name(job.policy, job.policyType)),
+              get.cell(get.name(job.schedule, job.scheduleType))
+            )
+          )
+        )
+      );
 get.provider = ({ name, status, clients }) => {
   const detail = status === 'OK' ? `${clients} clients` : status;
   const el = get.listItem(PROVIDER_ICON, get.name(name, detail));
@@ -398,21 +446,6 @@ const fillClients = (clients) =>
     el.classList.add('clickable');
     el.addEventListener('click', () => read.status(name));
     return el;
-  });
-
-const fillJobs = (jobs) =>
-  jobs.map((job) => {
-    const el = get.listItem(
-      get.jobId(job.jobId, job.parentJob),
-      get.jobStatus(job.status)
-    );
-    return el;
-    // `${formatJobId(job.jobId, job.parentJob)}
-    // ${formatJobStatus(job.status)}
-    // <span>${job.jobType} ${job.subType} ${job.state}</span>
-    // @<span class="ts">${job.started} (${job.elapsed})</span>
-    // ${formatClient(job.policy, job.policyType)}
-    // / ${formatClient(job.schedule, job.scheduleType)}`
   });
 
 const fillPolicies = (policies) =>

@@ -51,6 +51,7 @@ try {
   switch (moduleName) {
     case MODULE_API:
       const { NBU } = require('./modules.js');
+      const { cacheConfig, cacheInterval } = require('./services/api.js');
       const jwt = require('./services/jwtAPI.js');
       routes = require('./routes/api-v1.js');
       const { nbuBinPath, domain, user, password } =
@@ -60,29 +61,30 @@ try {
         .then((nbu) => {
           jwt.setIssuer(nbu.masterServer);
           console.log(`Started NBU integration with ${nbu.masterServer}.`);
+          cacheConfig().then(() => setInterval(cacheConfig, cacheInterval));
         })
         .catch((error) => {
-          throw new Error(`Error ${error.message} starting NBU integration.`);
+          throw new Error(`Error "${error.message}" starting NBU integration.`);
         });
       break;
     case MODULE_PROXY:
       const tokenService = require('./services/tokenServiceAPI.js');
-      const Providers = require('./services/providers.js');
+      const Providers = require('./services/proxy.js');
       routes = require('./routes/proxy-v1.js');
       const { providers, queryInterval, tsaEnv } =
         configurator.compile(proxyConfig);
       if (tsaEnv) tokenService.setEnvironment(tsaEnv);
-      Providers.read(API_ROOT, providers)
-        .then((providers) => {
-          setInterval(
-            () => Providers.read(API_ROOT, providers),
-            queryInterval * 1000
-          );
-          console.log(`Imported ${providers.length} providers.`);
-        })
-        .catch((error) => {
-          throw new Error(`Error ${error.message} importing providers.`);
-        });
+      const readProviders = () =>
+        Providers.read(API_ROOT, providers)
+          .then((providers) =>
+            console.log(`Imported ${providers.length} providers.`)
+          )
+          .catch((error) => {
+            throw new Error(`Error "${error.message}" importing providers.`);
+          });
+      readProviders().then(() => {
+        setInterval(readProviders, queryInterval * 1000);
+      });
       break;
     default:
       throw new Error(`Wrong parameter --module '${moduleName}'.`);
@@ -100,6 +102,5 @@ try {
     console.log(`${moduleName} module ready (https://localhost:${port})`);
   server.create({ app, port, callBack });
 } catch (error) {
-  const line = error.message || error;
-  console.error(`Error: ${line}`);
+  console.error(`Error: ${error.message}`);
 }

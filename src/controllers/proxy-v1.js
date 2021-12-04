@@ -1,5 +1,5 @@
 const make = require('../models/proxy-responses-v1.js');
-const Providers = require('../services/providers.js');
+const Providers = require('../services/proxy.js');
 const tokenService = require('../services/tokenServiceAPI.js');
 
 const version = '1.0.0';

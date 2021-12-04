@@ -202,7 +202,7 @@ describe('PROXY endpoints tests', () => {
   });
 
   describe('With TSA token', () => {
-    jest.mock('../src/services/providers.js');
+    jest.mock('../src/services/proxy.js');
     let token;
 
     beforeAll(() =>

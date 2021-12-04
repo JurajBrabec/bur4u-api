@@ -1,35 +1,19 @@
 const URL = '/api/v1';
 let token;
 
-const TS_ICON = String.fromCodePoint(9201);
-const PROVIDER_ICON = String.fromCodePoint(128737);
-const CLIENT_ICON = String.fromCodePoint(128187);
-const STATUS_ICON = String.fromCodePoint(128270);
-const HISTORY_ICON = String.fromCodePoint(128200);
-const CONFIG_ICON = String.fromCodePoint(9881);
-const VERSION_ICON = String.fromCodePoint(128192);
-const TYPE_ICON = String.fromCodePoint(128197);
-const POLICIES_ICON = String.fromCodePoint(127359);
-const JOBS_ICON = String.fromCodePoint(128450);
-
-const fetchJSON = async (url) => {
-  let response;
-  set.text('error', '');
-  set.text('loading', 'Loading...');
-  if (!token) {
-    response = await fetch(`${URL}/token?local`);
-    if (response.ok) token = await response.text();
-  }
-  response = await fetch(url, { headers: { 'x-auth-token': token } });
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`${response.status} ${response.statusText} - ${error}`);
-  }
-  set.text('loading', '');
-  const data = await response.json();
-  console.log({ url, data });
-  return data;
-};
+const TS_ICON = '🗓';
+const PROVIDER_ICON = '🖥';
+const CLIENT_ICON = '💻';
+const OFFLINE_ICON = '❌';
+const ENABLED_ICON = '✅';
+const DISABLED_ICON = '🚫';
+const STATUS_ICON = '💡';
+const HISTORY_ICON = '📊';
+const CONFIG_ICON = '⚙';
+const VERSION_ICON = '💾';
+const TYPE_ICON = '🗃';
+const POLICIES_ICON = '🗂';
+const JOBS_ICON = '📜';
 
 const set = {
   list: (id, ...children) => {
@@ -55,7 +39,16 @@ const getEl = (name) =>
   name instanceof Element ? name : document.getElementById(name);
 
 const getNewEl = (name, children = []) => {
+  const params =
+    children.length &&
+    typeof children[0] === 'object' &&
+    !(children[0] instanceof Element)
+      ? children.shift()
+      : {};
   const el = document.createElement(name);
+  el.className = params.className;
+  el.colSpan = params.colSpan;
+  if (params.onClick) el.addEventListener('click', params.onClick);
   children.forEach((child) =>
     child instanceof Element
       ? el.appendChild(child)
@@ -80,43 +73,75 @@ const get = {
   value: (id) => getEl(id).value,
 };
 
-get.client = (name, os) => get.listItem(CLIENT_ICON, get.name(name, os));
-get.jobId = (jobId) => {
-  const el = get.span(jobId);
-  el.classList.add('id');
-  return el;
-};
-get.jobStatus = (status) => {
-  const el = get.span(status);
-  el.classList.add(
-    `status-${status === 0 ? 'green' : status === 1 ? 'yellow' : 'red'}`
-  );
-  return el;
-};
-get.name = (name, detail) => {
-  const el = get.span(name);
-  el.classList.add('name');
-  if (detail || detail === 0) {
-    const el2 = get.span(detail);
-    el2.classList.add('detail');
-    const el1 = get.span(' (', el2, ')');
-    el1.classList.add('name');
-    el.appendChild(el1);
+get.JSON = async (url) => {
+  let data;
+  try {
+    set.text('error', '');
+    set.text('loading', 'Loading...');
+    if (!token) {
+      const response = await fetch(`${URL}/token?local`);
+      if (response.ok) token = await response.text();
+    }
+    const response = await fetch(url, { headers: { 'x-auth-token': token } });
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`${response.status} ${response.statusText} - ${error}`);
+    }
+    data = await response.json();
+    console.log({ url, data });
+  } catch (error) {
+    set.text('error', error.message);
+  } finally {
+    set.text('loading', '');
   }
+  return data;
+};
+
+get.client = (name, os, settings) =>
+  get.listItem(
+    settings.product ? CLIENT_ICON : OFFLINE_ICON,
+    get.name(name, os)
+  );
+get.jobId = (jobId) => get.span({ className: 'id' }, jobId);
+get.jobStatus = (status) =>
+  get.span(
+    {
+      className: `status-${
+        status === 0 ? 'green' : status === 1 ? 'yellow' : 'red'
+      }`,
+    },
+    status
+  );
+get.name = (name, detail) => {
+  const el = get.span({ className: 'name' }, name);
+  if (detail || detail === 0)
+    el.appendChild(
+      get.span(
+        { className: 'name' },
+        ' (',
+        get.span({ className: 'detail' }, detail),
+        ')'
+      )
+    );
   return el;
 };
-get.policy = (name, type, state) => {
-  const el1 = get.span(state);
-  el1.classList.add(`status-${state === 'Enabled' ? 'green' : 'red'}`);
-  return get.span(el1, get.name(name, type));
-};
-get.time = (timeStamp) => TS_ICON + ' ' + new Date(timeStamp);
+get.policy = (name, type, state) =>
+  get.span(
+    get.span(state === 'Enabled' ? ENABLED_ICON : DISABLED_ICON),
+    get.name(name, type)
+  );
+get.time = (timeStamp) => new Date(timeStamp);
 get.shortTime = (timeStamp) => new Date(timeStamp).toLocaleString('de-DE');
-get.timeStamp = (timeStamp = Date.now()) => {
-  const el = get.span(get.time(timeStamp));
-  el.classList.add('ts');
-  return el;
-};
+get.timeStamp = (timeStamp = Date.now()) =>
+  get.span({ className: 'ts' }, TS_ICON, ' ', get.time(timeStamp));
+get.version = ({ product, clientMaster, versionName }) =>
+  product
+    ? get.listItem(VERSION_ICON, get.name(product, versionName))
+    : get.listItem(
+        OFFLINE_ICON,
+        get.span({ className: 'status-red' }, clientMaster)
+      );
+
 get.backupType = (
   name,
   type,
@@ -125,55 +150,43 @@ get.backupType = (
   backupRetention,
   copyRetention,
   lastJob
-) => {
-  let row;
-  const nameCell = get.cell(name);
-  if (type) {
-    nameCell.classList.add('status-green');
-    const brCell = get.cell(backupRetention || 'N/A');
-    const crCell = get.cell(copyRetention || 'N/A');
-    backupRetention || brCell.classList.add('status-red');
-    copyRetention || crCell.classList.add('status-yellow');
-    let ljCell;
-    if (lastJob) {
-      ljCell = get.cell(
-        get.span(
-          lastJob.jobId,
-          get.jobStatus(lastJob.status),
-          get.shortTime(lastJob.started)
-        )
+) =>
+  type
+    ? get.row(
+        get.cell({ classList: 'status-green' }, name),
+        get.cell(type),
+        get.cell(frequency),
+        get.cell(startTime),
+        backupRetention
+          ? get.cell(backupRetention)
+          : get.cell({ className: 'status-red' }, 'N/A'),
+        copyRetention
+          ? get.cell(copyRetention)
+          : get.cell({ className: 'status-yellow' }, 'N/A'),
+        lastJob
+          ? get.cell(
+              {
+                className: `status-${
+                  lastJob.status === 0
+                    ? 'green'
+                    : lastJob.status === 1
+                    ? 'yellow'
+                    : 'red'
+                }`,
+              },
+              get.span(
+                lastJob.jobId,
+                get.jobStatus(lastJob.status),
+                get.shortTime(lastJob.started)
+              )
+            )
+          : get.cell({ className: 'status-red' }, 'N/A')
+      )
+    : get.row(
+        { className: 'status-yellow' },
+        get.cell(name),
+        get.cell({ className: 'status-red', colSpan: 6 }, 'N/A')
       );
-      ljCell.classList.add(
-        `status-${
-          lastJob.status === 0
-            ? 'green'
-            : lastJob.status === 1
-            ? 'yellow'
-            : 'red'
-        }`
-      );
-    } else {
-      ljCell = get.cell('N/A');
-      ljCell.classList.add('status-red');
-    }
-    row = get.row(
-      nameCell,
-      get.cell(type),
-      get.cell(frequency),
-      get.cell(startTime),
-      brCell,
-      crCell,
-      ljCell
-    );
-  } else {
-    const cell = get.cell('N/A');
-    cell.classList.add('status-red');
-    cell.setAttribute('colSpan', '6');
-    row = get.row(nameCell, cell);
-    row.classList.add('status-yellow');
-  }
-  return row;
-};
 get.backupTypes = ({ daily, monthly, yearly }) =>
   get.table(
     get.tableHead(
@@ -241,21 +254,12 @@ get.clients = ({ name, timeStamp, data: { clients } }) =>
     get.name(name, get.timeStamp(timeStamp)),
     get.list(...fillClients(clients))
   );
-get.clientConfig = ({
-  name,
-  timeStamp,
-  data: {
-    settings: { product, versionName },
-    backupTypes,
-  },
-}) => {
-  const el = get.listItem(
-    CLIENT_ICON,
-    get.name(name, get.timeStamp(timeStamp))
-  );
-  el.appendChild(
+get.clientConfig = ({ name, timeStamp, data: { settings, backupTypes } }) =>
+  get.listItem(
+    settings.product ? CLIENT_ICON : OFFLINE_ICON,
+    get.name(name, get.timeStamp(timeStamp)),
     get.list(
-      get.listItem(VERSION_ICON, get.name(product, versionName)),
+      get.version(settings),
       get.listItem(
         TYPE_ICON,
         get.name('Backup types', backupTypes.length),
@@ -263,105 +267,82 @@ get.clientConfig = ({
       )
     )
   );
-  return el;
-};
 get.clientStatus = ({
   name,
   timeStamp,
-  data: {
-    settings: { product, versionName },
-    activeJobs,
-    policies,
-  },
-}) => {
-  const el = get.listItem(
-    CLIENT_ICON,
-    get.name(name, get.timeStamp(timeStamp))
-  );
-  el.appendChild(
-    get.list(
-      get.listItem(VERSION_ICON, get.name(product, versionName)),
-      get.listItem(
-        JOBS_ICON,
-        get.name('Active jobs', activeJobs.length),
-        get.jobs(activeJobs)
-      ),
-      get.listItem(
-        POLICIES_ICON,
-        get.name('Policies', policies.length),
-        get.list(...fillPolicies(policies))
-      )
+  data: { settings, activeJobs, policies },
+}) =>
+  get.listItem(
+    settings.product ? CLIENT_ICON : OFFLINE_ICON,
+    get.name(name, get.timeStamp(timeStamp)),
+    get.version(settings),
+    get.listItem(
+      JOBS_ICON,
+      get.name('Active jobs', activeJobs.length),
+      fillJobs(activeJobs)
+    ),
+    get.listItem(
+      POLICIES_ICON,
+      get.name('Policies', policies.length),
+      get.list(...fillPolicies(policies))
     )
   );
-  return el;
-};
-get.clientHistory = ({ name, timeStamp, data: { jobs } }) => {
-  const el = get.listItem(
+get.clientHistory = ({ name, timeStamp, data: { jobs } }) =>
+  get.listItem(
     CLIENT_ICON,
-    get.name(name, get.timeStamp(timeStamp))
-  );
-  el.appendChild(
+    get.name(name, get.timeStamp(timeStamp)),
     get.list(
       get.listItem(
         HISTORY_ICON,
         get.name('History', jobs.length),
-        get.jobs(jobs)
+        fillJobs(jobs)
       )
     )
   );
-  return el;
-};
+get.job = (job) =>
+  get.row(
+    get.cell(get.jobId(job.jobId)),
+    get.cell(job.parentJob),
+    get.cell(get.jobStatus(job.status)),
+    get.cell(get.name(job.jobType, job.subType)),
+    get.cell(get.shortTime(job.started)),
+    get.cell(job.elapsed),
+    get.cell(get.name(job.policy, job.policyType)),
+    get.cell(get.name(job.schedule, job.scheduleType))
+  );
 get.jobs = (jobs) =>
-  !jobs.length
-    ? ''
-    : get.table(
-        get.tableHead(
-          get.row(
-            ...[
-              'Job ID',
-              'Parent Job',
-              'Status',
-              'Type',
-              'Started',
-              'Elapsed',
-              'Policy',
-              'Schedule',
-            ].map((title) => get.headCell(title))
-          )
-        ),
-        get.tableBody(
-          ...jobs.map((job) =>
-            get.row(
-              get.cell(get.jobId(job.jobId)),
-              get.cell(job.parentJob),
-              get.cell(get.jobStatus(job.status)),
-              get.cell(get.name(job.jobType, job.subType)),
-              get.cell(get.shortTime(job.started)),
-              get.cell(job.elapsed),
-              get.cell(get.name(job.policy, job.policyType)),
-              get.cell(get.name(job.schedule, job.scheduleType))
-            )
-          )
-        )
-      );
-get.provider = ({ name, status, clients }) => {
-  const detail = status === 'OK' ? `${clients} clients` : status;
-  const el = get.listItem(PROVIDER_ICON, get.name(name, detail));
-  el.classList.add('clickable');
-  el.addEventListener('click', () => read.providerClients(name));
-  return el;
-};
+  get.table(
+    get.tableHead(
+      get.row(
+        ...[
+          'Job ID',
+          'Parent Job',
+          'Status',
+          'Type',
+          'Started',
+          'Elapsed',
+          'Policy',
+          'Schedule',
+        ].map((title) => get.headCell(title))
+      )
+    ),
+    get.tableBody(...jobs.map(get.job))
+  );
+get.provider = ({ name, status, clients }) =>
+  get.listItem(
+    { className: 'clickable', onClick: () => read.providerClients(name) },
+    PROVIDER_ICON,
+    get.name(name, status === 'OK' ? `${clients} clients` : status)
+  );
 
 const read = {
   client: (source) => () => source(get.value('name')),
   status: async (name) => {
     try {
       if (!name) throw new Error('Client name is required');
-      const { timeStamp, providers } = await fetchJSON(
-        `${URL}/clients/${name}`
-      );
-      set.text('client', get.time(timeStamp));
+      const { timeStamp, providers } = await get.JSON(`${URL}/clients/${name}`);
       set.value('name', name);
+      set.text('client', get.time(timeStamp));
       set.list('clientList', ...providers.map(get.clientStatus));
     } catch (error) {
       console.log(error);
@@ -371,11 +352,11 @@ const read = {
   history: async (name) => {
     try {
       if (!name) throw new Error('Client name is required');
-      const { timeStamp, providers } = await fetchJSON(
+      const { timeStamp, providers } = await get.JSON(
         `${URL}/clients/${name}/history`
       );
-      set.text('client', get.time(timeStamp));
       set.value('name', name);
+      set.text('client', get.time(timeStamp));
       set.list('clientList', ...providers.map(get.clientHistory));
     } catch (error) {
       console.log(error);
@@ -385,11 +366,11 @@ const read = {
   config: async (name) => {
     try {
       if (!name) throw new Error('Client name is required');
-      const { timeStamp, providers } = await fetchJSON(
+      const { timeStamp, providers } = await get.JSON(
         `${URL}/clients/${name}/configuration`
       );
-      set.text('client', get.time(timeStamp));
       set.value('name', name);
+      set.text('client', get.time(timeStamp));
       set.list('clientList', ...providers.map(get.clientConfig));
     } catch (error) {
       console.log(error);
@@ -399,7 +380,7 @@ const read = {
   clients: async () => {
     let count = 0;
     try {
-      const { timeStamp, providers } = await fetchJSON(`${URL}/clients`);
+      const { timeStamp, providers } = await get.JSON(`${URL}/clients`);
       set.text('clients', get.time(timeStamp));
       set.list('clientsList', ...providers.map(get.clients));
       count = providers.reduce(
@@ -415,7 +396,7 @@ const read = {
   },
   providers: async () => {
     try {
-      const { timeStamp, providers } = await fetchJSON(`${URL}/providers`);
+      const { timeStamp, providers } = await get.JSON(`${URL}/providers`);
       set.text('providers', get.time(timeStamp));
       set.list('providersList', ...providers.map(get.provider));
     } catch (error) {
@@ -427,7 +408,7 @@ const read = {
     let count = 0;
     try {
       if (!name) throw new Error('Provider name is required');
-      const { timeStamp, data } = await fetchJSON(`${URL}/providers/${name}`);
+      const { timeStamp, data } = await get.JSON(`${URL}/providers/${name}`);
       set.text('clients', get.time(timeStamp));
       set.list('clientsList', get.clients({ name, timeStamp, data }));
       count = data.clients.length;
@@ -441,28 +422,27 @@ const read = {
 };
 
 const fillClients = (clients) =>
-  clients.map(({ name, os }) => {
-    const el = get.listItem(get.client(name, os));
-    el.classList.add('clickable');
-    el.addEventListener('click', () => read.status(name));
-    return el;
-  });
+  clients.map(({ name, os, settings }) =>
+    get.listItem(
+      { className: 'clickable', onClick: () => read.status(name) },
+      get.client(name, os, settings)
+    )
+  );
 
 const fillPolicies = (policies) =>
-  policies.map(({ name, policyType, state }) => {
-    const el = get.listItem(get.policy(name, policyType, state));
-    return el;
-  });
+  policies.map(({ name, policyType, state }) =>
+    get.listItem(get.policy(name, policyType, state))
+  );
+
+const fillJobs = (jobs) => (jobs.length ? get.jobs(jobs) : '');
 
 const fillBackupTypes = (backupTypes) =>
-  backupTypes.map(({ name, includes, daily, montlhy, yearly }) => {
-    const el = get.listItem(
+  backupTypes.map(({ name, includes, daily, montlhy, yearly }) =>
+    get.listItem(
       get.name(name, includes),
       get.backupTypes({ daily, montlhy, yearly })
-    );
-    return el;
-  });
-
+    )
+  );
 const filterClients = () => {
   const filter = get.value('filter').toUpperCase();
   const clients = get.el('clientsList').getElementsByTagName('li');

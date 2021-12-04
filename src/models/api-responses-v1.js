@@ -7,9 +7,9 @@ class ClientsResponse extends Response {
   }
 }
 class ClientDetailResponse extends Response {
-  constructor(config, activeJobs, policies) {
+  constructor(settings, activeJobs, policies) {
     super();
-    this.settings = config;
+    this.settings = settings;
     this.activeJobs = activeJobs;
     this.policies = policies;
   }
@@ -35,6 +35,7 @@ class ClientResponse {
     this.name = client.name;
     this.architecture = client.architecture;
     this.os = client.os;
+    this.settings = client.settings;
   }
 }
 

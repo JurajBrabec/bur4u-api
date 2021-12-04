@@ -154,7 +154,7 @@ const processPolicies = (policies) => {
     ),
   };
 };
-module.exports.settings = (config) => config[0];
+module.exports.settings = (config) => (config ? config[0] : {});
 
 module.exports.backupTypes = (hostName, allPolicies, allSlps, allJobs) => {
   policies = allPolicies

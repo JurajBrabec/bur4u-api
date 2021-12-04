@@ -1,4 +1,5 @@
 const { NBU } = require('../modules.js');
+const cached = require('../../lib/cached.js');
 const make = require('../models/api-responses-v1.js');
 const jwt = require('../services/jwtAPI.js');
 const { settings, backupTypes } = require('./api-configuration-v1.js');
@@ -25,15 +26,15 @@ module.exports.client = async (req, res) => {
   try {
     const { hostName } = req.params;
     const nbu = await NBU();
-    const [config, jobs, policies] = await Promise.all([
-      nbu.config({ client: hostName }),
+    const [jobs, policies] = await Promise.all([
       nbu.jobs({ daysBack: 1 }),
       nbu.policies(),
     ]);
+    const config = cached.get(`config-${hostName}`);
 
     res.json(
       make.ClientDetail(
-        config[0],
+        settings(config),
         jobs
           .filter((job) => job.state === 1 && job.client === hostName)
           .sort((a, b) => a.jobId > b.jobId)
@@ -58,8 +59,12 @@ module.exports.clients = async (req, res) => {
   try {
     const nbu = await NBU();
     const clients = await nbu.clients();
+    const clientsWithConfig = clients.map((client) => {
+      client.settings = settings(cached.get(`config-${client.name}`));
+      return client;
+    });
 
-    res.json(make.Clients(clients.map(make.Client)));
+    res.json(make.Clients(clientsWithConfig.map(make.Client)));
   } catch (error) {
     res.status(500).json(make.Error(error));
   }
@@ -70,7 +75,7 @@ module.exports.history = async (req, res) => {
     const { hostName } = req.params;
     const nbu = await NBU();
     const jobs = await nbu.jobs();
-
+    console.log(jobs);
     res.json(
       make.ClientHistory(
         jobs
@@ -88,13 +93,12 @@ module.exports.configuration = async (req, res) => {
   try {
     const { hostName } = req.params;
     const nbu = await NBU();
-    const [config, policies, slps, jobs] = await Promise.all([
-      nbu.config({ client: hostName }),
+    const [policies, slps, jobs] = await Promise.all([
       nbu.policies(),
       nbu.slps(),
       nbu.jobs(),
     ]);
-
+    const config = cached.get(`config-${hostName}`);
     res.json(
       make.ClientConfiguration(
         settings(config),

@@ -64,7 +64,7 @@ try {
           cacheConfig().then(() => setInterval(cacheConfig, cacheInterval));
         })
         .catch((error) => {
-          throw new Error(`Error "${error.message}" starting NBU integration.`);
+          throw new Error(`starting NBU integration: ${error.message}`);
         });
       break;
     case MODULE_PROXY:
@@ -80,14 +80,14 @@ try {
             console.log(`Imported ${providers.length} providers.`)
           )
           .catch((error) => {
-            throw new Error(`Error "${error.message}" importing providers.`);
+            throw new Error(`importing providers: ${error.message}`);
           });
       readProviders().then(() => {
         setInterval(readProviders, queryInterval * 1000);
       });
       break;
     default:
-      throw new Error(`Wrong parameter --module '${moduleName}'.`);
+      throw new Error(`wrong parameter --module '${moduleName}'.`);
   }
   const app = express({
     moduleName,

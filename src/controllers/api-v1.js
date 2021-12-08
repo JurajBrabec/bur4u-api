@@ -75,7 +75,7 @@ module.exports.history = async (req, res) => {
     const { hostName } = req.params;
     const nbu = await NBU();
     const jobs = await nbu.jobs();
-    console.log(jobs);
+
     res.json(
       make.ClientHistory(
         jobs
@@ -106,7 +106,6 @@ module.exports.configuration = async (req, res) => {
       )
     );
   } catch (error) {
-    console.log(error);
     res.status(500).json(make.Error(error));
   }
 };

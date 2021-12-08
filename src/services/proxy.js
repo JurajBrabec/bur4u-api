@@ -31,7 +31,7 @@ module.exports.read = async (root, providers) => {
       return make.Entry({ ...provider, ...{ timeStamp, status, data } });
     });
   } catch (error) {
-    console.error(`Import providers error: ${error.message}`);
+    console.error(`Error importing providers: ${error.message}`);
   }
   return _providers;
 };
@@ -51,7 +51,7 @@ module.exports.query = async (provider, url) => {
       status = await response.text();
     }
   } catch (error) {
-    status = error.code || error.message;
+    status = error.code || error.message || error;
   }
   return make.Provider({ ...provider, ...{ data, status } });
 };

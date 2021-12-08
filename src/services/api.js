@@ -41,7 +41,9 @@ module.exports.cacheConfig = () =>
                       console.log(`${buf} remaining...`);
                     return config;
                   })
-                  .catch(console.error);
+                  .catch((error) =>
+                    console.error(`Error caching clients: ${error.message}`)
+                  );
               })
           )
         ).then(() =>
@@ -49,7 +51,7 @@ module.exports.cacheConfig = () =>
         )
       )
       .catch((error) => {
-        throw new Error(`Error "${error.message}" caching clients.`);
+        throw new Error(`caching clients: ${error.message}`);
       })
   );
 

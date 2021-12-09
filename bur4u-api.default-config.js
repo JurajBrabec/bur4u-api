@@ -9,6 +9,8 @@ module.exports = {
   domain: null,
   user: null,
   password: null,
+  cacheInterval: 60 * 60 * 12,
+  cacheConcurrency: 4,
   //PROXY entries
   //module: 'proxy',
   providers: [

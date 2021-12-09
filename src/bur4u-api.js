@@ -3,12 +3,15 @@ const express = require('./services/express.js');
 const server = require('./services/server.js');
 
 const API_ROOT = '/api/v1';
-const CACHE_INTERVAL = '15 seconds';
+const CACHE_TIME = '15 seconds';
 const LOG_ROT = '1d';
 const MODULE_API = 'api';
 const MODULE_PROXY = 'proxy';
 const PORT = 28748;
 const CONFIG_FILE = 'bur4u-api.config.js';
+const CACHE_INTERVAL = 60 * 60 * 12;
+const CACHE_CONCURRENCY = 8;
+const QUERY_INTERVAL = 60;
 
 try {
   console.log('BUR 4U API v1.0');
@@ -22,7 +25,7 @@ try {
         do: (value) => value.toLowerCase(),
       },
     })
-    .string({ cacheTime: { arg: 'cache', default: CACHE_INTERVAL } })
+    .string({ cacheTime: { arg: 'cache', default: CACHE_TIME } })
     .path({ logPath: { arg: 'log' } })
     .string({ logRotation: { arg: 'logrot', default: LOG_ROT } })
     .num({ port: { default: PORT } })
@@ -34,12 +37,16 @@ try {
     .string('domain')
     .string('user')
     .string('password')
+    .num({ cacheInterval: { arg: 'interval', default: CACHE_INTERVAL } })
+    .num({
+      cacheConcurrency: { arg: 'concurrency', default: CACHE_CONCURRENCY },
+    })
     .save();
 
   const proxyConfig = configurator.expect
     .new()
     .array({ providers: { arg: 'list', default: [] } })
-    .num({ queryInterval: { arg: 'interval', default: 60 } })
+    .num({ queryInterval: { arg: 'interval', default: QUERY_INTERVAL } })
     .string('tsaEnv')
     .bool('ui')
     .save();
@@ -50,41 +57,14 @@ try {
   let routes;
   switch (moduleName) {
     case MODULE_API:
-      const { NBU } = require('./modules.js');
-      const { cacheConfig, cacheInterval } = require('./services/api.js');
-      const jwt = require('./services/jwtAPI.js');
       routes = require('./routes/api-v1.js');
-      const { nbuBinPath, domain, user, password } =
-        configurator.compile(apiConfig);
-      const login = user ? { domain, user, password } : undefined;
-      NBU({ bin: nbuBinPath, login })
-        .then((nbu) => {
-          jwt.setIssuer(nbu.masterServer);
-          console.log(`Started NBU integration with ${nbu.masterServer}.`);
-          cacheConfig().then(() => setInterval(cacheConfig, cacheInterval));
-        })
-        .catch((error) => {
-          throw new Error(`starting NBU integration: ${error.message}`);
-        });
+      const api = require('./services/api.js');
+      api.init(configurator.compile(apiConfig));
       break;
     case MODULE_PROXY:
-      const tokenService = require('./services/tokenServiceAPI.js');
-      const Providers = require('./services/proxy.js');
       routes = require('./routes/proxy-v1.js');
-      const { providers, queryInterval, tsaEnv } =
-        configurator.compile(proxyConfig);
-      if (tsaEnv) tokenService.setEnvironment(tsaEnv);
-      const readProviders = () =>
-        Providers.read(API_ROOT, providers)
-          .then((providers) =>
-            console.log(`Imported ${providers.length} providers.`)
-          )
-          .catch((error) => {
-            throw new Error(`importing providers: ${error.message}`);
-          });
-      readProviders().then(() => {
-        setInterval(readProviders, queryInterval * 1000);
-      });
+      const proxy = require('./services/proxy.js');
+      proxy.init({ root: API_ROOT, ...configurator.compile(proxyConfig) });
       break;
     default:
       throw new Error(`wrong parameter --module '${moduleName}'.`);

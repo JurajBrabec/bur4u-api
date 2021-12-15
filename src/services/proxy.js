@@ -1,6 +1,7 @@
 const server = require('./server.js');
 const make = require('../models/proxy-responses-v1.js');
-const tokenService = require('../services/tokenServiceAPI.js');
+const tokenService = require('./tokenServiceAPI.js');
+const logger = require('./logger.js');
 
 let _providers;
 if (!_providers) _providers = [];
@@ -32,7 +33,7 @@ module.exports.read = async (root, providers) => {
       return make.Entry({ ...provider, ...{ timeStamp, status, data } });
     });
   } catch (error) {
-    console.error(`Error importing providers: ${error.message}`);
+    logger.stderr(`Error importing providers: ${error.message}`);
   }
   return _providers;
 };
@@ -62,7 +63,7 @@ module.exports.init = async ({ root, providers, queryInterval, tsaEnv }) => {
   const readProviders = async () => {
     try {
       await exports.read(root, providers);
-      console.log(`Imported ${providers.length} providers.`);
+      logger.stdout(`Imported ${providers.length} providers.`);
     } catch (error) {
       throw new Error(`importing providers: ${error.message}`);
     }

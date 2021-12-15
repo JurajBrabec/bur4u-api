@@ -1,6 +1,7 @@
 const { configurator } = require('./modules.js');
 const express = require('./services/express.js');
 const server = require('./services/server.js');
+const logger = require('./services/logger.js');
 
 const API_ROOT = '/api/v1';
 const CACHE_TIME = '15 seconds';
@@ -55,20 +56,28 @@ try {
     configurator.compile(mainConfig);
 
   let routes;
+  let init;
   switch (moduleName) {
     case MODULE_API:
       routes = require('./routes/api-v1.js');
       const api = require('./services/api.js');
-      api.init(configurator.compile(apiConfig));
+      init = api.init(configurator.compile(apiConfig));
       break;
     case MODULE_PROXY:
       routes = require('./routes/proxy-v1.js');
       const proxy = require('./services/proxy.js');
-      proxy.init({ root: API_ROOT, ...configurator.compile(proxyConfig) });
+      init = proxy.init({
+        root: API_ROOT,
+        ...configurator.compile(proxyConfig),
+      });
       break;
     default:
       throw new Error(`wrong parameter --module '${moduleName}'.`);
   }
+  init.catch((error) => {
+    logger.stderr(`Initialization error ${error.message}`);
+    process.exit(1);
+  });
   const app = express({
     moduleName,
     cacheTime,
@@ -79,8 +88,11 @@ try {
     ui,
   });
   const callBack = () =>
-    console.log(`${moduleName} module ready (https://localhost:${port})`);
+    console.log(
+      `${moduleName.toUpperCase()} module ready (https://localhost:${port})`
+    );
   server.create({ app, port, callBack });
 } catch (error) {
-  console.error(`Error: ${error.message}`);
+  logger.stderr(`Error ${error.message}`);
+  process.exit(1);
 }

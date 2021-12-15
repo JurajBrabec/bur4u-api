@@ -1,6 +1,7 @@
 const { NBU } = require('../modules.js');
-const jwt = require('../services/jwtAPI.js');
+const jwt = require('./jwtAPI.js');
 const cached = require('../../lib/cached.js');
+const logger = require('./logger.js');
 
 const paralelPromises = (promises, length) => {
   const next = () => {
@@ -26,6 +27,7 @@ module.exports.init = async ({
 
     const cacheConfigs = async () => {
       let buf = 0;
+      logger.stdout(`Caching of clients started`);
       try {
         const clients = await nbu.clients();
         const promises = clients.map(
@@ -38,22 +40,22 @@ module.exports.init = async ({
                 config = await nbu.config({ client: client.name });
                 const ended = new Date().getTime();
                 const duration = ((ended - started) / 1000).toFixed(1);
-                console.log(
+                logger.stdout(
                   `${index + 1}/${clients.length} ${client.name} ${
                     config[0].versionName ? 'OK' : config[0].clientMaster
                   } (${duration}s)`
                 );
                 if (buf > 1 && buf < cacheConcurrency)
-                  console.log(`${buf - 1} remaining...`);
+                  logger.stdout(`${buf - 1} remaining...`);
               } catch (error) {
-                console.error(`Error caching ${client.name}: ${error.message}`);
+                logger.stderr(`Error caching ${client.name}: ${error.message}`);
               }
               buf--;
               return config;
             })
         );
         await paralelPromises(promises, cacheConcurrency);
-        console.log(`Successfuly cached ${clients.length} clients.`);
+        logger.stdout(`Successfuly cached ${clients.length} clients.`);
       } catch (error) {
         throw new Error(`caching clients: ${error.message}`);
       }

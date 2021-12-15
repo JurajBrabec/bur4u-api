@@ -345,7 +345,7 @@ const read = {
       set.text('client', get.time(timeStamp));
       set.list('clientList', ...providers.map(get.clientStatus));
     } catch (error) {
-      console.log(error);
+      console.error(error);
       set.text('error', error.message);
     }
   },
@@ -359,7 +359,7 @@ const read = {
       set.text('client', get.time(timeStamp));
       set.list('clientList', ...providers.map(get.clientHistory));
     } catch (error) {
-      console.log(error);
+      console.error(error);
       set.text('error', error.message);
     }
   },
@@ -373,7 +373,7 @@ const read = {
       set.text('client', get.time(timeStamp));
       set.list('clientList', ...providers.map(get.clientConfig));
     } catch (error) {
-      console.log(error);
+      console.error(error);
       set.text('error', error.message);
     }
   },
@@ -388,7 +388,7 @@ const read = {
         0
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       set.text('error', error.message);
     }
     set.value('filter', '');
@@ -400,7 +400,7 @@ const read = {
       set.text('providers', get.time(timeStamp));
       set.list('providersList', ...providers.map(get.provider));
     } catch (error) {
-      console.log(error);
+      console.error(error);
       set.text('error', error.message);
     }
   },
@@ -413,7 +413,7 @@ const read = {
       set.list('clientsList', get.clients({ name, timeStamp, data }));
       count = data.clients.length;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       set.text('error', error.message);
     }
     set.value('filter', '');

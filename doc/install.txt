@@ -46,6 +46,7 @@ pm2 delete bu4ur-api
 
 mkdir \bur4u-api \bur4u-api\log
 copy node.exe bur4u-api.js bur4u-api.config.js cert\* winsw\* \bur4u-api
+#edit wisw.xml
 \bur4u-api\winsw\winsw install
 net start bur4u-api
 

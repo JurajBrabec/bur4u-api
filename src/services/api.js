@@ -1,6 +1,8 @@
-const { cached, NBU } = require('../modules.js');
+const { Cached, NBU } = require('../modules.js');
 const jwt = require('./jwtAPI.js');
 const logger = require('./logger.js');
+
+const cached = Cached.depot('config');
 
 const paralelPromises = (promises, length) => {
   const next = () => {
@@ -31,7 +33,7 @@ module.exports.init = async ({
         const clients = await nbu.clients();
         const promises = clients.map(
           (client, index) => async () =>
-            cached.set(`config-${client.name}`, async () => {
+            cached.set(client.name, async () => {
               let config;
               try {
                 const started = new Date().getTime();

@@ -1,9 +1,11 @@
-const { cached, NBU } = require('../modules.js');
+const { Cached, NBU } = require('../modules.js');
 const make = require('../models/api-responses-v1.js');
 const jwt = require('../services/jwtAPI.js');
 const { settings, backupTypes } = require('./api-configuration-v1.js');
 
 const version = '1.0.0';
+
+const cached = Cached.depot('config');
 
 module.exports.version = (req, res) => res.status(200).json({ version });
 
@@ -29,7 +31,7 @@ module.exports.client = async (req, res) => {
       nbu.jobs({ daysBack: 1 }),
       nbu.policies(),
     ]);
-    const config = cached.get(`config-${hostName}`);
+    const config = cached.get(hostName);
 
     res.json(
       make.ClientDetail(
@@ -59,7 +61,7 @@ module.exports.clients = async (req, res) => {
     const nbu = await NBU();
     const clients = await nbu.clients();
     const clientsWithConfig = clients.map((client) => {
-      client.settings = settings(cached.get(`config-${client.name}`));
+      client.settings = settings(cached.get(client.name));
       return client;
     });
 
@@ -97,7 +99,7 @@ module.exports.configuration = async (req, res) => {
       nbu.slps(),
       nbu.jobs({ daysBack: 7 }),
     ]);
-    const config = cached.get(`config-${hostName}`);
+    const config = cached.get(hostName);
     res.json(
       make.ClientConfiguration(
         settings(config),

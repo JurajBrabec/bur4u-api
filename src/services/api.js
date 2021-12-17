@@ -1,6 +1,5 @@
-const { NBU } = require('../modules.js');
+const { cached, NBU } = require('../modules.js');
 const jwt = require('./jwtAPI.js');
-const cached = require('../../lib/cached.js');
 const logger = require('./logger.js');
 
 const paralelPromises = (promises, length) => {
@@ -19,15 +18,15 @@ module.exports.init = async ({
   cacheInterval,
   cacheConcurrency,
 }) => {
-  const login = user ? { domain, user, password } : undefined;
+  const credentials = user ? { domain, user, password } : undefined;
   try {
-    const nbu = await NBU({ bin: nbuBinPath, login });
+    const nbu = await NBU({ bin: nbuBinPath, credentials });
     jwt.setIssuer(nbu.masterServer);
     console.log(`Started NBU integration with ${nbu.masterServer}.`);
 
     const cacheConfigs = async () => {
       let buf = 0;
-      logger.stdout(`Caching of clients started`);
+      logger.stdout(`Caching of clients started...`);
       try {
         const clients = await nbu.clients();
         const promises = clients.map(
@@ -40,13 +39,15 @@ module.exports.init = async ({
                 config = await nbu.config({ client: client.name });
                 const ended = new Date().getTime();
                 const duration = ((ended - started) / 1000).toFixed(1);
-                logger.stdout(
-                  `${index + 1}/${clients.length} ${client.name} ${
-                    config[0].versionName ? 'OK' : config[0].clientMaster
-                  } (${duration}s)`
-                );
-                if (buf > 1 && buf < cacheConcurrency)
-                  logger.stdout(`${buf - 1} remaining...`);
+                if (duration > 10) {
+                  logger.stdout(
+                    `${index + 1}/${clients.length} ${client.name} ${
+                      config[0].versionName ? 'OK' : config[0].clientMaster
+                    } (${duration}s)`
+                  );
+                  if (buf > 1 && buf < cacheConcurrency)
+                    logger.stdout(`${buf - 1} remaining...`);
+                }
               } catch (error) {
                 logger.stderr(`Error caching ${client.name}: ${error.message}`);
               }

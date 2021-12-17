@@ -6,9 +6,13 @@
 #enable proxy
 export http_proxy=http://138.35.86.205:8088
 export https_proxy=http://138.35.86.205:8088
+export http_proxy=http://proxy-emea.svcs.entsvcs.com:8088
+export https_proxy=http://proxy-emea.svcs.entsvcs.com:8088
 
-#install node 
-curl -sL https://rpm.nodesource.com/setup_16.x | bash -
+#install node
+sudo su
+export https_proxy=http://proxy-emea.svcs.entsvcs.com:8088
+curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
 yum install -y nodejs
 node -v
 npm -v
@@ -19,7 +23,11 @@ pm2 -v
 
 #install bur4u-api
 mkdir /opt/bur4u-api /opt/bur4u-api/log
-cp bur4u-api.js bur4u-api.config.js /opt/bur4u-api
+cp -r cert ui bur4u-api.js /opt/bur4u-api
+cp bur4u-api.default.config.js /opt/bur4u-api/bur4u-api.config.js
+vi /opt/bur4u-api/bur4u-api.config.js
+
+#start bur4u-api and configure pm2 startup
 pm2 start /opt/bur4u-api/bur4u-api.js --cwd /opt/bur4u-api --time -- --module proxy
 pm2 save
 pm2 startup
@@ -36,8 +44,6 @@ pm2 delete bu4ur-api
 ## https://github.com/winsw/winsw
 
 
-
-
 mkdir \bur4u-api \bur4u-api\log
 copy node.exe bur4u-api.js bur4u-api.config.js cert\* winsw\* \bur4u-api
 \bur4u-api\winsw\winsw install
@@ -49,3 +55,5 @@ curl -k https://masterServer:28748/api/v1/token
 
 ## Certificate creation
 https://certificatetools.com/
+Use existing certificate as template
+Change Commmon names, Country, Locality, Subject alternative names

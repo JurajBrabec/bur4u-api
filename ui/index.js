@@ -46,9 +46,13 @@ const getNewEl = (name, children = []) => {
       ? children.shift()
       : {};
   const el = document.createElement(name);
-  el.className = params.className;
-  el.colSpan = params.colSpan;
-  if (params.onClick) el.addEventListener('click', params.onClick);
+  if (params) {
+    el.className = params.className;
+    el.colSpan = params.colSpan;
+    if (params.onClick) el.addEventListener('click', params.onClick);
+  } else {
+    console.log(children);
+  }
   children.forEach((child) =>
     child instanceof Element
       ? el.appendChild(child)
@@ -437,10 +441,10 @@ const fillPolicies = (policies) =>
 const fillJobs = (jobs) => (jobs.length ? get.jobs(jobs) : '');
 
 const fillBackupTypes = (backupTypes) =>
-  backupTypes.map(({ name, includes, daily, montlhy, yearly }) =>
+  backupTypes.map(({ name, includes, daily, monthly, yearly }) =>
     get.listItem(
       get.name(name, includes),
-      get.backupTypes({ daily, montlhy, yearly })
+      get.backupTypes({ daily, monthly, yearly })
     )
   );
 const filterClients = () => {

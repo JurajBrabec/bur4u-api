@@ -50,8 +50,6 @@ const getNewEl = (name, children = []) => {
     el.className = params.className;
     el.colSpan = params.colSpan;
     if (params.onClick) el.addEventListener('click', params.onClick);
-  } else {
-    console.log(children);
   }
   children.forEach((child) =>
     child instanceof Element

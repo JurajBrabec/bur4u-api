@@ -1,22 +1,5 @@
 const uniqueArray = (array) => Array.from(new Set(array)).join(',');
 
-const Days = new Map([
-  [1, 'Sunday'],
-  [2, 'Monday'],
-  [3, 'Tuesday'],
-  [4, 'Wednesday'],
-  [5, 'Thursday'],
-  [6, 'Friday'],
-  [7, 'Saturday'],
-]);
-const Weeks = new Map([
-  [1, 'first'],
-  [2, 'second'],
-  [3, 'third'],
-  [4, 'fourth'],
-  [5, 'last'],
-]);
-
 let policies;
 let slps;
 let jobs;
@@ -35,12 +18,6 @@ const getModel = (backupType) =>
 
 const getBackupWindow = (startTimes) =>
   startTimes.match(/^(Any|18|19|20)/) ? '18:00-06:00' : '21:00-09:00';
-
-const getWeekend = (calDayOfWeek) => {
-  if (!calDayOfWeek) return null;
-  const [day, week] = calDayOfWeek.split(',');
-  return `${Days.get(+day)} of ${Weeks.get(+week)} week`;
-};
 
 const getSLPRetention = (slps, name, useFor) =>
   slps.reduce(
@@ -65,7 +42,7 @@ const getLastJob = (jobs, policy, scheduleType) => {
   };
 };
 
-const processDailySchedule = (policy, schedule) => {
+const processDailySchedule = (policy, res, schedule) => {
   const { schedRes } = schedule;
   const { backupType, frequency, retentionLevel } = schedule._;
   const lastJob = getLastJob(jobs, policy, backupType);
@@ -89,41 +66,39 @@ const processDailySchedule = (policy, schedule) => {
     encryption: true,
     timeWindow: getBackupWindow(startTimes),
     startTime: startTimes,
-    backupRetention: schedRes
-      ? getSLPRetention(slps, schedRes, 'Backup')
-      : retentionLevel,
-    copyRetention: schedRes
-      ? getSLPRetention(slps, schedRes, 'Duplication')
-      : null,
+    backupRetention:
+      getSLPRetention(slps, schedRes || res, 'Backup') || retentionLevel,
+    copyRetention:
+      getSLPRetention(slps, schedRes || res, 'Duplication') || null,
     lastJob,
   };
 };
 
-const processMonthlySchedule = (policy, schedule) => {
-  const { calDayOfWeek, schedRes } = schedule;
-  const { backupType, frequency, retentionLevel } = schedule._;
+const processMonthlySchedule = (policy, res, schedule) => {
+  const { schedRes } = schedule;
+  const { backupType, frequency, retentionLevel, calDates, calDayOfWeek } =
+    schedule._;
   const lastJob = getLastJob(jobs, policy, backupType);
 
   return {
     frequency: frequency,
-    calendar: calDayOfWeek,
-    copyWeekend: getWeekend(calDayOfWeek),
-    backupRetention: schedRes
-      ? getSLPRetention(slps, schedRes, 'Backup')
-      : retentionLevel,
-    copyRetention: schedRes
-      ? getSLPRetention(slps, schedRes, 'Duplication')
-      : null,
+    calendar: schedule.calDayOfWeek,
+    copyWeekend: calDayOfWeek,
+    startTime: calDates,
+    backupRetention:
+      getSLPRetention(slps, schedRes || res, 'Backup') || retentionLevel,
+    copyRetention:
+      getSLPRetention(slps, schedRes || res, 'Duplication') || null,
     lastJob,
   };
 };
 
 const processSchedules = (policies, scheduleFilter, scheduleMap) => {
   let result = new Set();
-  policies.forEach(({ name, active, schedules }) =>
+  policies.forEach(({ name, active, res, schedules }) =>
     schedules
       .filter(scheduleFilter)
-      .map((schedule) => scheduleMap(name, schedule))
+      .map((schedule) => scheduleMap(name, res, schedule))
       .map((schedule) =>
         result.add({ state: active ? 'Disabled' : 'Enabled', ...schedule })
       )
@@ -166,7 +141,10 @@ module.exports.backupTypes = (hostName, allPolicies, allSlps, allJobs) => {
 
   const slpNames = new Set(
     policies.reduce((names, policy) => {
-      names.push(...policy.schedules.map((schedule) => schedule.schedRes));
+      names.push(
+        policy.res,
+        ...policy.schedules.map((schedule) => schedule.schedRes)
+      );
       return names;
     }, [])
   );

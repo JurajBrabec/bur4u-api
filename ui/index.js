@@ -237,12 +237,12 @@ get.backupTypes = ({ daily, monthly, yearly }) =>
           )
       ),
       ...(yearly || [{}]).map(
-        ({ copyWeekend, frequency, backupRetention, copyRetention, lastJob }) =>
+        ({ startTime, frequency, backupRetention, copyRetention, lastJob }) =>
           get.backupType(
             'Yearly',
             frequency ? 'Full' : '',
             frequency,
-            copyWeekend,
+            startTime,
             backupRetention,
             copyRetention,
             lastJob

@@ -2,9 +2,6 @@ const https = require('https');
 const { fetch } = require('../modules.js');
 const TokenService = require('./tokenService.js');
 
-const TEST_USER = 'ngp_bur_user';
-const TEST_PASSWORD = 'tadrur!9-iV_!55I2lFr';
-
 class TokenServiceAPI extends TokenService {
   static endPoints = new Map([
     ['FT1', 'pln-cd1-apigw-vip.ft1core.mcloud.entsvcs.net'],
@@ -13,26 +10,18 @@ class TokenServiceAPI extends TokenService {
     ['PROD', 'atcswa-cr-iapig.mcloud.entsvcs.com'],
   ]);
   static environments = new Set(TokenServiceAPI.endPoints.keys());
-
-  static AuthBody = {
-    auth: {
-      identity: {
-        methods: ['password'],
-        password: {
-          user: {
-            domain: {
-              name: 'VPC_Consumer',
-            },
-            name: TEST_USER,
-            password: TEST_PASSWORD,
-          },
-        },
-      },
-      scope: {
-        project: { name: 'VPC_BUR4U_API', domain: { name: 'VPC_Services' } },
-      },
-    },
-  };
+  static testUsers = new Map([
+    ['FT1', { name: 'ngp_bur_user', password: 'tadrur!9-iV_!55I2lFr' }],
+    [
+      'PROD',
+      { name: 'juraj.brabec@dxc.com', password: '5=F42*f*b0samew?tHi$' },
+    ],
+  ]);
+  static isAuthorized = (token) =>
+    token.roles.reduce(
+      (found, role) => found || role.name === 'bur4u_api_consumer',
+      false
+    );
   constructor({
     id,
     environment,
@@ -53,7 +42,28 @@ class TokenServiceAPI extends TokenService {
     });
     if (isAuthorized) this.isAuthorized = isAuthorized;
   }
-
+  AuthBody() {
+    const { name, password } = TokenServiceAPI.testUsers.get(this.environment);
+    return {
+      auth: {
+        identity: {
+          methods: ['password'],
+          password: {
+            user: {
+              domain: {
+                name: 'VPC_Consumer',
+              },
+              name,
+              password,
+            },
+          },
+        },
+        scope: {
+          project: { name: 'VPC_BUR4U_API', domain: { name: 'VPC_Services' } },
+        },
+      },
+    };
+  }
   setEnvironment(environment) {
     if (TokenServiceAPI.environments.has(environment)) {
       this.environment = environment;
@@ -74,7 +84,7 @@ class TokenServiceAPI extends TokenService {
       accept: 'application/json',
       'content-type': 'application/json',
     };
-    const body = JSON.stringify(TokenServiceAPI.AuthBody);
+    const body = JSON.stringify(this.AuthBody());
     const agent = this.agent;
     let id;
     try {
@@ -118,11 +128,7 @@ if (!tokenServiceAPI)
     environment: 'FT1',
     authHeader: 'x-auth-token',
     authSubjectHeader: 'x-subject-token',
-    isAuthorized: (token) =>
-      token.roles.reduce(
-        (found, role) => found || role.name === 'bur4u_api_consumer',
-        false
-      ),
+    isAuthorized: TokenServiceAPI.isAuthorized,
     useCache: true,
   });
 

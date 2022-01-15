@@ -17,6 +17,17 @@ module.exports.create = ({ app, port, callBack }) => {
 
 module.exports.get = (url, api_token) =>
   fetch(`https://${url}`, {
-    headers: { Authorization: `Bearer ${api_token}` },
     agent,
+    headers: { Authorization: `Bearer ${api_token}` },
+  });
+
+module.exports.post = (url, api_token, body) =>
+  fetch(`https://${url}`, {
+    agent,
+    body: JSON.stringify(body),
+    headers: {
+      Authorization: `Bearer ${api_token}`,
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
   });

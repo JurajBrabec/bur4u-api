@@ -1,4 +1,11 @@
-const { apicache, express, cors, morgan, rfs } = require('../modules.js');
+const {
+  apicache,
+  express,
+  fileUpload,
+  cors,
+  morgan,
+  rfs,
+} = require('../modules.js');
 
 module.exports = ({
   moduleName,
@@ -11,9 +18,10 @@ module.exports = ({
 }) => {
   const app = express();
   if (cacheTime) app.use(apicache(cacheTime));
+  app.use(fileUpload({ createParentPath: true }));
   app.use(cors());
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: '8mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '8mb' }));
   if (logPath) {
     app.use(
       morgan('combined', {

@@ -1,9 +1,8 @@
-const { Cached, NBU } = require('../modules.js');
+const { Cached, NBU, version } = require('../modules.js');
 const make = require('../models/api-responses-v1.js');
 const jwt = require('../services/jwtAPI.js');
 const { settings, backupTypes } = require('./api-configuration-v1.js');
-
-const version = '1.0.0';
+const update = require('../services/update.js');
 
 const cached = Cached.depot('config');
 
@@ -108,5 +107,18 @@ module.exports.configuration = async (req, res) => {
     );
   } catch (error) {
     res.status(500).json(make.Error(error));
+  }
+};
+
+module.exports.md5 = (req, res) => res.send(update.md5());
+
+module.exports.update = (req, res) => {
+  try {
+    if (!req.body) throw new Error('No files were uploaded.');
+    const file = new update.File(req.body);
+    update.upload('api', file);
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).json(make.Error(error));
   }
 };

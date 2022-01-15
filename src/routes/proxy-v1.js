@@ -19,5 +19,7 @@ router.get('/clients/:hostName', Providers.resolve, v1.proxy);
 router.get('/clients', Providers.resolve, v1.proxy);
 
 router.get('/version', v1.version);
+router.get('/md5', v1.md5);
+router.post('/update', v1.update);
 
 module.exports = router;

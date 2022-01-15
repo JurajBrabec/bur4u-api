@@ -14,5 +14,7 @@ router.get('/clients/:hostName', v1.client);
 router.get('/clients', v1.clients);
 
 router.get('/version', v1.version);
+router.get('/md5', v1.md5);
+router.post('/update', v1.update);
 
 module.exports = router;

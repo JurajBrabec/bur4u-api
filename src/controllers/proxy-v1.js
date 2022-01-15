@@ -1,8 +1,8 @@
+const { version } = require('../modules.js').version;
 const make = require('../models/proxy-responses-v1.js');
 const Providers = require('../services/proxy.js');
 const tokenService = require('../services/tokenServiceAPI.js');
-
-const version = '1.0.0';
+const update = require('../services/update.js');
 
 module.exports.version = (req, res) => res.status(200).json({ version });
 
@@ -62,3 +62,16 @@ module.exports.proxy = (req, res) =>
   )
     .then((providers) => res.json(make.Providers(providers)))
     .catch((error) => res.status(400).json(make.Error(error)));
+
+module.exports.md5 = (req, res) => res.send(update.md5());
+
+module.exports.update = (req, res) => {
+  try {
+    if (!req.files) throw new Error('No files were uploaded.');
+    const { file } = req.files;
+    update.upload('proxy', file);
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).json(make.Error(error));
+  }
+};

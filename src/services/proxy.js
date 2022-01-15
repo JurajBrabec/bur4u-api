@@ -2,6 +2,7 @@ const server = require('./server.js');
 const make = require('../models/proxy-responses-v1.js');
 const tokenService = require('./tokenServiceAPI.js');
 const logger = require('./logger.js');
+const update = require('./update.js');
 
 let _providers;
 if (!_providers) _providers = [];
@@ -25,6 +26,7 @@ module.exports.resolve = function (req, res, next) {
 
 module.exports.read = async (root, providers) => {
   try {
+    await exports.update(root, providers);
     const responses = await Promise.all(
       providers.map((provider) => exports.query(provider, `${root}/clients`))
     );
@@ -70,4 +72,22 @@ module.exports.init = async ({ root, providers, queryInterval, tsaEnv }) => {
   };
   await readProviders();
   setInterval(readProviders, queryInterval * 1000);
+};
+
+module.exports.update = async (root, providers) => {
+  try {
+    const md5 = update.md5();
+    providers.forEach(async (provider) => {
+      let response;
+      const { addr, api_token } = provider;
+      response = await server.get(`${addr}${root}/md5`, api_token);
+      const data = await response.text();
+      if (data === md5) return;
+      const body = await update.json();
+      response = await server.post(`${addr}${root}/update`, api_token, body);
+      console.log(await response.text());
+    });
+  } catch (error) {
+    logger.stderr(`Error updating providers: ${error.message}`);
+  }
 };

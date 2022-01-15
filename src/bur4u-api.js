@@ -1,7 +1,8 @@
-const { configurator } = require('./modules.js');
+const { configurator, version } = require('./modules.js');
 const express = require('./services/express.js');
 const server = require('./services/server.js');
 const logger = require('./services/logger.js');
+const update = require('./services/update.js');
 
 const API_ROOT = '/api/v1';
 const CACHE_TIME = '15 seconds';
@@ -15,7 +16,7 @@ const CACHE_CONCURRENCY = 8;
 const QUERY_INTERVAL = 60;
 
 try {
-  console.log('BUR 4U API v1.0');
+  console.log(`BUR 4U API v${version}`);
 
   const mainConfig = configurator.expect
     .jsFile({ configFile: { arg: 'config', default: CONFIG_FILE } })
@@ -78,6 +79,7 @@ try {
     logger.stderr(`Initialization error ${error.message}`);
     process.exit(1);
   });
+  update.watch(moduleName);
   const app = express({
     moduleName,
     cacheTime,

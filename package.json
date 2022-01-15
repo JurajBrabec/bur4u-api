@@ -24,6 +24,8 @@
     "apicache-plus": "^2.2.2",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-fileupload": "^1.2.1",
+    "md5-file": "^5.0.0",
     "morgan": "^1.10.0",
     "njwt": "^1.1.0",
     "node-fetch": "^2.6.1",

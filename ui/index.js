@@ -330,11 +330,14 @@ get.jobs = (jobs) =>
     ),
     get.tableBody(...jobs.map(get.job))
   );
-get.provider = ({ name, status, clients }) =>
+get.provider = ({ name, version, status, clients }) =>
   get.listItem(
     { className: 'clickable', onClick: () => read.providerClients(name) },
     PROVIDER_ICON,
-    get.name(name, status === 'OK' ? `${clients} clients` : status)
+    get.name(
+      `${name} (v${version})`,
+      status === 'OK' ? `${clients} clients` : status
+    )
   );
 
 const read = {
@@ -398,8 +401,10 @@ const read = {
   },
   providers: async () => {
     try {
-      const { timeStamp, providers } = await get.JSON(`${URL}/providers`);
-      set.text('providers', get.time(timeStamp));
+      const { timeStamp, version, providers } = await get.JSON(
+        `${URL}/providers`
+      );
+      set.text('providers', `v${version} @ ${get.time(timeStamp)}`);
       set.list('providersList', ...providers.map(get.provider));
     } catch (error) {
       console.error(error);

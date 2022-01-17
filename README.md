@@ -51,6 +51,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | :---------- | :-------- | :------------------------------------------------ |
 | `timeStamp` | `integer` | seconds since epoch                               |
 | `providers` | `array`   | one or more [ProviderList](#providerlist) objects |
+| `version`   | `string`  | version of the API                                |
 
 #### Get clients for specific provider
 
@@ -68,6 +69,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | :---------- | :-------- | :---------------------------------- |
 | `timeStamp` | `integer` | seconds since epoch                 |
 | `clients`   | `object`  | [ProviderClients](#providerclients) |
+| `version`   | `string`  | version of the API                  |
 
 #### Get list of all clients
 
@@ -81,6 +83,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | :---------- | :-------- | :------------------------------------------------------ |
 | `timeStamp` | `integer` | seconds since epoch                                     |
 | `providers` | `array`   | one or more [ProviderClients](#providerclients) objects |
+| `version`   | `string`  | version of the API                                      |
 
 #### Get active jobs and policies for a specific client
 
@@ -98,6 +101,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | :---------- | :-------- | :---------------------------------------------------- |
 | `timeStamp` | `integer` | seconds since epoch                                   |
 | `providers` | `array`   | one or more [ProviderStatus](#providerstatus) objects |
+| `version`   | `string`  | version of the API                                    |
 
 #### Get history of jobs for a specific client
 
@@ -115,6 +119,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | :---------- | :-------- | :------------------------------------------------------ |
 | `timeStamp` | `integer` | seconds since epoch                                     |
 | `providers` | `array`   | one or more [ProviderHistory](#providerhistory) objects |
+| `version`   | `string`  | version of the API                                      |
 
 #### Get configuration for a specific client
 
@@ -132,6 +137,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | :---------- | :-------- | :------------------------------------------------------------------ |
 | `timeStamp` | `integer` | seconds since epoch                                                 |
 | `providers` | `array`   | one or more [ProviderConfiguration](#providerconfiguration) objects |
+| `version`   | `string`  | version of the API                                                  |
 
 ### Objects
 
@@ -142,6 +148,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | `name`    | `string`  | name of the provider               |
 | `status`  | `string`  | status of the provider             |
 | `clients` | `integer` | number of clients for the provider |
+| `version` | `string`  | version of the API                 |
 
 ##### ProviderClients
 
@@ -151,6 +158,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | `name`      | `string`  | name of the provider   |
 | `status`    | `string`  | status of the provider |
 | `data`      | `object`  | [Clients](#clients)    |
+| `version`   | `string`  | version of the API     |
 
 ##### ProviderStatus
 
@@ -160,6 +168,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | `name`      | `string`  | name of the provider          |
 | `status`    | `string`  | status of the provider        |
 | `data`      | `object`  | [ClientStatus](#clientstatus) |
+| `version`   | `string`  | version of the API            |
 
 ##### ProviderHistory
 
@@ -169,6 +178,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | `name`      | `string`  | name of the provider            |
 | `status`    | `string`  | status of the provider          |
 | `data`      | `object`  | [ClientHistory](#clienthistory) |
+| `version`   | `string`  | version of the API              |
 
 ##### ProviderConfiguration
 
@@ -178,6 +188,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | `name`      | `string`  | name of the provider                        |
 | `status`    | `string`  | status of the provider                      |
 | `data`      | `object`  | [ClientConfiguration](#clientconfiguration) |
+| `version`   | `string`  | version of the API                          |
 
 ##### Clients
 
@@ -185,6 +196,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | :---------- | :-------- | :------------------------------------ |
 | `timeStamp` | `integer` | seconds since epoch                   |
 | `clients`   | `array`   | one or more [Client](#client) objects |
+| `version`   | `string`  | version of the API                    |
 
 ##### Client
 
@@ -202,6 +214,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | `settings`   | `object`  | [ClientSettings](#clientsettings) object |
 | `activeJobs` | `array`   | one or more [Job](#job) objects          |
 | `policies`   | `array`   | one or more [Policy](#policy) objects    |
+| `version`    | `string`  | version of the API                       |
 
 ##### ClientHistory
 
@@ -209,6 +222,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | :---------- | :-------- | :------------------------------ |
 | `timeStamp` | `integer` | seconds since epoch             |
 | `jobs`      | `array`   | one or more [Job](#job) objects |
+| `version`   | `string`  | version of the API              |
 
 ##### ClientConfiguration
 
@@ -217,6 +231,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | `timeStamp`   | `integer` | seconds since epoch                           |
 | `settings`    | `object`  | [ClientSettings](#clientsettings) object      |
 | `backupTypes` | `array`   | one or more [BackupType](#backuptype) objects |
+| `version`     | `string`  | version of the API                            |
 
 ##### Job
 

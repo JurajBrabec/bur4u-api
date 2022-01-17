@@ -32,7 +32,7 @@ module.exports.read = async (root, providers) => {
     );
     _providers = providers.map((provider, index) => {
       const { timeStamp, status, data } = responses[index];
-      const version = data.version;
+      const version = data?.version;
       return make.Entry({
         ...provider,
         ...{ timeStamp, status, version, data },
@@ -79,9 +79,9 @@ module.exports.init = async ({ root, providers, queryInterval, tsaEnv }) => {
 };
 
 module.exports.update = async (root, providers) => {
-  try {
-    const md5 = update.md5();
-    providers.forEach(async (provider) => {
+  const md5 = update.md5();
+  providers.forEach(async (provider) => {
+    try {
       let response;
       const { addr, api_token } = provider;
       response = await server.get(`${addr}${root}/md5`, api_token);
@@ -90,8 +90,10 @@ module.exports.update = async (root, providers) => {
       const body = await update.json();
       response = await server.post(`${addr}${root}/update`, api_token, body);
       console.log(await response.text());
-    });
-  } catch (error) {
-    logger.stderr(`Error updating providers: ${error.message}`);
-  }
+    } catch (error) {
+      logger.stderr(
+        `Error updating provider ${provider.addr}: ${error.message}`
+      );
+    }
+  });
 };

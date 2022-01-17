@@ -32,7 +32,11 @@ module.exports.read = async (root, providers) => {
     );
     _providers = providers.map((provider, index) => {
       const { timeStamp, status, data } = responses[index];
-      return make.Entry({ ...provider, ...{ timeStamp, status, data } });
+      const version = data.version;
+      return make.Entry({
+        ...provider,
+        ...{ timeStamp, status, version, data },
+      });
     });
   } catch (error) {
     logger.stderr(`Error importing providers: ${error.message}`);

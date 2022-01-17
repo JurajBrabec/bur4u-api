@@ -45,9 +45,9 @@ module.exports.providers = async (req, res) => {
     res.json(
       make.Providers(
         Providers.get().map((provider) => {
-          const { timeStamp, name, status } = provider;
+          const { timeStamp, name, status, version } = provider;
           const clients = provider.data?.clients?.length || 0;
-          return { timeStamp, name, status, clients };
+          return { timeStamp, name, status, version, clients };
         })
       )
     );

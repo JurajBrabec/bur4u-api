@@ -22,6 +22,7 @@ class Provider {
     this.public_key = provider.public_key;
     this.name = provider.addr.split(':').shift();
     this.status = provider.status;
+    this.version = provider.version;
     this.data = provider.data;
   }
 }

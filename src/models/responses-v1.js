@@ -1,6 +1,9 @@
+const { version } = require('../modules.js');
+
 class Response {
   constructor() {
     this.timeStamp = Date.now();
+    this.version = version;
   }
 }
 

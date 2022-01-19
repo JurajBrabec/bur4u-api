@@ -1,4 +1,4 @@
-const { configurator, version } = require('./modules.js');
+const { configurator, description, version } = require('./modules.js');
 const express = require('./services/express.js');
 const server = require('./services/server.js');
 const logger = require('./services/logger.js');
@@ -16,7 +16,7 @@ const CACHE_CONCURRENCY = 8;
 const QUERY_INTERVAL = 60;
 
 try {
-  console.log(`BUR 4U API v${version}`);
+  console.log(`${description} v${version}`);
 
   const mainConfig = configurator.expect
     .jsFile({ configFile: { arg: 'config', default: CONFIG_FILE } })
@@ -56,26 +56,27 @@ try {
   const { moduleName, cacheTime, logPath, logRotation, port, ui } =
     configurator.compile(mainConfig);
 
+  let mainModule;
+  let params;
   let routes;
-  let init;
   switch (moduleName) {
     case MODULE_API:
+      mainModule = require('./services/api.js');
+      params = configurator.compile(apiConfig);
       routes = require('./routes/api-v1.js');
-      const api = require('./services/api.js');
-      init = api.init(configurator.compile(apiConfig));
       break;
     case MODULE_PROXY:
-      routes = require('./routes/proxy-v1.js');
-      const proxy = require('./services/proxy.js');
-      init = proxy.init({
+      mainModule = require('./services/proxy.js');
+      params = {
         root: API_ROOT,
         ...configurator.compile(proxyConfig),
-      });
+      };
+      routes = require('./routes/proxy-v1.js');
       break;
     default:
       throw new Error(`wrong parameter --module '${moduleName}'.`);
   }
-  init.catch((error) => {
+  mainModule.init(params).catch((error) => {
     logger.stderr(`Initialization error ${error.message}`);
     process.exit(1);
   });

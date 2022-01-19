@@ -1,4 +1,4 @@
-const { version } = require('../package.json');
+const { description, version } = require('../package.json');
 const apicache = require('apicache-plus');
 const configurator = require('../lib/configurator.js');
 const cors = require('cors');
@@ -13,6 +13,7 @@ const rfs = require('rotating-file-stream');
 const md5File = require('md5-file');
 
 module.exports = {
+  description,
   version,
   apicache,
   configurator,

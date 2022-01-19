@@ -1,11 +1,27 @@
-const { watch, rename, readdir, readFile, writeFile } = require('fs/promises');
+const {
+  watch,
+  rename,
+  readdir,
+  readFile,
+  writeFile,
+  access,
+} = require('fs/promises');
 const { md5File } = require('../modules.js');
 
 const SCRIPTNAME = 'bur4u-api.js';
 const UPDATEFOLDER = '.';
 
+const DEV = /dev|test/.test(process.env.npm_lifecycle_event);
+//const MD5 = DEV ? '' : md5File.sync(`./${SCRIPTNAME}`);
+
 let updateTimer;
-const DEV = /dev/.test(process.env.npm_lifecycle_event);
+let MD5;
+
+access(`./${SCRIPTNAME}`)
+  .then(() => md5File(`./${SCRIPTNAME}`))
+  .then((md5) => (MD5 = md5))
+  .catch(() => console.log(DEV));
+
 class UpdateFile {
   constructor({ name, buffer, md5 }) {
     this.buffer = buffer;
@@ -34,7 +50,7 @@ module.exports.json = async () => {
   return { buffer, name, md5 };
 };
 
-module.exports.md5 = () => (DEV ? '' : md5File.sync(`./${SCRIPTNAME}`));
+module.exports.md5 = () => MD5;
 
 module.exports.update = (updateFile) => {
   rename(updateFile, `./${SCRIPTNAME}`)

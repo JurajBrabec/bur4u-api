@@ -9,10 +9,10 @@ const {
 const { md5File } = require('../modules.js');
 
 const SCRIPTNAME = 'bur4u-api.js';
-const UPDATEFOLDER = '.';
+const UPDATE_EXITCODE = 1;
+const UPDATE_FOLDER = '.';
 
 const DEV = /dev|test/.test(process.env.npm_lifecycle_event);
-//const MD5 = DEV ? '' : md5File.sync(`./${SCRIPTNAME}`);
 
 let updateTimer;
 let MD5;
@@ -56,7 +56,7 @@ module.exports.update = (updateFile) => {
   rename(updateFile, `./${SCRIPTNAME}`)
     .then(() => {
       console.log('Update finished.');
-      process.exit(0);
+      process.exit(UPDATE_EXITCODE);
     })
     .catch((error) => console.error(error));
 };
@@ -64,14 +64,14 @@ module.exports.update = (updateFile) => {
 module.exports.upload = (prefix, file) => {
   if (file.name !== SCRIPTNAME) throw new Error(`Invalid file name`);
   if (file.md5 === exports.md5()) throw new Error('File has not changed');
-  file.mv(`${UPDATEFOLDER}/${prefix}-${file.md5}.update`);
+  file.mv(`${UPDATE_FOLDER}/${prefix}-${file.md5}.update`);
 };
 
 module.exports.watch = async (prefix = '') => {
   const pattern = new RegExp(`^${prefix}.+update$`);
-  const files = await readdir(UPDATEFOLDER);
+  const files = await readdir(UPDATE_FOLDER);
   for (const file of files) if (file.match(pattern)) exports.update(file);
-  const watcher = watch(UPDATEFOLDER);
+  const watcher = watch(UPDATE_FOLDER);
   for await (const event of watcher) exports.handle(prefix, event);
   return watcher;
 };

@@ -80,20 +80,26 @@ module.exports.init = async ({ root, providers, queryInterval, tsaEnv }) => {
 
 module.exports.update = async (root, providers) => {
   const md5 = update.md5();
-  providers.forEach(async (provider) => {
-    try {
-      let response;
-      const { addr, api_token } = provider;
-      response = await server.get(`${addr}${root}/md5`, api_token);
-      const data = await response.text();
-      if (data === md5) return;
-      const body = await update.json();
-      response = await server.post(`${addr}${root}/update`, api_token, body);
-      console.log(await response.text());
-    } catch (error) {
-      logger.stderr(
-        `Error updating provider ${provider.addr}: ${error.message}`
-      );
-    }
-  });
+  if (md5)
+    providers.forEach(async (provider) => {
+      try {
+        let response;
+        const { addr, api_token } = provider;
+        response = await server.get(`${addr}${root}/script/md5`, api_token);
+        const data = await response.text();
+        console.log(data);
+        if (data === md5) return;
+        const body = await update.json();
+        response = await server.post(
+          `${addr}${root}/script/update`,
+          api_token,
+          body
+        );
+        console.log(await response.text());
+      } catch (error) {
+        logger.stderr(
+          `Error updating provider ${provider.addr}: ${error.message}`
+        );
+      }
+    });
 };

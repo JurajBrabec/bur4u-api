@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.options(v1.options);
 router.use('/token', v1.token);
+router.get('/version', v1.version);
 
 router.use('/providers', tokenService.middleWare());
 router.get('/providers', v1.providers);
@@ -18,8 +19,7 @@ router.get('/clients/:hostName/history', Providers.resolve, v1.proxy);
 router.get('/clients/:hostName', Providers.resolve, v1.proxy);
 router.get('/clients', Providers.resolve, v1.proxy);
 
-router.get('/version', v1.version);
-router.get('/md5', v1.md5);
-router.post('/update', v1.update);
+router.get('/script/md5', v1.md5);
+router.post('/script/update', v1.update);
 
 module.exports = router;

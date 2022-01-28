@@ -1,16 +1,37 @@
 const https = require('https');
-const { readFileSync } = require('fs');
+const { access, readFile } = require('fs').promises;
+const { hostname } = require('os');
 const { fetch } = require('../modules.js');
 
 const agent = new https.Agent({
   rejectUnauthorized: false,
 });
 
-module.exports.create = ({ app, port, callBack }) => {
-  const options = {
-    key: readFileSync('cert/cert.key'),
-    cert: readFileSync('cert/cert.crt'),
-  };
+const CERT_PATH = './cert';
+const CERT_FILES = ['.crt', '.key'];
+const CERT = `${CERT_PATH}/cert`;
+const HOST = `${CERT_PATH}/${hostname()}`;
+
+const findCerts = async (path) => {
+  try {
+    await Promise.all(CERT_FILES.map((file) => access(path + file)));
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+module.exports.create = async ({ app, port, callBack }) => {
+  let certPath;
+
+  if (await findCerts(CERT)) certPath = CERT;
+  if (await findCerts(HOST)) certPath = HOST;
+  if (!certPath) throw new Error('No certificates found');
+
+  const [cert, key] = await Promise.all(
+    CERT_FILES.map((file) => readFile(certPath + file))
+  );
+  const options = { cert, key };
 
   return https.createServer(options, app).listen(port, callBack);
 };

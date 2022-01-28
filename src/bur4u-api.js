@@ -1,4 +1,4 @@
-const { configurator, description, version } = require('./modules.js');
+const { configurator, description, version } = require('./services/modules.js');
 const express = require('./services/express.js');
 const server = require('./services/server.js');
 const logger = require('./services/logger.js');

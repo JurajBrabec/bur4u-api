@@ -4,8 +4,10 @@
   "description": "BUR 4U API",
   "main": "./src/bur4u-api.js",
   "scripts": {
-    "build": "esbuild ./src/bur4u-api.js --bundle --minify --platform=node --outfile=./dist/bur4u-api.js",
+    "build": "npm run build-modules && npm run build-main",
+    "build-main": "esbuild ./src/bur4u-api.js --bundle --minify --platform=node --external:./src/modules.js --outfile=./dist/bur4u-api.js",
     "build-modules": "esbuild ./src/modules.js --bundle --minify --platform=node --outfile=./dist/modules.js",
+    "build-oneFile": "esbuild ./src/bur4u-api.js --bundle --minify --platform=node --outfile=./dist/bur4u-api.js",
     "dev-api": "nodemon --watch src ./src/bur4u-api.js --module api",
     "dev-proxy": "nodemon --watch src --delay 2 ./src/bur4u-api.js --module proxy --port 443",
     "prod-api": "node ./dist/bur4u-api.js --module api",

@@ -1,6 +1,6 @@
 {
   "name": "bur4u-api",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "BUR 4U API",
   "main": "./src/bur4u-api.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "dev-api": "nodemon --watch src ./src/bur4u-api.js --module api",
     "dev-proxy": "nodemon --watch src --delay 2 ./src/bur4u-api.js --module proxy --port 443",
     "prod-api": "node ./dist/bur4u-api.js --module api",
-    "prod-proxy": "node --delay 2 ./dist/bur4u-api.js --module proxy --port 443",
+    "prod-proxy": "node ./dist/bur4u-api.js --module proxy --port 443",
     "test": "jest"
   },
   "author": "Juraj Brabec",

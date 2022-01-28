@@ -2,6 +2,8 @@
 
 ### Overview
 
+BUR4U API is designed to retrieve real-time information from VPC NetBackup BUR environments.
+
 - [Get overview for all providers](#get-overview-for-all-providers)
 - [Get clients for specific provider](#get-clients-for-specific-provider)
 - [Get list of all clients](#get-list-of-all-clients)
@@ -14,7 +16,7 @@
 Request should be sent to BUR4U API HTTPS service on port 443
 
 ```
-  https://[dc]-burapi1.[suffix] or https://[dc]-burapi1.[suffix]:443
+  https://[dc]-burapi1.[suffix]
 ```
 
 where `[dc]` and `[suffix]` are specific to each datacenter.

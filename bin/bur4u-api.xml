@@ -1,0 +1,14 @@
+<service>
+  <arguments>src/bur4u-api.js --module api</arguments>
+  <description>This service is a back end for BUR 4U API Service</description>
+  <executable>node.exe</executable>
+  <logpath>log</logpath>
+  <log mode="roll-by-time">
+    <keepFiles>7</keepFiles>  
+    <pattern>yyyyMMdd</pattern>
+  </log>
+  <id>bur4u-api</id>
+  <name>BUR-4U-API Service</name>
+  <onfailure action="restart" />
+  <workingdirectory>%BASE%\..</workingdirectory>
+</service>

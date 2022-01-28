@@ -23,12 +23,12 @@ pm2 -v
 
 #install bur4u-api
 mkdir /opt/bur4u-api /opt/bur4u-api/log
-cp -r cert ui bur4u-api.js /opt/bur4u-api
-cp bur4u-api.default.config.js /opt/bur4u-api/bur4u-api.config.js
-vi /opt/bur4u-api/bur4u-api.config.js
+cp -r cert conf dist ui /opt/bur4u-api
+mv /opt/bur4u-api/conf/bur4u-api.default.config.js /opt/bur4u-api/conf/bur4u-api.config.js
+vi /opt/bur4u-api/conf/bur4u-api.config.js
 
 #start bur4u-api and configure pm2 startup
-pm2 start /opt/bur4u-api/bur4u-api.js --cwd /opt/bur4u-api --time -- --module proxy
+pm2 start /opt/bur4u-api/src/bur4u-api.js --cwd /opt/bur4u-api --time -- --module proxy
 pm2 save
 pm2 startup
 
@@ -43,11 +43,10 @@ pm2 delete bu4ur-api
 ## WINDOWS
 ## https://github.com/winsw/winsw
 
-
 mkdir \bur4u-api \bur4u-api\log
-copy node.exe bur4u-api.js bur4u-api.config.js cert\* winsw\* \bur4u-api
-#edit wisw.xml
-\bur4u-api\winsw\winsw install
+copy node.exe dist\* cert\* bin\* \bur4u-api
+#edit bin\bur4u-api.xml
+\bur4u-api\bin\bur4u-api install [--user|--username <username>] [--pass|--password <password>]
 net start bur4u-api
 
 ## JWT creation

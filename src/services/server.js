@@ -45,10 +45,9 @@ module.exports.get = (url, api_token) =>
 module.exports.post = (url, api_token, body) =>
   fetch(`https://${url}`, {
     agent,
-    body: JSON.stringify(body),
+    body,
     headers: {
       Authorization: `Bearer ${api_token}`,
-      'Content-Type': 'application/json',
     },
     method: 'POST',
   });

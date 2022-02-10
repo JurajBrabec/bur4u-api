@@ -110,13 +110,11 @@ module.exports.configuration = async (req, res) => {
   }
 };
 
-module.exports.md5 = (req, res) => res.send(update.md5());
-
-module.exports.update = (req, res) => {
+module.exports.update = async (req, res) => {
   try {
-    if (!req.body) throw new Error('No files were uploaded.');
-    const file = new update.File(req.body);
-    update.upload('api', file);
+    if (!req.files) throw new Error('No files were uploaded.');
+    const { file } = req.files;
+    await update.upload(file);
     res.sendStatus(200);
   } catch (error) {
     res.status(400).json(make.Error(error));

@@ -19,7 +19,6 @@ router.get('/clients/:hostName/history', Providers.resolve, v1.proxy);
 router.get('/clients/:hostName', Providers.resolve, v1.proxy);
 router.get('/clients', Providers.resolve, v1.proxy);
 
-router.get('/script/md5', v1.md5);
 router.post('/script/update', v1.update);
 
 module.exports = router;

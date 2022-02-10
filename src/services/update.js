@@ -1,80 +1,102 @@
-const {
-  watch,
-  rename,
-  readdir,
-  readFile,
-  writeFile,
-  access,
-} = require('fs/promises');
-const { md5File } = require('../modules.js');
+const formData = require('form-data');
+const { readdir, readFile, stat, unlink, watch } = require('fs').promises;
+const logger = require('./logger.js');
+const { AdmZip } = require('../modules.js');
 
 const EVENT_TYPE = 'change';
-const SCRIPT_NAME = 'bur4u-api.js';
 const UPDATE_EXITCODE = 1;
-const UPDATE_FOLDER = '.';
+const UPDATE_FOLDER = 'tmp';
 
 const DEV = /dev|test/.test(process.env.npm_lifecycle_event);
 
+if (DEV) console.log('DEV MODE');
+
+let registeredUpdateFile;
 let updateTimer;
-let MD5;
 
-access(`./${SCRIPT_NAME}`)
-  .then(() => md5File(`./${SCRIPT_NAME}`))
-  .then((md5) => (MD5 = md5))
-  .catch(() => console.log('DEV:', DEV));
+const filePattern = () => new RegExp(`^.+\.zip$`);
 
-class UpdateFile {
-  constructor({ name, buffer, md5 }) {
-    this.buffer = buffer;
-    this.name = name;
-    this.md5 = md5;
+module.exports.cleanUp = async (file) => {
+  const deleteFile = file || registeredUpdateFile;
+  if (DEV) {
+    console.log(`Removing "${deleteFile}"...`);
+  } else {
+    await unlink(deleteFile);
   }
-  mv(path) {
-    return writeFile(path, this.buffer);
-  }
-}
+};
 
-const fileName = (prefix, name) => `${prefix}-${name}.update`;
-const filePattern = (prefix) => new RegExp(`^${fileName(prefix, '.+')}$`);
-
-module.exports.File = UpdateFile;
-
-module.exports.handle = (prefix, { eventType, filename }) => {
+module.exports.handle = (moduleName, { eventType, filename }) => {
   if (updateTimer) return;
   if (eventType !== EVENT_TYPE) return;
-  if (!filename.match(filePattern(prefix))) return;
-  updateTimer = setTimeout(() => exports.update(filename), 5000);
+  if (!filename.match(filePattern())) return;
+  updateTimer = setTimeout(() => exports.update(moduleName, filename), 1000);
 };
 
-module.exports.json = async () => {
-  const buffer = await readFile(`./${SCRIPT_NAME}`, 'utf8');
-  const name = SCRIPT_NAME;
-  const md5 = exports.md5();
-  return { buffer, name, md5 };
+module.exports.updateBody = async () => {
+  if (!registeredUpdateFile) return;
+  const form = new formData();
+  const buffer = await readFile(registeredUpdateFile);
+  form.append('file', buffer, {
+    contentType: 'application/octet-stream',
+    filename: registeredUpdateFile,
+  });
+  return form;
 };
 
-module.exports.md5 = () => MD5;
-
-module.exports.update = (updateFile) => {
-  rename(updateFile, `./${SCRIPT_NAME}`)
-    .then(() => {
-      console.log('Update finished.');
+module.exports.update = async (moduleName, updateFile) => {
+  const source = `${process.cwd()}/${UPDATE_FOLDER}/${updateFile}`;
+  const target = DEV ? `${process.cwd()}/${UPDATE_FOLDER}` : process.cwd();
+  let restart = false;
+  logger.stdout(`Updating ${moduleName} update file ${updateFile}`);
+  const files = 0;
+  try {
+    const zip = new AdmZip(source);
+    const results = await Promise.all(
+      zip.getEntries().map(async (entry) => {
+        const { entryName } = entry;
+        let method = '';
+        try {
+          const { size } = await stat(`${process.cwd()}/${entryName}`);
+          if (parseInt(entry.header.size) === parseInt(size)) return false;
+          method = 'Updated';
+        } catch (error) {
+          method = 'Added';
+        }
+        logger.stdout(`${method} "${entryName}"...`);
+        zip.extractEntryTo(entry, target, true, true);
+        files++;
+        return true;
+      })
+    );
+    restart = results.some((result) => result);
+  } catch (error) {
+    logger.stderr(error);
+  } finally {
+    updateTimer = null;
+    if (moduleName === 'proxy') {
+      logger.stdout('Updating providers...');
+      registeredUpdateFile = source;
+    } else {
+      registeredUpdateFile = null;
+      await exports.cleanUp(source);
+    }
+    if (restart) {
+      logger.stdout(`Update finished. ${files} files updated.`);
       process.exit(UPDATE_EXITCODE);
-    })
-    .catch((error) => console.error(error));
+    }
+  }
 };
 
-module.exports.upload = (prefix, file) => {
-  if (file.name !== SCRIPT_NAME) throw new Error(`Invalid file name`);
-  if (file.md5 === exports.md5()) throw new Error('File has not changed');
-  file.mv(`${UPDATE_FOLDER}/${fileName(prefix, file.md5)}`);
+module.exports.upload = (file) => {
+  if (!file.name.match(filePattern())) throw new Error(`Invalid file name`);
+  file.mv(`${UPDATE_FOLDER}/${file.name}`);
 };
 
-module.exports.watch = async (prefix = '') => {
+module.exports.watch = async (moduleName) => {
   const files = await readdir(UPDATE_FOLDER);
   for (const file of files)
-    if (file.match(filePattern(prefix))) exports.update(file);
+    if (file.match(filePattern())) await exports.update(moduleName, file);
   const watcher = watch(UPDATE_FOLDER);
-  for await (const event of watcher) exports.handle(prefix, event);
+  for await (const event of watcher) exports.handle(moduleName, event);
   return watcher;
 };

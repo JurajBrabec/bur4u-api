@@ -15,7 +15,6 @@ router.get('/clients/:hostName', v1.client);
 router.get('/clients', v1.clients);
 
 router.use('/script', jwt.middleWare());
-router.get('/script/md5', v1.md5);
 router.post('/script/update', v1.update);
 
 module.exports = router;

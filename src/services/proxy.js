@@ -26,7 +26,6 @@ module.exports.resolve = function (req, res, next) {
 
 module.exports.read = async (root, providers) => {
   try {
-    await exports.update(root, providers);
     const responses = await Promise.all(
       providers.map((provider) => exports.query(provider, `${root}/clients`))
     );
@@ -70,6 +69,7 @@ module.exports.init = async ({ root, providers, queryInterval, tsaEnv }) => {
     try {
       await exports.read(root, providers);
       logger.stdout(`Imported ${providers.length} providers.`);
+      await exports.update(root, providers);
     } catch (error) {
       throw new Error(`importing providers: ${error.message}`);
     }
@@ -79,27 +79,30 @@ module.exports.init = async ({ root, providers, queryInterval, tsaEnv }) => {
 };
 
 module.exports.update = async (root, providers) => {
-  const md5 = update.md5();
-  if (md5)
-    providers.forEach(async (provider) => {
+  const updateBody = await update.updateBody();
+  if (!updateBody) return;
+  logger.stdout(`Updating providers...`);
+  let success = true;
+  await Promise.all(
+    providers.map(async (provider) => {
+      const { addr, api_token } = provider;
       try {
-        let response;
-        const { addr, api_token } = provider;
-        response = await server.get(`${addr}${root}/script/md5`, api_token);
-        const data = await response.text();
-        console.log(data);
-        if (data === md5) return;
-        const body = await update.json();
-        response = await server.post(
+        const response = await server.post(
           `${addr}${root}/script/update`,
           api_token,
-          body
+          updateBody
         );
-        console.log(await response.text());
+        logger.stdout(await response.text());
       } catch (error) {
+        success = false;
         logger.stderr(
           `Error updating provider ${provider.addr}: ${error.message}`
         );
       }
-    });
+    })
+  );
+  if (success) {
+    logger.stdout('Update successful.');
+    await update.cleanUp();
+  }
 };

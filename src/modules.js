@@ -10,7 +10,7 @@ const Cached = require('../lib/cached.js');
 const NBU = require('../lib/nbu-cli.js');
 const nJwt = require('njwt');
 const rfs = require('rotating-file-stream');
-const md5File = require('md5-file');
+const AdmZip = require('adm-zip');
 
 module.exports = {
   description,
@@ -26,5 +26,5 @@ module.exports = {
   NBU,
   nJwt,
   rfs,
-  md5File,
+  AdmZip,
 };

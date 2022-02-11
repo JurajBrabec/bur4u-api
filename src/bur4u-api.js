@@ -49,6 +49,7 @@ try {
     .new()
     .array({ providers: { arg: 'list', default: [] } })
     .num({ queryInterval: { arg: 'interval', default: QUERY_INTERVAL } })
+    .string({ add: { arg: 'add' } })
     .string('tsaEnv')
     .bool('ui')
     .save();
@@ -76,11 +77,7 @@ try {
     default:
       throw new Error(`wrong parameter --module '${moduleName}'.`);
   }
-  mainModule.init(params).catch((error) => {
-    logger.stderr(`Initialization error ${error.message}`);
-    process.exit(1);
-  });
-  update.watch(moduleName);
+
   const app = express({
     moduleName,
     cacheTime,
@@ -90,11 +87,20 @@ try {
     routes,
     ui,
   });
-  const callBack = () =>
-    console.log(
-      `${moduleName.toUpperCase()} module ready (https://localhost:${port})`
-    );
-  server.create({ app, port, callBack });
+
+  mainModule
+    .init(params)
+    .then(() => {
+      update.watch(moduleName);
+      const callBack = () =>
+        console.log(
+          `${moduleName.toUpperCase()} module ready (https://localhost:${port})`
+        );
+      server.create({ app, port, callBack });
+    })
+    .catch((error) => {
+      throw new Error(`Initialization error ${error.message}`);
+    });
 } catch (error) {
   logger.stderr(`Error ${error.message}`);
   process.exit(1);

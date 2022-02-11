@@ -1,5 +1,5 @@
 <service>
-  <arguments>src/bur4u-api.js --module api</arguments>
+  <arguments>dist/bur4u-api.js --module api</arguments>
   <description>This service is a back end for BUR 4U API Service</description>
   <executable>node.exe</executable>
   <logpath>log</logpath>

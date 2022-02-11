@@ -28,7 +28,7 @@ mv /opt/bur4u-api/conf/bur4u-api.default.config.js /opt/bur4u-api/conf/bur4u-api
 vi /opt/bur4u-api/conf/bur4u-api.config.js
 
 #start bur4u-api and configure pm2 startup
-pm2 start /opt/bur4u-api/src/bur4u-api.js --cwd /opt/bur4u-api --time -- --module proxy
+pm2 start /opt/bur4u-api/dist/bur4u-api.js --cwd /opt/bur4u-api --time -- --module proxy
 pm2 save
 pm2 startup
 
@@ -40,6 +40,27 @@ pm2 reload bur4u-api
 pm2 stop bur4u-api
 pm2 delete bu4ur-api
 
+## Monitoring
+Default configuration location : /var/opt/OV/bin/instrumentation
+Custom configuration location : /var/opt/OV/conf/OpC
+Monitoring logs location : /var/opt/OV/log/OpC
+
+# Process monitoring : ps_mon.cfg
+
+[BUR4U-API]
+pm2               critical   1      TT_LINUX        0000-2400 *	
+*PUSER root
+node              critical   1      TT_LINUX        0000-2400 *
+*PUSER root
+
+# Port monitoring : port_mon.cfg
+
+[BUR4U-API, NONE, NONE]
+NBU1       <fqdn>       25278     "10"            "TCP"           "Critical"         ""      ""             ""               ""              ""
+
+# Add new provider
+sudo node /opt/bur4u-api/src/bur4u-api.js --module proxy --add [provider]
+
 ## WINDOWS
 ## https://github.com/winsw/winsw
 
@@ -48,6 +69,22 @@ copy node.exe dist\* cert\* bin\* \bur4u-api
 #edit bin\bur4u-api.xml
 \bur4u-api\bin\bur4u-api install [--user|--username <username>] [--pass|--password <password>]
 net start bur4u-api
+
+## Monitoring
+Default configuration location : C:\Program Files\HP OpenView\data\bin\instrumentation
+Custom configuration location : C:\osit\etc
+Monitoring logs location : C:\osit\log
+
+# Process monitoring : ps_mon.cfg
+
+[BUR4UAPI]
+"winsw.exe" 		Critical 	1				* 	0000 	2400	T
+"nodejs.exe"		Critical 	1				* 	0000 	2400	T
+
+# Service monitoring : srv_mon.cfg
+
+[BUR4UAPI]
+"BUR4U-API"            	major	1	 * 0000 2400  	T	1
 
 ## JWT creation
 https://jwt.io/

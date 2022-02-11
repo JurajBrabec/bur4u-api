@@ -36,6 +36,8 @@ module.exports.create = async ({ app, port, callBack }) => {
   return https.createServer(options, app).listen(port, callBack);
 };
 
+module.exports.anonymousGet = async (url) => fetch(`https://${url}`, { agent });
+
 module.exports.get = (url, api_token) =>
   fetch(`https://${url}`, {
     agent,

@@ -63,7 +63,36 @@ module.exports.query = async (provider, url) => {
   return make.Provider({ ...provider, ...{ data, status } });
 };
 
-module.exports.init = async ({ root, providers, queryInterval, tsaEnv }) => {
+const addProvider = async (provider, root) => {
+  const [name, port] = provider.split(':');
+  const addr = `${name}:${port || 28748}`;
+  let api_token = '';
+  console.log(`Adding provider ${name}...`);
+  try {
+    const response = await server.anonymousGet(`${addr}${root}/token`);
+    if (response.status !== 200) {
+      throw new Error(`${response.status}:${response.statusText}`);
+    }
+    api_token = await response.text();
+    const entry = { addr, api_token };
+    console.log(`Successfully registered provider ${name}.`);
+    console.log('Add following entry to "providers" array in config file:');
+    console.log(entry);
+    process.exit(0);
+  } catch (error) {
+    console.log(`Error: ${error.message}`);
+    process.exit(1);
+  }
+};
+
+module.exports.init = async ({
+  add,
+  root,
+  providers,
+  queryInterval,
+  tsaEnv,
+}) => {
+  if (add) addProvider(add, root);
   if (tsaEnv) tokenService.setEnvironment(tsaEnv);
   const readProviders = async () => {
     try {

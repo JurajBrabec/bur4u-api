@@ -19,7 +19,7 @@ const filePattern = () => new RegExp(`^.+\.zip$`);
 module.exports.cleanUp = async (file) => {
   const deleteFile = file || registeredUpdateFile;
   if (DEV) {
-    console.log(`Removing "${deleteFile}"...`);
+    console.log(`DEV:!Removing "${deleteFile}"...`);
   } else {
     await unlink(deleteFile);
   }
@@ -47,8 +47,8 @@ module.exports.update = async (moduleName, updateFile) => {
   const source = `${process.cwd()}/${UPDATE_FOLDER}/${updateFile}`;
   const target = DEV ? `${process.cwd()}/${UPDATE_FOLDER}` : process.cwd();
   let restart = false;
-  logger.stdout(`Updating ${moduleName} update file ${updateFile}`);
-  const files = 0;
+  logger.stdout(`Updating ${moduleName} update file "${updateFile}"...`);
+  let files = 0;
   try {
     const zip = new AdmZip(source);
     const results = await Promise.all(
@@ -83,6 +83,8 @@ module.exports.update = async (moduleName, updateFile) => {
     if (restart) {
       logger.stdout(`Update finished. ${files} files updated.`);
       process.exit(UPDATE_EXITCODE);
+    } else {
+      logger.stdout(`No file changed.`);
     }
   }
 };

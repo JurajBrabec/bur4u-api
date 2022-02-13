@@ -23,6 +23,7 @@ module.exports.cleanUp = async (file) => {
   } else {
     await unlink(deleteFile);
   }
+  registeredUpdateFile = null;
 };
 
 module.exports.handle = (moduleName, { eventType, filename }) => {
@@ -70,21 +71,20 @@ module.exports.update = async (moduleName, updateFile) => {
     );
     restart = results.some((result) => result);
   } catch (error) {
-    logger.stderr(error);
+    logger.stderr(error.message);
   } finally {
     updateTimer = null;
-    if (moduleName === 'proxy') {
-      logger.stdout('Updating providers...');
-      registeredUpdateFile = source;
-    } else {
-      registeredUpdateFile = null;
-      await exports.cleanUp(source);
-    }
     if (restart) {
       logger.stdout(`Update finished. ${files} files updated.`);
       process.exit(UPDATE_EXITCODE);
     } else {
       logger.stdout(`No file changed.`);
+    }
+    if (moduleName === 'proxy') {
+      logger.stdout('Scheduling providers update...');
+      registeredUpdateFile = source;
+    } else {
+      await exports.cleanUp(source);
     }
   }
 };

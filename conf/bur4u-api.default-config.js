@@ -4,7 +4,7 @@ module.exports = {
   logRotation: '1d',
   port: 28748,
   //API entries
-  //module: 'api',
+  //moduleName: 'api',
   nbuBinPath: 'c://program files//veritas//netbackup//bin',
   domain: null,
   user: null,
@@ -12,7 +12,7 @@ module.exports = {
   cacheInterval: 60 * 60 * 12,
   cacheConcurrency: 4,
   //PROXY entries
-  //module: 'proxy',
+  //moduleName: 'proxy',
   providers: [
     {
       addr: 'remotehost:28748',

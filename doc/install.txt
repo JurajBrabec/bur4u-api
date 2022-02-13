@@ -22,13 +22,13 @@ npm install -g pm2@latest
 pm2 -v
 
 #install bur4u-api
-mkdir /opt/bur4u-api /opt/bur4u-api/log
+mkdir /opt/bur4u-api /opt/bur4u-api/log /opt/bur4u-api/tmp
 cp -r cert conf dist ui /opt/bur4u-api
 mv /opt/bur4u-api/conf/bur4u-api.default.config.js /opt/bur4u-api/conf/bur4u-api.config.js
 vi /opt/bur4u-api/conf/bur4u-api.config.js
 
 #start bur4u-api and configure pm2 startup
-pm2 start /opt/bur4u-api/dist/bur4u-api.js --cwd /opt/bur4u-api --time -- --module proxy
+pm2 start /opt/bur4u-api/dist/bur4u-api.js --cwd /opt/bur4u-api --time
 pm2 save
 pm2 startup
 
@@ -59,14 +59,13 @@ node              critical   1      TT_LINUX        0000-2400 *
 NBU1       <fqdn>       25278     "10"            "TCP"           "Critical"         ""      ""             ""               ""              ""
 
 # Add new provider
-sudo node /opt/bur4u-api/src/bur4u-api.js --module proxy --add [provider]
+sudo node /opt/bur4u-api/src/bur4u-api.js --add [provider]
 
 ## WINDOWS
 ## https://github.com/winsw/winsw
 
-mkdir \bur4u-api \bur4u-api\log
-copy node.exe dist\* cert\* bin\* \bur4u-api
-#edit bin\bur4u-api.xml
+mkdir \bur4u-api \bur4u-api\log \bur4u-api\tmp
+copy bin\* dist\* cert\*  \bur4u-api
 \bur4u-api\bin\bur4u-api install [--user|--username <username>] [--pass|--password <password>]
 net start bur4u-api
 

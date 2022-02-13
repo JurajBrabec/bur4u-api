@@ -1,4 +1,4 @@
-const { configurator, description, version } = require('./services/modules.js');
+const { configurator, description, version } = require('./modules.js');
 const express = require('./services/express.js');
 const server = require('./services/server.js');
 const logger = require('./services/logger.js');
@@ -10,7 +10,7 @@ const LOG_ROT = '1d';
 const MODULE_API = 'api';
 const MODULE_PROXY = 'proxy';
 const PORT = 28748;
-const CONFIG_FILE = 'conf/bur4u-api.config.js';
+const CONFIG_FILE = './conf/bur4u-api.config.js';
 const CACHE_INTERVAL = 60 * 60 * 12;
 const CACHE_CONCURRENCY = 8;
 const QUERY_INTERVAL = 60;

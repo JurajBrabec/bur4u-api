@@ -11,40 +11,37 @@ const DEV = /dev|test/.test(process.env.npm_lifecycle_event);
 
 if (DEV) console.log('DEV MODE');
 
-let registeredUpdateFile;
+let onUpdate;
 let updateTimer;
 
 const filePattern = () => new RegExp(`^.+\.zip$`);
 
-module.exports.cleanUp = async (file) => {
-  const deleteFile = file || registeredUpdateFile;
+const cleanUp = async (file) => {
   if (DEV) {
-    console.log(`DEV:!Removing "${deleteFile}"...`);
+    console.log(`DEV:!Removing "${file}"...`);
   } else {
-    await unlink(deleteFile);
+    await unlink(file);
   }
-  registeredUpdateFile = null;
 };
 
-module.exports.handle = (moduleName, { eventType, filename }) => {
+const handle = (moduleName, { eventType, filename }) => {
   if (updateTimer) return;
   if (eventType !== EVENT_TYPE) return;
   if (!filename.match(filePattern())) return;
-  updateTimer = setTimeout(() => exports.update(moduleName, filename), 1000);
+  updateTimer = setTimeout(() => update(moduleName, filename), 1000);
 };
 
-module.exports.updateBody = async () => {
-  if (!registeredUpdateFile) return;
+const updateBody = async (filename) => {
   const form = new formData();
-  const buffer = await readFile(registeredUpdateFile);
+  const buffer = await readFile(filename);
   form.append('file', buffer, {
     contentType: 'application/octet-stream',
-    filename: registeredUpdateFile,
+    filename,
   });
   return form;
 };
 
-module.exports.update = async (moduleName, updateFile) => {
+const update = async (moduleName, updateFile) => {
   const source = `${process.cwd()}/${UPDATE_FOLDER}/${updateFile}`;
   const target = DEV ? `${process.cwd()}/${UPDATE_FOLDER}` : process.cwd();
   let restart = false;
@@ -81,12 +78,18 @@ module.exports.update = async (moduleName, updateFile) => {
       logger.stdout(`No file changed.`);
     }
     if (moduleName === 'proxy') {
-      logger.stdout('Scheduling providers update...');
-      registeredUpdateFile = source;
-    } else {
-      await exports.cleanUp(source);
+      if (!onUpdate) return;
+      logger.stdout('Updating providers...');
+      const result = await onUpdate(await updateBody(source));
+      if (!result) return;
+      logger.stdout('Update successful.');
     }
+    await cleanUp(source);
   }
+};
+
+module.exports.onUpdate = (callback) => {
+  onUpdate = callback;
 };
 
 module.exports.upload = (file) => {
@@ -97,8 +100,8 @@ module.exports.upload = (file) => {
 module.exports.watch = async (moduleName) => {
   const files = await readdir(UPDATE_FOLDER);
   for (const file of files)
-    if (file.match(filePattern())) await exports.update(moduleName, file);
+    if (file.match(filePattern())) await update(moduleName, file);
   const watcher = watch(UPDATE_FOLDER);
-  for await (const event of watcher) exports.handle(moduleName, event);
+  for await (const event of watcher) handle(moduleName, event);
   return watcher;
 };

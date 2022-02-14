@@ -94,11 +94,11 @@ module.exports.init = async ({
 }) => {
   if (add) addProvider(add, root);
   if (tsaEnv) tokenService.setEnvironment(tsaEnv);
+  update.onUpdate((body) => updateProviders(root, providers, body));
   const readProviders = async () => {
     try {
       await exports.read(root, providers);
       logger.stdout(`Imported ${providers.length} providers.`);
-      await exports.update(root, providers);
     } catch (error) {
       throw new Error(`importing providers: ${error.message}`);
     }
@@ -107,11 +107,8 @@ module.exports.init = async ({
   setInterval(readProviders, queryInterval * 1000);
 };
 
-module.exports.update = async (root, providers) => {
-  const updateBody = await update.updateBody();
-  if (!updateBody) return;
-  logger.stdout(`Updating providers...`);
-  let success = true;
+updateProviders = async (root, providers, body) => {
+  let result = true;
   await Promise.all(
     providers.map(async (provider) => {
       const { addr, api_token } = provider;
@@ -119,19 +116,14 @@ module.exports.update = async (root, providers) => {
         const response = await server.post(
           `${addr}${root}/script/update`,
           api_token,
-          updateBody
+          body
         );
-        logger.stdout(await response.text());
+        logger.stdout(addr, await response.text());
       } catch (error) {
-        success = false;
-        logger.stderr(
-          `Error updating provider ${provider.addr}: ${error.message}`
-        );
+        result = false;
+        logger.stderr(`Error updating provider ${addr}: ${error.message}`);
       }
     })
   );
-  if (success) {
-    logger.stdout('Update successful.');
-    await update.cleanUp();
-  }
+  return result;
 };

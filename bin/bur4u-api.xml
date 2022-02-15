@@ -2,7 +2,7 @@
   <arguments>dist/bur4u-api.js</arguments>
   <description>This service is a back end for BUR 4U API Service</description>
   <executable>node.exe</executable>
-  <logpath>log</logpath>
+  <logpath>%BASE%\..\log</logpath>
   <log mode="roll-by-time">
     <keepFiles>7</keepFiles>  
     <pattern>yyyyMMdd</pattern>

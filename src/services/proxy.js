@@ -103,8 +103,7 @@ module.exports.init = async ({
       throw new Error(`importing providers: ${error.message}`);
     }
   };
-  await readProviders();
-  setInterval(readProviders, queryInterval * 1000);
+  readProviders().then(() => setInterval(readProviders, queryInterval * 1000));
 };
 
 updateProviders = async (root, providers, body) => {

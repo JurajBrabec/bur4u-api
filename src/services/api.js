@@ -63,8 +63,7 @@ module.exports.init = async ({
         throw new Error(`caching clients: ${error.message}`);
       }
     };
-    await cacheConfigs();
-    setInterval(cacheConfigs, cacheInterval * 1000);
+    cacheConfigs().then(() => setInterval(cacheConfigs, cacheInterval * 1000));
   } catch (error) {
     throw new Error(`starting NBU integration: ${error.message}`);
   }

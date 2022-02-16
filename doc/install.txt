@@ -66,7 +66,12 @@ sudo node /opt/bur4u-api/src/bur4u-api.js --add [provider]
 
 mkdir \bur4u-api \bur4u-api\log \bur4u-api\tmp
 copy bin\* dist\* cert\*  \bur4u-api
-\bur4u-api\bin\bur4u-api install [--user|--username <username>] [--pass|--password <password>]
+"C:\Program Files\DXC\bur4u-api\bin\bur4u-api" install
+sc config bur4u-api obj= "SEC\SVC_nbadminemeaedc" password= "]u9mS$bv3E%xPk^0" type= own
+sc start bur4u-api
+sc query bur4u-api
+
+\bur4u-api\bin\bur4u-api install
 net start bur4u-api
 
 ## Monitoring

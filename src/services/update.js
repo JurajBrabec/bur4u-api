@@ -1,5 +1,6 @@
 const formData = require('form-data');
-const { readdir, readFile, stat, unlink, watch } = require('fs').promises;
+const { readdir, readFile, unlink, watch } = require('fs').promises;
+const { statSync, utimesSync } = require('fs');
 const logger = require('./logger.js');
 const { AdmZip } = require('../modules.js');
 
@@ -28,7 +29,7 @@ const handle = (moduleName, { eventType, filename }) => {
   if (updateTimer) return;
   if (eventType !== EVENT_TYPE) return;
   if (!filename.match(filePattern())) return;
-  updateTimer = setTimeout(() => update(moduleName, filename), 1000);
+  updateTimer = setTimeout(() => update(moduleName, filename, true), 1000);
 };
 
 const updateBody = async (filename) => {
@@ -41,49 +42,47 @@ const updateBody = async (filename) => {
   return form;
 };
 
-const update = async (moduleName, updateFile) => {
+const update = async (moduleName, updateFile, force) => {
   const source = `${process.cwd()}/${UPDATE_FOLDER}/${updateFile}`;
   const target = DEV ? `${process.cwd()}/${UPDATE_FOLDER}` : process.cwd();
-  let restart = false;
   logger.stdout(`Updating ${moduleName} update file "${updateFile}"...`);
   let files = 0;
+  let parentFolder = '';
   try {
     const zip = new AdmZip(source);
-    const results = await Promise.all(
-      zip.getEntries().map(async (entry) => {
-        const { entryName } = entry;
-        let method = '';
-        try {
-          const { size } = await stat(`${process.cwd()}/${entryName}`);
-          if (parseInt(entry.header.size) === parseInt(size)) return false;
-          method = 'Updated';
-        } catch (error) {
-          method = 'Added';
-        }
-        logger.stdout(`${method} "${entryName}"...`);
-        zip.extractEntryTo(entry, target, true, true);
-        files++;
-        return true;
-      })
-    );
-    restart = results.some((result) => result);
+    zip.getEntries().forEach((entry) => {
+      const { entryName, isDirectory, header } = entry;
+      let method = '';
+      try {
+        const { size, mtime } = statSync(`${process.cwd()}/${entryName}`);
+        if (isDirectory) return;
+        const hSize = header.size;
+        const hDate = new Date(header.time).getTime();
+        const date = new Date(mtime).getTime();
+        if (!force && hSize === size && hDate <= date) return;
+        method = 'Updated';
+      } catch (error) {
+        if (isDirectory) parentFolder = entryName;
+        if (entryName.startsWith(parentFolder)) return;
+        method = 'Added';
+      }
+      logger.stdout(`${method} "${entryName}"...`);
+      zip.extractEntryTo(entry, target, true, true);
+      utimesSync(`${target}/${entryName}`, header.time, header.time);
+      files++;
+    });
   } catch (error) {
     logger.stderr(error.message);
   } finally {
-    updateTimer = null;
-    if (restart) {
+    if (files) {
       logger.stdout(`Update finished. ${files} files updated.`);
       process.exit(UPDATE_EXITCODE);
     } else {
       logger.stdout(`No file changed.`);
     }
-    if (moduleName === 'proxy') {
-      if (!onUpdate) return;
-      logger.stdout('Updating providers...');
-      const result = await onUpdate(await updateBody(source));
-      if (!result) return;
-      logger.stdout('Update successful.');
-    }
+    updateTimer = null;
+    if (moduleName === 'proxy' && onUpdate)
+      await onUpdate(() => updateBody(source));
     await cleanUp(source);
   }
 };
@@ -100,7 +99,7 @@ module.exports.upload = (file) => {
 module.exports.watch = async (moduleName) => {
   const files = await readdir(UPDATE_FOLDER);
   for (const file of files)
-    if (file.match(filePattern())) await update(moduleName, file);
+    if (file.match(filePattern())) await update(moduleName, file, false);
   const watcher = watch(UPDATE_FOLDER);
   for await (const event of watcher) handle(moduleName, event);
   return watcher;

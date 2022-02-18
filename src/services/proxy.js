@@ -108,21 +108,20 @@ module.exports.init = async ({
 
 updateProviders = async (root, providers, body) => {
   let result = true;
-  await Promise.all(
-    providers.map(async (provider) => {
-      const { addr, api_token } = provider;
-      try {
-        const response = await server.post(
-          `${addr}${root}/script/update`,
-          api_token,
-          body
-        );
-        logger.stdout(addr, await response.text());
-      } catch (error) {
-        result = false;
-        logger.stderr(`Error updating provider ${addr}: ${error.message}`);
-      }
-    })
-  );
+  for (let { addr, api_token } of providers) {
+    try {
+      logger.stdout(`Updating ${addr}...`);
+      const response = await server.post(
+        `${addr}${root}/script/update`,
+        api_token,
+        await body()
+      );
+      if (response.status !== 200) throw new Error(response.statusText);
+      logger.stdout(`Update ${addr} ${await response.text()}`);
+    } catch (error) {
+      result = false;
+      logger.stderr(`Error updating provider ${addr}: ${error.message}`);
+    }
+  }
   return result;
 };

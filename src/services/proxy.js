@@ -3,6 +3,7 @@ const make = require('../models/proxy-responses-v1.js');
 const tokenService = require('./tokenServiceAPI.js');
 const logger = require('./logger.js');
 const update = require('./update.js');
+const { version } = require('../modules.js');
 
 let _providers;
 if (!_providers) _providers = [];
@@ -24,25 +25,6 @@ module.exports.resolve = function (req, res, next) {
   next();
 };
 
-module.exports.read = async (root, providers) => {
-  try {
-    const responses = await Promise.all(
-      providers.map((provider) => exports.query(provider, `${root}/clients`))
-    );
-    _providers = providers.map((provider, index) => {
-      const { timeStamp, status, data } = responses[index];
-      const version = data?.version;
-      return make.Entry({
-        ...provider,
-        ...{ timeStamp, status, version, data },
-      });
-    });
-  } catch (error) {
-    logger.stderr(`Error importing providers: ${error.message}`);
-  }
-  return _providers;
-};
-
 module.exports.query = async (provider, url) => {
   const { addr, api_token } = provider;
   let data = null;
@@ -61,6 +43,27 @@ module.exports.query = async (provider, url) => {
     status = error.code || error.message || error;
   }
   return make.Provider({ ...provider, ...{ data, status } });
+};
+
+module.exports.init = async ({
+  add,
+  root,
+  providers,
+  queryInterval,
+  tsaEnv,
+}) => {
+  if (add) return addProvider(add, root);
+  if (tsaEnv) tokenService.setEnvironment(tsaEnv);
+  update.onUpdate((body) => updateProviders(root, providers, body));
+  const readProviders = async () => {
+    try {
+      await readProviders(root, providers);
+      logger.stdout(`Imported ${providers.length} providers.`);
+    } catch (error) {
+      throw new Error(`importing providers: ${error.message}`);
+    }
+  };
+  readProviders().then(() => setInterval(readProviders, queryInterval * 1000));
 };
 
 const addProvider = async (provider, root) => {
@@ -85,43 +88,53 @@ const addProvider = async (provider, root) => {
   }
 };
 
-module.exports.init = async ({
-  add,
-  root,
-  providers,
-  queryInterval,
-  tsaEnv,
-}) => {
-  if (add) addProvider(add, root);
-  if (tsaEnv) tokenService.setEnvironment(tsaEnv);
-  update.onUpdate((body) => updateProviders(root, providers, body));
-  const readProviders = async () => {
-    try {
-      await exports.read(root, providers);
-      logger.stdout(`Imported ${providers.length} providers.`);
-    } catch (error) {
-      throw new Error(`importing providers: ${error.message}`);
-    }
-  };
-  readProviders().then(() => setInterval(readProviders, queryInterval * 1000));
+readProviders = async (root, providers) => {
+  try {
+    const responses = await Promise.all(
+      providers.map((provider) => exports.query(provider, `${root}/clients`))
+    );
+    _providers = providers.map((provider, index) => {
+      const { timeStamp, status, data } = responses[index];
+      const providerVersion = data?.version;
+      if (providerVersion !== version)
+        updateProvider(
+          root,
+          provider.addr,
+          provider.api_token,
+          update.distBody
+        );
+      return make.Entry({
+        ...provider,
+        ...{ timeStamp, status, version: providerVersion, data },
+      });
+    });
+  } catch (error) {
+    logger.stderr(`Error importing providers: ${error.message}`);
+  }
+  return _providers;
+};
+
+updateProvider = async (root, addr, api_token, body) => {
+  try {
+    logger.stdout(`Updating ${addr}...`);
+    const response = await server.post(
+      `${addr}${root}/script/update`,
+      api_token,
+      await body()
+    );
+    if (response.status !== 200) throw new Error(response.statusText);
+    logger.stdout(`Update ${addr} ${await response.text()}`);
+    return true;
+  } catch (error) {
+    logger.stderr(`Error updating provider ${addr}: ${error.message}`);
+    return false;
+  }
 };
 
 updateProviders = async (root, providers, body) => {
   let result = true;
   for (let { addr, api_token } of providers) {
-    try {
-      logger.stdout(`Updating ${addr}...`);
-      const response = await server.post(
-        `${addr}${root}/script/update`,
-        api_token,
-        await body()
-      );
-      if (response.status !== 200) throw new Error(response.statusText);
-      logger.stdout(`Update ${addr} ${await response.text()}`);
-    } catch (error) {
-      result = false;
-      logger.stderr(`Error updating provider ${addr}: ${error.message}`);
-    }
+    result = result && (await updateProvider(root, addr, api_token, body));
   }
   return result;
 };

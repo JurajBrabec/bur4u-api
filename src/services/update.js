@@ -32,6 +32,17 @@ const handle = (moduleName, { eventType, filename }) => {
   updateTimer = setTimeout(() => update(moduleName, filename, true), 1000);
 };
 
+module.exports.distBody = async (filename) => {
+  const zip = new AdmZip();
+  zip.addLocalFolder(`${process.cwd()}/dist`, 'dist');
+  const form = new formData();
+  form.append('file', zip.toBuffer(), {
+    contentType: 'application/octet-stream',
+    filename,
+  });
+  return form;
+};
+
 const updateBody = async (filename) => {
   const form = new formData();
   const buffer = await readFile(filename);

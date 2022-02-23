@@ -90,13 +90,14 @@ try {
 
   mainModule
     .init(params)
+    .then(() => update.check(moduleName))
     .then(() => {
-      update.watch(moduleName);
       const callBack = () =>
         console.log(
           `${moduleName.toUpperCase()} module ready (https://localhost:${port})`
         );
       server.create({ app, port, callBack });
+      update.watch(moduleName);
     })
     .catch((error) => {
       throw new Error(`Initialization error ${error.message}`);

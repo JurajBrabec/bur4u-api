@@ -3,7 +3,6 @@ const make = require('../models/proxy-responses-v1.js');
 const tokenService = require('./tokenServiceAPI.js');
 const logger = require('./logger.js');
 const update = require('./update.js');
-const { version } = require('../modules.js');
 
 let _providers;
 if (!_providers) _providers = [];
@@ -54,16 +53,18 @@ module.exports.init = async ({
 }) => {
   if (add) return addProvider(add, root);
   if (tsaEnv) tokenService.setEnvironment(tsaEnv);
-  update.onUpdate((body) => updateProviders(root, providers, body));
-  const readProviders = async () => {
+  update.onUpdate((getBody) => updateProviders(root, providers, getBody));
+  const queryRoutine = async (autoUpdate = true) => {
     try {
-      await readProviders(root, providers);
+      await readProviders(root, providers, autoUpdate);
       logger.stdout(`Imported ${providers.length} providers.`);
     } catch (error) {
       throw new Error(`importing providers: ${error.message}`);
     }
   };
-  readProviders().then(() => setInterval(readProviders, queryInterval * 1000));
+  queryRoutine(false).then(() =>
+    setInterval(queryRoutine, queryInterval * 1000)
+  );
 };
 
 const addProvider = async (provider, root) => {
@@ -88,24 +89,28 @@ const addProvider = async (provider, root) => {
   }
 };
 
-readProviders = async (root, providers) => {
+readProviders = async (root, providers, autoUpdate = true) => {
   try {
     const responses = await Promise.all(
       providers.map((provider) => exports.query(provider, `${root}/clients`))
     );
     _providers = providers.map((provider, index) => {
       const { timeStamp, status, data } = responses[index];
-      const providerVersion = data?.version;
-      if (providerVersion !== version)
-        updateProvider(
-          root,
-          provider.addr,
-          provider.api_token,
-          update.distBody
+      const version = data?.version;
+      if (autoUpdate && update.versionCheck(version))
+        setTimeout(
+          () =>
+            updateProvider(
+              root,
+              provider.addr,
+              provider.api_token,
+              update.distBody
+            ),
+          1000
         );
       return make.Entry({
         ...provider,
-        ...{ timeStamp, status, version: providerVersion, data },
+        ...{ timeStamp, status, version, data },
       });
     });
   } catch (error) {
@@ -114,13 +119,14 @@ readProviders = async (root, providers) => {
   return _providers;
 };
 
-updateProvider = async (root, addr, api_token, body) => {
+updateProvider = async (root, addr, api_token, getBody) => {
   try {
     logger.stdout(`Updating ${addr}...`);
+    const body = await getBody();
     const response = await server.post(
       `${addr}${root}/script/update`,
       api_token,
-      await body()
+      body
     );
     if (response.status !== 200) throw new Error(response.statusText);
     logger.stdout(`Update ${addr} ${await response.text()}`);
@@ -131,10 +137,10 @@ updateProvider = async (root, addr, api_token, body) => {
   }
 };
 
-updateProviders = async (root, providers, body) => {
+updateProviders = async (root, providers, getBody) => {
   let result = true;
   for (let { addr, api_token } of providers) {
-    result = result && (await updateProvider(root, addr, api_token, body));
+    result = result && (await updateProvider(root, addr, api_token, getBody));
   }
   return result;
 };

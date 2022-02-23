@@ -2,7 +2,7 @@ const formData = require('form-data');
 const { readdir, readFile, unlink, watch } = require('fs').promises;
 const { statSync, utimesSync } = require('fs');
 const logger = require('./logger.js');
-const { AdmZip } = require('../modules.js');
+const { AdmZip, version } = require('../modules.js');
 
 const EVENT_TYPE = 'change';
 const UPDATE_EXITCODE = 1;
@@ -32,7 +32,7 @@ const handle = (moduleName, { eventType, filename }) => {
   updateTimer = setTimeout(() => update(moduleName, filename, true), 1000);
 };
 
-module.exports.distBody = async (filename) => {
+module.exports.distBody = async (filename = 'dist.zip') => {
   const zip = new AdmZip();
   zip.addLocalFolder(`${process.cwd()}/dist`, 'dist');
   const form = new formData();
@@ -56,7 +56,9 @@ const updateBody = async (filename) => {
 const update = async (moduleName, updateFile, force) => {
   const source = `${process.cwd()}/${UPDATE_FOLDER}/${updateFile}`;
   const target = DEV ? `${process.cwd()}/${UPDATE_FOLDER}` : process.cwd();
-  logger.stdout(`Updating ${moduleName} update file "${updateFile}"...`);
+  logger.stdout(
+    `${moduleName.toUpperCase()} update file "${updateFile}" detected...`
+  );
   let files = 0;
   let parentFolder = '';
   try {
@@ -89,12 +91,12 @@ const update = async (moduleName, updateFile, force) => {
       logger.stdout(`Update finished. ${files} files updated.`);
       process.exit(UPDATE_EXITCODE);
     } else {
-      logger.stdout(`No file changed.`);
+      logger.stdout(`No file has changed.`);
     }
-    updateTimer = null;
     if (moduleName === 'proxy' && onUpdate)
       await onUpdate(() => updateBody(source));
     await cleanUp(source);
+    updateTimer = null;
   }
 };
 
@@ -107,10 +109,16 @@ module.exports.upload = (file) => {
   file.mv(`${UPDATE_FOLDER}/${file.name}`);
 };
 
-module.exports.watch = async (moduleName) => {
+module.exports.versionCheck = (providerVersion = version) =>
+  version !== providerVersion;
+
+module.exports.check = async (moduleName) => {
   const files = await readdir(UPDATE_FOLDER);
   for (const file of files)
     if (file.match(filePattern())) await update(moduleName, file, false);
+};
+
+module.exports.watch = async (moduleName) => {
   const watcher = watch(UPDATE_FOLDER);
   for await (const event of watcher) handle(moduleName, event);
   return watcher;

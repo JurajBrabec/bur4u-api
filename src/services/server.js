@@ -1,6 +1,6 @@
 const https = require('https');
-const { access, readFile } = require('fs').promises;
 const { hostname } = require('os');
+const { access, readFile } = require('./fileSystem.js');
 const { fetch } = require('../modules.js');
 
 const agent = new https.Agent({

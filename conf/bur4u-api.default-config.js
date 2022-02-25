@@ -11,6 +11,11 @@ module.exports = {
   password: null,
   cacheInterval: 60 * 60 * 12,
   cacheConcurrency: 4,
+  eslInterval: 0,
+  eslPath: '.',
+  sm9Interval: 0,
+  sm9Path: '.',
+  sm9History: 60,
   //PROXY entries
   //moduleName: 'proxy',
   providers: [

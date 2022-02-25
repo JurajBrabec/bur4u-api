@@ -14,6 +14,8 @@ const CONFIG_FILE = './conf/bur4u-api.config.js';
 const CACHE_INTERVAL = 60 * 60 * 12;
 const CACHE_CONCURRENCY = 8;
 const QUERY_INTERVAL = 60;
+const SM9_HISTORY = 60;
+const OUTPUT_PATH = '.';
 
 try {
   console.log(`${description} v${version}`);
@@ -39,6 +41,13 @@ try {
     .string('domain')
     .string('user')
     .string('password')
+    .path('eslExport')
+    .num({ eslInterval: { default: 0 } })
+    .path({ eslPath: { default: OUTPUT_PATH } })
+    .path('sm9Export')
+    .num({ sm9Interval: { default: 0 } })
+    .path({ sm9Path: { default: OUTPUT_PATH } })
+    .num({ sm9History: { default: SM9_HISTORY } })
     .num({ cacheInterval: { arg: 'interval', default: CACHE_INTERVAL } })
     .num({
       cacheConcurrency: { arg: 'concurrency', default: CACHE_CONCURRENCY },
@@ -49,7 +58,7 @@ try {
     .new()
     .array({ providers: { arg: 'list', default: [] } })
     .num({ queryInterval: { arg: 'interval', default: QUERY_INTERVAL } })
-    .string({ add: { arg: 'add' } })
+    .string({ addName: { arg: 'add' } })
     .string('tsaEnv')
     .bool('ui')
     .save();

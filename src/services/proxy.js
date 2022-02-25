@@ -45,13 +45,13 @@ module.exports.query = async (provider, url) => {
 };
 
 module.exports.init = async ({
-  add,
+  addName,
   root,
   providers,
   queryInterval,
   tsaEnv,
 }) => {
-  if (add) return addProvider(add, root);
+  if (addName) process.exit(await addProvider(addName, root));
   if (tsaEnv) tokenService.setEnvironment(tsaEnv);
   update.onUpdate((getBody) => updateProviders(root, providers, getBody));
   const queryRoutine = async (autoUpdate = true) => {
@@ -82,10 +82,10 @@ const addProvider = async (provider, root) => {
     console.log(`Successfully registered provider ${name}.`);
     console.log('Add following entry to "providers" array in config file:');
     console.log(entry);
-    process.exit(0);
+    return 0;
   } catch (error) {
     console.log(`Error: ${error.message}`);
-    process.exit(1);
+    return 1;
   }
 };
 

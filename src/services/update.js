@@ -1,6 +1,12 @@
 const formData = require('form-data');
-const { readdir, readFile, unlink, watch } = require('fs').promises;
-const { statSync, utimesSync } = require('fs');
+const {
+  statSync,
+  utimesSync,
+  readdir,
+  readFile,
+  unlink,
+  watch,
+} = require('./fileSystem.js');
 const logger = require('./logger.js');
 const { AdmZip, version } = require('../modules.js');
 

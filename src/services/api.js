@@ -1,6 +1,8 @@
 const { Cached, NBU } = require('../modules.js');
 const jwt = require('./jwtAPI.js');
 const logger = require('./logger.js');
+const ESL = require('./esl.js');
+const SM9 = require('./sm9.js');
 
 const cached = Cached.depot('config');
 
@@ -17,6 +19,13 @@ module.exports.init = async ({
   domain,
   user,
   password,
+  eslExport,
+  eslInterval,
+  eslPath,
+  sm9Export,
+  sm9History,
+  sm9Interval,
+  sm9Path,
   cacheInterval,
   cacheConcurrency,
 }) => {
@@ -25,7 +34,22 @@ module.exports.init = async ({
     const nbu = await NBU({ bin: nbuBinPath, credentials });
     jwt.setIssuer(nbu.masterServer);
     console.log(`Started NBU integration with ${nbu.masterServer}.`);
-
+    if (eslExport) process.exit(await ESL({ nbu, outputPath: eslExport }));
+    if (sm9Export)
+      process.exit(
+        await SM9({ nbu, outputPath: sm9Export, minutes: sm9History })
+      );
+    if (eslInterval)
+      ESL({ nbu, outputPath: eslPath }).then(() =>
+        setInterval(() => ESL({ nbu, outputPath: eslPath }), eslInterval * 1000)
+      );
+    if (sm9Interval)
+      SM9({ nbu, outputPath: sm9Path, minutes: sm9History }).then(() =>
+        setInterval(
+          () => SM9({ nbu, outputPath: sm9Path, minutes: sm9History }),
+          sm9Interval * 1000
+        )
+      );
     const cacheConfigs = async () => {
       let buf = 0;
       logger.stdout(`Caching of clients started...`);

@@ -7,8 +7,9 @@ class ClientsResponse extends Response {
   }
 }
 class ClientDetailResponse extends Response {
-  constructor(settings, activeJobs, policies) {
+  constructor(hostName, settings, activeJobs, policies) {
     super();
+    this.hostName = hostName;
     this.settings = settings;
     this.activeJobs = activeJobs;
     this.policies = policies;
@@ -16,15 +17,17 @@ class ClientDetailResponse extends Response {
 }
 
 class ClientHistoryResponse extends Response {
-  constructor(jobs) {
+  constructor(hostName, jobs) {
     super();
+    this.hostName = hostName;
     this.jobs = jobs;
   }
 }
 
 class ClientConfigurationResponse extends Response {
-  constructor(settings, backupTypes) {
+  constructor(hostName, settings, backupTypes) {
     super();
+    this.hostName = hostName;
     this.settings = settings;
     this.backupTypes = backupTypes;
   }
@@ -115,11 +118,11 @@ class SLPResponse {
 module.exports = {
   Error,
   Client: (data) => new ClientResponse(data),
-  ClientHistory: (data) => new ClientHistoryResponse(data),
-  ClientDetail: (data1, data2, data3) =>
-    new ClientDetailResponse(data1, data2, data3),
-  ClientConfiguration: (data1, data2) =>
-    new ClientConfigurationResponse(data1, data2),
+  ClientHistory: (data1, data2) => new ClientHistoryResponse(data1, data2),
+  ClientDetail: (data1, data2, data3, data4) =>
+    new ClientDetailResponse(data1, data2, data3, data4),
+  ClientConfiguration: (data1, data2, data3) =>
+    new ClientConfigurationResponse(data1, data2, data3),
   Clients: (data) => new ClientsResponse(data),
   Job: (data) => new JobResponse(data),
   Policy: (data) => new PolicyResponse(data),

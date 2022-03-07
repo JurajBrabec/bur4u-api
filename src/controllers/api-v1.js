@@ -34,6 +34,7 @@ module.exports.client = async (req, res) => {
 
     res.json(
       make.ClientDetail(
+        hostName,
         settings(config),
         jobs
           .filter((job) => job.state === 1 && job.client === hostName)
@@ -78,6 +79,7 @@ module.exports.history = async (req, res) => {
 
     res.json(
       make.ClientHistory(
+        hostName,
         jobs
           .filter((job) => job.state === 3 && job.client === hostName)
           .sort((a, b) => a.jobId > b.jobId)
@@ -101,6 +103,7 @@ module.exports.configuration = async (req, res) => {
     const config = cached.get(hostName);
     res.json(
       make.ClientConfiguration(
+        hostName,
         settings(config),
         backupTypes(hostName, policies, slps, jobs)
       )

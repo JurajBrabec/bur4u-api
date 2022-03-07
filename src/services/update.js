@@ -31,11 +31,11 @@ const cleanUp = async (file) => {
   }
 };
 
-const handle = (moduleName, { eventType, filename }) => {
+const handle = ({ eventType, filename }) => {
   if (updateTimer) return;
   if (eventType !== EVENT_TYPE) return;
   if (!filename.match(filePattern())) return;
-  updateTimer = setTimeout(() => update(moduleName, filename, true), 1000);
+  updateTimer = setTimeout(() => update(filename, true), 1000);
 };
 
 module.exports.distBody = async (filename = 'dist.zip') => {
@@ -59,12 +59,10 @@ const updateBody = async (filename) => {
   return form;
 };
 
-const update = async (moduleName, updateFile, force) => {
+const update = async (updateFile, force) => {
   const source = `${process.cwd()}/${UPDATE_FOLDER}/${updateFile}`;
   const target = DEV ? `${process.cwd()}/${UPDATE_FOLDER}` : process.cwd();
-  logger.stdout(
-    `${moduleName.toUpperCase()} update file "${updateFile}" detected...`
-  );
+  logger.stdout(`Update file "${updateFile}" detected...`);
   let files = 0;
   let parentFolder = '';
   try {
@@ -99,8 +97,7 @@ const update = async (moduleName, updateFile, force) => {
     } else {
       logger.stdout(`No file has changed.`);
     }
-    if (moduleName === 'proxy' && onUpdate)
-      await onUpdate(() => updateBody(source));
+    if (onUpdate) await onUpdate(() => updateBody(source));
     await cleanUp(source);
     updateTimer = null;
   }
@@ -118,14 +115,14 @@ module.exports.upload = (file) => {
 module.exports.versionCheck = (providerVersion = version) =>
   version !== providerVersion;
 
-module.exports.check = async (moduleName) => {
+module.exports.check = async () => {
   const files = await readdir(UPDATE_FOLDER);
   for (const file of files)
-    if (file.match(filePattern())) await update(moduleName, file, false);
+    if (file.match(filePattern())) await update(file, false);
 };
 
-module.exports.watch = async (moduleName) => {
+module.exports.watch = async () => {
   const watcher = watch(UPDATE_FOLDER);
-  for await (const event of watcher) handle(moduleName, event);
+  for await (const event of watcher) handle(event);
   return watcher;
 };

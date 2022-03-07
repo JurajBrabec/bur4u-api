@@ -63,12 +63,13 @@ try {
     .bool('ui')
     .save();
 
-  const { moduleName, cacheTime, logPath, logRotation, port, ui } =
+  const { moduleName, cacheTime, logPath, logRotation, port } =
     configurator.compile(mainConfig);
 
   let mainModule;
   let params;
   let routes;
+  let ui;
   switch (moduleName) {
     case MODULE_API:
       mainModule = require('./services/api.js');
@@ -82,6 +83,7 @@ try {
         ...configurator.compile(proxyConfig),
       };
       routes = require('./routes/proxy-v1.js');
+      ui = params.ui;
       break;
     default:
       throw new Error(`wrong parameter --module '${moduleName}'.`);
@@ -96,17 +98,17 @@ try {
     routes,
     ui,
   });
+  const callBack = () =>
+    console.log(
+      `${moduleName.toUpperCase()} module ready (https://localhost:${port})`
+    );
 
   mainModule
     .init(params)
-    .then(() => update.check(moduleName))
+    .then(() => update.check())
     .then(() => {
-      const callBack = () =>
-        console.log(
-          `${moduleName.toUpperCase()} module ready (https://localhost:${port})`
-        );
       server.create({ app, port, callBack });
-      update.watch(moduleName);
+      update.watch();
     })
     .catch((error) => {
       throw new Error(`Initialization error ${error.message}`);

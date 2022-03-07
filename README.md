@@ -213,6 +213,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | Property     | Type      | Description                              |
 | :----------- | :-------- | :--------------------------------------- |
 | `timeStamp`  | `integer` | seconds since epoch                      |
+| `client`     | `string`  | client name                              |
 | `settings`   | `object`  | [ClientSettings](#clientsettings) object |
 | `activeJobs` | `array`   | one or more [Job](#job) objects          |
 | `policies`   | `array`   | one or more [Policy](#policy) objects    |
@@ -223,6 +224,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | Property    | Type      | Description                     |
 | :---------- | :-------- | :------------------------------ |
 | `timeStamp` | `integer` | seconds since epoch             |
+| `client`    | `string`  | client name                     |
 | `jobs`      | `array`   | one or more [Job](#job) objects |
 | `version`   | `string`  | version of the API              |
 
@@ -231,6 +233,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | Property      | Type      | Description                                   |
 | :------------ | :-------- | :-------------------------------------------- |
 | `timeStamp`   | `integer` | seconds since epoch                           |
+| `client`      | `string`  | client name                                   |
 | `settings`    | `object`  | [ClientSettings](#clientsettings) object      |
 | `backupTypes` | `array`   | one or more [BackupType](#backuptype) objects |
 | `version`     | `string`  | version of the API                            |

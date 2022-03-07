@@ -7,9 +7,9 @@ class ClientsResponse extends Response {
   }
 }
 class ClientDetailResponse extends Response {
-  constructor(hostName, settings, activeJobs, policies) {
+  constructor(client, settings, activeJobs, policies) {
     super();
-    this.hostName = hostName;
+    this.client = client;
     this.settings = settings;
     this.activeJobs = activeJobs;
     this.policies = policies;
@@ -17,17 +17,17 @@ class ClientDetailResponse extends Response {
 }
 
 class ClientHistoryResponse extends Response {
-  constructor(hostName, jobs) {
+  constructor(client, jobs) {
     super();
-    this.hostName = hostName;
+    this.client = client;
     this.jobs = jobs;
   }
 }
 
 class ClientConfigurationResponse extends Response {
-  constructor(hostName, settings, backupTypes) {
+  constructor(client, settings, backupTypes) {
     super();
-    this.hostName = hostName;
+    this.client = client;
     this.settings = settings;
     this.backupTypes = backupTypes;
   }

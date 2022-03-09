@@ -122,7 +122,7 @@ const primary = ({ masterServer, policies }) =>
       ],
       [LINE1, LINE2, Object.keys(PRIMARY_FIELDS).join(SEPARATOR)]
     )
-    .join(DELIMITER);
+    .join(DELIMITER) + DELIMITER;
 
 const secondaryEntry = ({ masterServer, client, policy, schedule }) => {
   const entry = { ...SECONDARY_FIELDS };
@@ -157,7 +157,7 @@ const secondary = ({ masterServer, policies }) =>
       ],
       [LINE1, LINE2, Object.keys(SECONDARY_FIELDS).join(SEPARATOR)]
     )
-    .join(DELIMITER);
+    .join(DELIMITER) + DELIMITER;
 
 const prepareEslData = ([policies, retLevels]) =>
   policies.filter(eslPolicies).map((policy) => ({
@@ -171,12 +171,7 @@ const prepareEslData = ([policies, retLevels]) =>
     clients: policy.clients.filter(eslClients),
   }));
 
-module.exports = async ({
-  nbu,
-  outputPath,
-  logRotAt = '12:00',
-  logRotHistory = 7,
-}) => {
+module.exports = async ({ nbu, outputPath, logRotAt, logRotHistory }) => {
   logger.stdout('ESL export started...');
   try {
     const masterServer = nbu.masterServer;
@@ -198,10 +193,11 @@ module.exports = async ({
     );
     const primaryFile = `${outputPath}/${PRIMARY_FILE}`;
     const secondaryFile = `${outputPath}/${SECONDARY_FILE}`;
-    await Promise.all([
-      logRot({ file: primaryFile, time: logRotAt, history: logRotHistory }),
-      logRot({ file: secondaryFile, time: logRotAt, history: logRotHistory }),
-    ]);
+    if (logRotAt)
+      await Promise.all([
+        logRot({ file: primaryFile, time: logRotAt, history: logRotHistory }),
+        logRot({ file: secondaryFile, time: logRotAt, history: logRotHistory }),
+      ]);
     logger.stdout(
       `Exporting ${count.clients} clients (${count.policies} policies, ${count.schedules} schedules)...`
     );

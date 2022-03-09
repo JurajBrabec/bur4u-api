@@ -86,7 +86,7 @@ const log = ({ masterServer, jobs }) =>
       ],
       []
     )
-    .join(DELIMITER);
+    .join(DELIMITER) + DELIMITER;
 
 const prepareSm9Data = ([failure, jobs, ended]) =>
   jobs
@@ -146,7 +146,8 @@ module.exports = async ({
       logger.stdout(`No failures to export.`);
       return 0;
     }
-    await logRot({ file, time: logRotAt, history: logRotHistory });
+    if (logRotAt)
+      await logRot({ file, time: logRotAt, history: logRotHistory });
     logger.stdout(`Exporting ${jobs.length} failures...`);
     await appendFile(file, log({ masterServer, jobs }));
     logger.stdout(`SM9 export to "${outputPath}" finished.`);

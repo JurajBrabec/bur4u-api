@@ -30,7 +30,9 @@ const sm9Failures = (job) => {
 
 // Mapping function for tickets. Data can be modified just before a ticket is created.
 const sm9Tickets = (ticket) => {
-  ticket.eventTypeInstance = /^EAO/.test(ticket.policy) ? 'EAO' : 'NBU';
+  ticket.eventTypeInstance = /(^|_)(EAO|P4S)_/.test(ticket.policy)
+    ? 'EAO'
+    : 'NBU';
   return ticket;
 };
 

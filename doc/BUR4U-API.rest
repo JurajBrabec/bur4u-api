@@ -24,9 +24,11 @@ GET {{proxyUrl}}/api/v1/token?local
 
 ### Without token
 GET {{proxyUrl}}/api/v1/providers
+
 ### With bad token
 GET {{proxyUrl}}/api/v1/providers
 X-Auth-Token: badtoken
+
 ### With correct token
 
 ###
@@ -35,6 +37,7 @@ GET {{proxyUrl}}/api/v1/providers
 X-Auth-Token: {{authToken}}
 
 @provider1 = {{getProviders.response.body.providers[0].name}}
+
 ###
 GET {{proxyUrl}}/api/v1/providers/{{provider1}}
 X-Auth-Token: {{authToken}}
@@ -45,15 +48,39 @@ GET {{proxyUrl}}/api/v1/clients
 X-Auth-Token: {{authToken}}
 
 @client1 = {{getClients.response.body.providers[0].data.clients[0].name}}
+
 ###
 GET {{proxyUrl}}/api/v1/clients/{{client1}}
 X-Auth-Token: {{authToken}}
+
 ###
 GET {{proxyUrl}}/api/v1/clients/{{client1}}/history
 X-Auth-Token: {{authToken}}
+
 ###
 GET {{proxyUrl}}/api/v1/clients/{{client1}}/configuration
 X-Auth-Token: {{authToken}}
+
+###
+POST {{proxyUrl}}/api/v1/clients
+Content-Type: application/json
+X-Auth-Token: {{authToken}}
+
+["{{client1}}","bad-client"]
+
+###
+POST {{proxyUrl}}/api/v1/clients/history
+Content-Type: application/json
+X-Auth-Token: {{authToken}}
+
+["{{client1}}","bad-client"]
+
+###
+POST {{proxyUrl}}/api/v1/clients/configuration
+Content-Type: application/json
+X-Auth-Token: {{authToken}}
+
+["{{client1}}","bad-client"]
 
 ### TOKEN SERVICE
 POST https://pln-cd1-apigw-vip.ft1core.mcloud.entsvcs.net:35357/v3/auth/tokens?nocatalog

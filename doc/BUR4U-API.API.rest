@@ -40,3 +40,24 @@ Authorization: Bearer {{JWToken}}
 ###
 GET {{apiUrl}}/api/v1/clients/{{apiClient1}}/configuration
 Authorization: Bearer {{JWToken}}
+
+###
+POST {{apiUrl}}/api/v1/clients
+Authorization: Bearer {{JWToken}}
+Content-Type: application/json
+
+["{{apiClient1}}","bad-client"]
+
+###
+POST {{apiUrl}}/api/v1/clients/history
+Authorization: Bearer {{JWToken}}
+Content-Type: application/json
+
+["{{apiClient1}}","bad-client"]
+
+###
+POST {{apiUrl}}/api/v1/clients/configuration
+Authorization: Bearer {{JWToken}}
+Content-Type: application/json
+
+["{{apiClient1}}","bad-client"]

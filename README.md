@@ -10,6 +10,9 @@ BUR4U API is designed to retrieve real-time information from VPC NetBackup BUR e
 - [Get active jobs and policies for a specific client](#get-active-jobs-and-policies-for-a-specific-client)
 - [Get history of jobs for a specific client](#get-history-of-jobs-for-a-specific-client)
 - [Get configuration for a specific client](#get-configuration-for-a-specific-client)
+- [Get active jobs and policies for a lis of clients](#get-active-jobs-and-policies-for-a-list-of-clients)
+- [Get history of jobs for a list of clients](#get-history-of-jobs-for-a-list-of-clients)
+- [Get configuration for a list of clients](#get-configuration-for-a-list-of-clients)
 
 ### Details
 
@@ -99,11 +102,11 @@ If the authorization is successful, depending on the API end point, one of follo
 
 ##### Returns
 
-| Property    | Type      | Description                                           |
-| :---------- | :-------- | :---------------------------------------------------- |
-| `timeStamp` | `integer` | seconds since epoch                                   |
-| `providers` | `array`   | one or more [ProviderStatus](#providerstatus) objects |
-| `version`   | `string`  | version of the API                                    |
+| Property    | Type      | Description                                                       |
+| :---------- | :-------- | :---------------------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                               |
+| `providers` | `array`   | one or more [ProviderStatusSingle](#providerstatussingle) objects |
+| `version`   | `string`  | version of the API                                                |
 
 #### Get history of jobs for a specific client
 
@@ -117,11 +120,11 @@ If the authorization is successful, depending on the API end point, one of follo
 
 ##### Returns
 
-| Property    | Type      | Description                                             |
-| :---------- | :-------- | :------------------------------------------------------ |
-| `timeStamp` | `integer` | seconds since epoch                                     |
-| `providers` | `array`   | one or more [ProviderHistory](#providerhistory) objects |
-| `version`   | `string`  | version of the API                                      |
+| Property    | Type      | Description                                                         |
+| :---------- | :-------- | :------------------------------------------------------------------ |
+| `timeStamp` | `integer` | seconds since epoch                                                 |
+| `providers` | `array`   | one or more [ProviderHistorySingle](#providerhistorysingle) objects |
+| `version`   | `string`  | version of the API                                                  |
 
 #### Get configuration for a specific client
 
@@ -135,11 +138,65 @@ If the authorization is successful, depending on the API end point, one of follo
 
 ##### Returns
 
-| Property    | Type      | Description                                                         |
-| :---------- | :-------- | :------------------------------------------------------------------ |
-| `timeStamp` | `integer` | seconds since epoch                                                 |
-| `providers` | `array`   | one or more [ProviderConfiguration](#providerconfiguration) objects |
-| `version`   | `string`  | version of the API                                                  |
+| Property    | Type      | Description                                                                     |
+| :---------- | :-------- | :------------------------------------------------------------------------------ |
+| `timeStamp` | `integer` | seconds since epoch                                                             |
+| `providers` | `array`   | one or more [ProviderConfigurationSingle](#providerconfigurationsingle) objects |
+| `version`   | `string`  | version of the API                                                              |
+
+#### Get active jobs and policies for a list of clients
+
+```https
+  POST /api/v1/clients
+```
+
+| Body      | Type    | Description                                         |
+| :-------- | :------ | :-------------------------------------------------- |
+| `clients` | `array` | **Required**. List of names of the clients to fetch |
+
+##### Returns
+
+| Property    | Type      | Description                                                           |
+| :---------- | :-------- | :-------------------------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                                   |
+| `providers` | `array`   | one or more [ProviderStatusMultiple](#providerstatusmultiple) objects |
+| `version`   | `string`  | version of the API                                                    |
+
+#### Get history of jobs for a list of clients
+
+```https
+  POST /api/v1/clients/history
+```
+
+| Body      | Type    | Description                                         |
+| :-------- | :------ | :-------------------------------------------------- |
+| `clients` | `array` | **Required**. List of names of the clients to fetch |
+
+##### Returns
+
+| Property    | Type      | Description                                                             |
+| :---------- | :-------- | :---------------------------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                                     |
+| `providers` | `array`   | one or more [ProviderHistoryMultiple](#providerhistorymultiple) objects |
+| `version`   | `string`  | version of the API                                                      |
+
+#### Get configuration for a list of clients
+
+```https
+  POST /api/v1/clients/configuration
+```
+
+| Body      | Type     | Description                                         |
+| :-------- | :------- | :-------------------------------------------------- |
+| `clients` | `string` | **Required**. List of names of the clients to fetch |
+
+##### Returns
+
+| Property    | Type      | Description                                                                         |
+| :---------- | :-------- | :---------------------------------------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                                                 |
+| `providers` | `array`   | one or more [ProviderConfigurationMultiple](#providerconfigurationmultiple) objects |
+| `version`   | `string`  | version of the API                                                                  |
 
 ### Objects
 
@@ -162,7 +219,7 @@ If the authorization is successful, depending on the API end point, one of follo
 | `data`      | `object`  | [Clients](#clients)    |
 | `version`   | `string`  | version of the API     |
 
-##### ProviderStatus
+##### ProviderStatusSingle
 
 | Property    | Type      | Description                   |
 | :---------- | :-------- | :---------------------------- |
@@ -172,7 +229,17 @@ If the authorization is successful, depending on the API end point, one of follo
 | `data`      | `object`  | [ClientStatus](#clientstatus) |
 | `version`   | `string`  | version of the API            |
 
-##### ProviderHistory
+##### ProviderStatusMultiple
+
+| Property    | Type      | Description                            |
+| :---------- | :-------- | :------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                    |
+| `name`      | `string`  | name of the provider                   |
+| `status`    | `string`  | status of the provider                 |
+| `data`      | `array`   | Array of [ClientStatus](#clientstatus) |
+| `version`   | `string`  | version of the API                     |
+
+##### ProviderHistorySingle
 
 | Property    | Type      | Description                     |
 | :---------- | :-------- | :------------------------------ |
@@ -182,7 +249,17 @@ If the authorization is successful, depending on the API end point, one of follo
 | `data`      | `object`  | [ClientHistory](#clienthistory) |
 | `version`   | `string`  | version of the API              |
 
-##### ProviderConfiguration
+##### ProviderHistoryMultiple
+
+| Property    | Type      | Description                              |
+| :---------- | :-------- | :--------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                      |
+| `name`      | `string`  | name of the provider                     |
+| `status`    | `string`  | status of the provider                   |
+| `data`      | `array`   | Array of [ClientHistory](#clienthistory) |
+| `version`   | `string`  | version of the API                       |
+
+##### ProviderConfigurationSingle
 
 | Property    | Type      | Description                                 |
 | :---------- | :-------- | :------------------------------------------ |
@@ -191,6 +268,16 @@ If the authorization is successful, depending on the API end point, one of follo
 | `status`    | `string`  | status of the provider                      |
 | `data`      | `object`  | [ClientConfiguration](#clientconfiguration) |
 | `version`   | `string`  | version of the API                          |
+
+##### ProviderConfigurationMultiple
+
+| Property    | Type      | Description                                          |
+| :---------- | :-------- | :--------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                  |
+| `name`      | `string`  | name of the provider                                 |
+| `status`    | `string`  | status of the provider                               |
+| `data`      | `array`   | Array of [ClientConfiguration](#clientconfiguration) |
+| `version`   | `string`  | version of the API                                   |
 
 ##### Clients
 

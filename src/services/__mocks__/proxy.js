@@ -16,7 +16,10 @@ let _providers = [];
 module.exports.get = () => _providers;
 
 module.exports.read = async () => {
-  const { data } = await exports.query(provider, '/api/v1/clients');
+  const { data } = await exports.query(provider, {
+    method: 'GET',
+    originalUrl: '/api/v1/clients',
+  });
   _providers = [make.Entry({ ...provider, ...{ timeStamp, status, data } })];
   return _providers;
 };
@@ -26,7 +29,8 @@ module.exports.resolve = function (req, res, next) {
   next();
 };
 
-module.exports.query = async (provider, url) => {
+module.exports.query = async (provider, req) => {
+  const { method, body, originalUrl } = req;
   const nbu = await NBU();
   const clients = await nbu.clients();
   const config = await nbu.config();
@@ -34,7 +38,7 @@ module.exports.query = async (provider, url) => {
   const slps = await nbu.slps();
   const jobs = await nbu.jobs();
   let data;
-  switch (url) {
+  switch (originalUrl) {
     case '/api/v1/clients':
       data = { timeStamp, clients };
       break;
@@ -48,7 +52,7 @@ module.exports.query = async (provider, url) => {
       data = { timeStamp, settings: config, backupTypes: ['TEST'] };
       break;
     default:
-      data = { timeStamp, error: `No data for "${url}" endpoint` };
+      data = { timeStamp, error: `No data for "${originalUrl}" endpoint` };
       break;
   }
   return make.Provider({ ...provider, data });

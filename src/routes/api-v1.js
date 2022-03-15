@@ -13,6 +13,9 @@ router.get('/clients/:hostName/configuration', v1.configuration);
 router.get('/clients/:hostName/history', v1.history);
 router.get('/clients/:hostName', v1.client);
 router.get('/clients', v1.clients);
+router.post('/clients/configuration', v1.configuration);
+router.post('/clients/history', v1.history);
+router.post('/clients', v1.client);
 
 router.use('/script', jwt.middleWare());
 router.post('/script/update', v1.update);

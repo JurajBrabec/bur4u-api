@@ -57,9 +57,7 @@ module.exports.providers = async (req, res) => {
 };
 
 module.exports.proxy = (req, res) =>
-  Promise.all(
-    req.providers.map((provider) => Providers.query(provider, req.originalUrl))
-  )
+  Promise.all(req.providers.map((provider) => Providers.query(provider, req)))
     .then((providers) => res.json(make.Providers(providers)))
     .catch((error) => res.status(400).json(make.Error(error)));
 

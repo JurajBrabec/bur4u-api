@@ -38,18 +38,16 @@ module.exports.create = async ({ app, port, callBack }) => {
 
 module.exports.anonymousGet = async (url) => fetch(`https://${url}`, { agent });
 
-module.exports.get = (url, api_token) =>
+module.exports.get = ({ url, api_token }) =>
   fetch(`https://${url}`, {
     agent,
     headers: { Authorization: `Bearer ${api_token}` },
   });
 
-module.exports.post = (url, api_token, body) =>
+module.exports.post = ({ url, api_token, body, headers = {} }) =>
   fetch(`https://${url}`, {
     agent,
     body,
-    headers: {
-      Authorization: `Bearer ${api_token}`,
-    },
+    headers: { ...headers, Authorization: `Bearer ${api_token}` },
     method: 'POST',
   });

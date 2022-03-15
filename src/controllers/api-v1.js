@@ -22,40 +22,6 @@ module.exports.token = async (req, res) => {
   }
 };
 
-module.exports.client = async (req, res) => {
-  try {
-    const { hostName } = req.params;
-    const nbu = await NBU();
-    const [jobs, policies] = await Promise.all([
-      nbu.jobs({ daysBack: 1 }),
-      nbu.policies(),
-    ]);
-    const config = cached.get(hostName);
-
-    res.json(
-      make.ClientDetail(
-        hostName,
-        settings(config),
-        jobs
-          .filter((job) => job.state === 1 && job.client === hostName)
-          .sort((a, b) => a.jobId > b.jobId)
-          .map(make.Job),
-        policies
-          .filter((policy) =>
-            policy.clients.reduce((found, client) => {
-              if (client.name === hostName) found = true;
-              return found;
-            }, false)
-          )
-          .sort((a, b) => a.name < b.name)
-          .map(make.Policy)
-      )
-    );
-  } catch (error) {
-    res.status(500).json(make.Error(error));
-  }
-};
-
 module.exports.clients = async (req, res) => {
   try {
     const nbu = await NBU();
@@ -71,13 +37,52 @@ module.exports.clients = async (req, res) => {
   }
 };
 
+const getHostNames = (req) => {
+  const hostNames = req.method === 'POST' ? req.body : [req.params.hostName];
+  if (!Array.isArray(hostNames) || !hostNames.length || !hostNames[0])
+    throw new Error('Invalid host name(s)');
+  return hostNames;
+};
+
+module.exports.client = async (req, res) => {
+  try {
+    const hostNames = getHostNames(req);
+    const nbu = await NBU();
+    const [jobs, policies] = await Promise.all([
+      nbu.jobs({ daysBack: 1 }),
+      nbu.policies(),
+    ]);
+    const responses = hostNames.map((hostName) =>
+      make.ClientDetail(
+        hostName,
+        settings(cached.get(hostName)),
+        jobs
+          .filter((job) => job.state === 1 && job.client === hostName)
+          .sort((a, b) => a.jobId > b.jobId)
+          .map(make.Job),
+        policies
+          .filter((policy) =>
+            policy.clients.reduce((found, client) => {
+              if (client.name === hostName) found = true;
+              return found;
+            }, false)
+          )
+          .sort((a, b) => a.name < b.name)
+          .map(make.Policy)
+      )
+    );
+    res.json(req.method === 'POST' ? responses : responses[0]);
+  } catch (error) {
+    res.status(500).json(make.Error(error));
+  }
+};
+
 module.exports.history = async (req, res) => {
   try {
-    const { hostName } = req.params;
+    const hostNames = getHostNames(req);
     const nbu = await NBU();
     const jobs = await nbu.jobs({ daysBack: 7 });
-
-    res.json(
+    const responses = hostNames.map((hostName) =>
       make.ClientHistory(
         hostName,
         jobs
@@ -86,6 +91,7 @@ module.exports.history = async (req, res) => {
           .map(make.Job)
       )
     );
+    res.json(req.method === 'POST' ? responses : responses[0]);
   } catch (error) {
     res.status(500).json(make.Error(error));
   }
@@ -93,21 +99,21 @@ module.exports.history = async (req, res) => {
 
 module.exports.configuration = async (req, res) => {
   try {
-    const { hostName } = req.params;
+    const hostNames = getHostNames(req);
     const nbu = await NBU();
     const [policies, slps, jobs] = await Promise.all([
       nbu.policies(),
       nbu.slps(),
       nbu.jobs({ daysBack: 7 }),
     ]);
-    const config = cached.get(hostName);
-    res.json(
+    const responses = hostNames.map((hostName) =>
       make.ClientConfiguration(
         hostName,
-        settings(config),
+        settings(cached.get(hostName)),
         backupTypes(hostName, policies, slps, jobs)
       )
     );
+    res.json(req.method === 'POST' ? responses : responses[0]);
   } catch (error) {
     res.status(500).json(make.Error(error));
   }

@@ -18,6 +18,9 @@ router.get('/clients/:hostName/configuration', Providers.resolve, v1.proxy);
 router.get('/clients/:hostName/history', Providers.resolve, v1.proxy);
 router.get('/clients/:hostName', Providers.resolve, v1.proxy);
 router.get('/clients', Providers.resolve, v1.proxy);
+router.post('/clients/configuration', Providers.resolve, v1.proxy);
+router.post('/clients/history', Providers.resolve, v1.proxy);
+router.post('/clients', Providers.resolve, v1.proxy);
 
 router.post('/script/update', v1.update);
 

@@ -24,13 +24,18 @@ module.exports.resolve = function (req, res, next) {
   next();
 };
 
-module.exports.query = async (provider, url) => {
+module.exports.query = async (provider, req) => {
   const { addr, api_token } = provider;
+  const url = `${addr}${req.originalUrl}`;
+  const body = JSON.stringify(req.body);
+  const headers = { 'Content-Type': 'application/json' };
   let data = null;
   let status = null;
-
   try {
-    const response = await server.get(`${addr}${url}`, api_token);
+    const response =
+      req.method === 'POST'
+        ? await server.post({ url, api_token, body, headers })
+        : await server.get({ url, api_token });
     status = response.statusText;
     if (response.status === 200) {
       data = await response.json();
@@ -91,8 +96,9 @@ const addProvider = async (provider, root) => {
 
 readProviders = async (root, providers, autoUpdate = true) => {
   try {
+    const req = { method: 'GET', originalUrl: `${root}/clients` };
     const responses = await Promise.all(
-      providers.map((provider) => exports.query(provider, `${root}/clients`))
+      providers.map((provider) => exports.query(provider, req))
     );
     _providers = providers.map((provider, index) => {
       const { timeStamp, status, data } = responses[index];
@@ -122,12 +128,9 @@ readProviders = async (root, providers, autoUpdate = true) => {
 updateProvider = async (root, addr, api_token, getBody) => {
   try {
     logger.stdout(`Updating ${addr}...`);
+    const url = `${addr}${root}/script/update`;
     const body = await getBody();
-    const response = await server.post(
-      `${addr}${root}/script/update`,
-      api_token,
-      body
-    );
+    const response = await server.post({ url, api_token, body });
     if (response.status !== 200) throw new Error(response.statusText);
     logger.stdout(`Update ${addr} ${await response.text()}`);
     return true;

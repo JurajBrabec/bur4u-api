@@ -1,0 +1,45 @@
+{
+    "cells": [
+        {
+            "language": "markdown",
+            "source": [
+                "#### Istantiate the NBU object"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "javascript",
+            "source": [
+                "const { NBU } = require('../src/modules.js');\r\nconst nbu = await NBU( { bin: 'd:/veritas/netbackup/bin' } );\r\nconsole.log( nbu.masterServer );"
+            ],
+            "outputs": [
+                {
+                    "items": [
+                        {
+                            "mime": "application/vnd.code.notebook.stdout",
+                            "value": [
+                                "pln-n1-nbmastc2.env01.mcloud.entsvcs.net",
+                                "",
+                                ""
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "language": "markdown",
+            "source": [
+                "#### Retrieve details"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "javascript",
+            "source": [
+                "const [ policies, slps ] = await Promise.all( [ nbu.policies(), nbu.slps() ] );"
+            ],
+            "outputs": []
+        }
+    ]
+}

@@ -209,7 +209,7 @@ module.exports = async ({ nbu, outputPath, logRotAt, logRotHistory }) => {
     return 0;
   } catch (error) {
     logger.stderr(
-      `Error ${error.code || error} exporting ESL files. ${error.message || ''}`
+      `Error ${error.code || -1} exporting ESL files. ${error.message || ''}`
     );
     return 1;
   }

@@ -156,7 +156,7 @@ module.exports = async ({
     return 0;
   } catch (error) {
     logger.stderr(
-      `Error ${error.code || error} exporting SM9 file. ${error.message || ''}`
+      `Error ${error.code || -1} exporting SM9 file. ${error.message || ''}`
     );
     return 1;
   }

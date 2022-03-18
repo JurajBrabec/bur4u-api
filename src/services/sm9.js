@@ -5,6 +5,7 @@ const FILE = 'mars_mon.log';
 const DELIMITER = '\r\n';
 const SEPARATOR = '::';
 const QUOTE = '';
+const SM9_EXITCODE = 5;
 
 const FIELDS = {
   date: '',
@@ -158,6 +159,6 @@ module.exports = async ({
     logger.stderr(
       `Error ${error.code || -1} exporting SM9 file. ${error.message || ''}`
     );
-    return 1;
+    return SM9_EXITCODE;
   }
 };

@@ -4,6 +4,8 @@ const tokenService = require('./tokenServiceAPI.js');
 const logger = require('./logger.js');
 const update = require('./update.js');
 
+const ADD_EXITCODE = 6;
+
 let _providers;
 if (!_providers) _providers = [];
 module.exports.get = () => _providers;
@@ -90,7 +92,7 @@ const addProvider = async (provider, root) => {
     return 0;
   } catch (error) {
     console.log(`Error: ${error.message}`);
-    return 1;
+    return ADD_EXITCODE;
   }
 };
 

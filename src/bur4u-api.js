@@ -16,6 +16,8 @@ const CACHE_CONCURRENCY = 8;
 const QUERY_INTERVAL = 60;
 const SM9_HISTORY = 60;
 const OUTPUT_PATH = '.';
+const FATAL_EXITCODE = 1;
+const INIT_EXITCODE = 2;
 
 try {
   console.log(`${description} v${version}`);
@@ -111,9 +113,10 @@ try {
       update.watch();
     })
     .catch((error) => {
-      throw new Error(`Initialization error ${error.message}`);
+      logger.stderr(`Fatal error ${error.message}`);
+      process.exit(FATAL_EXITCODE);
     });
 } catch (error) {
-  logger.stderr(`Error ${error.message}`);
-  process.exit(1);
+  logger.stderr(`Initialization error ${error.message}`);
+  process.exit(INIT_EXITCODE);
 }

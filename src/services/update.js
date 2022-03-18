@@ -11,7 +11,7 @@ const logger = require('./logger.js');
 const { AdmZip, version } = require('../modules.js');
 
 const EVENT_TYPE = 'change';
-const UPDATE_EXITCODE = 1;
+const UPDATE_EXITCODE = 3;
 const UPDATE_FOLDER = 'tmp';
 
 const DEV = /dev|test/.test(process.env.npm_lifecycle_event);

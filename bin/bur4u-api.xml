@@ -10,5 +10,8 @@
   <id>bur4u-api</id>
   <name>BUR-4U-API Service</name>
   <onfailure action="restart" />
+  <onfailure action="restart" delay="1 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <resetfailure>1 hour</resetfailure>  
   <workingdirectory>%BASE%\..</workingdirectory>
 </service>

@@ -7,6 +7,12 @@ const {
   rfs,
 } = require('../modules.js');
 
+const MORGAN_FORMAT = {
+  api: '[:date[iso]] :remote-addr :method :url :status :res[content-length] b :response-time ms',
+  proxy:
+    ':req[x-auth-token] [:date[iso]] :remote-addr :method :url :status :res[content-length] b :response-time ms',
+};
+
 module.exports = ({
   moduleName,
   cacheTime,
@@ -23,8 +29,9 @@ module.exports = ({
   app.use(express.json({ limit: '8mb' }));
   app.use(express.urlencoded({ extended: true, limit: '8mb' }));
   if (logPath) {
+    const format = MORGAN_FORMAT[moduleName] || 'combined';
     app.use(
-      morgan('combined', {
+      morgan(format, {
         stream: rfs.createStream(`${moduleName}-access.log`, {
           interval: logRotation,
           path: logPath,
@@ -32,7 +39,7 @@ module.exports = ({
       })
     );
     app.use(
-      morgan('combined', {
+      morgan(format, {
         skip: (req, res) => res.statusCode < 201,
         stream: rfs.createStream(`${moduleName}-security.log`, {
           interval: '1M',

@@ -70,7 +70,7 @@ module.exports.init = async ({
     }
   };
   queryRoutine(false).then(() =>
-    setInterval(queryRoutine, queryInterval * 1000)
+    setInterval(queryRoutine, queryInterval * 1000 * 60)
   );
 };
 

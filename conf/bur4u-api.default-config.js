@@ -9,7 +9,7 @@ module.exports = {
   domain: null,
   user: null,
   password: null,
-  cacheInterval: 60 * 60 * 12,
+  cacheInterval: 60 * 12,
   cacheConcurrency: 4,
   eslInterval: 0,
   eslPath: '.',
@@ -24,7 +24,7 @@ module.exports = {
       api_token: '',
     },
   ],
-  queryInterval: 60,
+  queryInterval: 5,
   tsaEnv: 'FT1',
   ui: true,
 };

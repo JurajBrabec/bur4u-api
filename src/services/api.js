@@ -14,6 +14,12 @@ const paralelPromises = (promises, length) => {
   return Promise.all(Array.from({ length }, next));
 };
 
+const age = {
+  clients: 1000 * 60 * 5,
+  jobs: 1000 * 60,
+  policies: 1000 * 60 * 5,
+};
+
 module.exports.init = async ({
   nbuBinPath,
   domain,
@@ -31,7 +37,7 @@ module.exports.init = async ({
 }) => {
   const credentials = user ? { domain, user, password } : undefined;
   try {
-    const nbu = await NBU({ bin: nbuBinPath, credentials });
+    const nbu = await NBU({ bin: nbuBinPath, credentials, age });
     jwt.setIssuer(nbu.masterServer);
     console.log(`Started NBU integration with ${nbu.masterServer}.`);
     if (eslExport) process.exit(await ESL({ nbu, outputPath: eslExport }));
@@ -41,13 +47,16 @@ module.exports.init = async ({
       );
     if (eslInterval)
       ESL({ nbu, outputPath: eslPath }).then(() =>
-        setInterval(() => ESL({ nbu, outputPath: eslPath }), eslInterval * 1000)
+        setInterval(
+          () => ESL({ nbu, outputPath: eslPath }),
+          eslInterval * 1000 * 60
+        )
       );
     if (sm9Interval)
       SM9({ nbu, outputPath: sm9Path, minutes: sm9History }).then(() =>
         setInterval(
           () => SM9({ nbu, outputPath: sm9Path, minutes: sm9History }),
-          sm9Interval * 1000
+          sm9Interval * 1000 * 60
         )
       );
     const cacheConfigs = async () => {
@@ -87,7 +96,9 @@ module.exports.init = async ({
         throw new Error(`caching clients: ${error.message}`);
       }
     };
-    cacheConfigs().then(() => setInterval(cacheConfigs, cacheInterval * 1000));
+    cacheConfigs().then(() =>
+      setInterval(cacheConfigs, cacheInterval * 1000 * 60)
+    );
   } catch (error) {
     throw new Error(`starting NBU integration: ${error.message}`);
   }

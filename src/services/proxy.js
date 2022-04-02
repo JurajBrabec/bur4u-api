@@ -4,25 +4,25 @@ const tokenService = require('./tokenServiceAPI.js');
 const logger = require('./logger.js');
 const update = require('./update.js');
 
-const ADD_EXITCODE = 6;
+const ADD_EXIT_CODE = 6;
 
 let _providers;
 if (!_providers) _providers = [];
 module.exports.get = () => _providers;
 
 module.exports.resolve = function (req, res, next) {
-  const hostName = req.params.hostName;
-
-  req.providers = _providers
-    .filter((provider) => provider.status === 'OK')
-    .map((provider) =>
-      provider.data.clients.find(
-        (client) => !hostName || client.name === hostName
+  const hostNames = [];
+  if (req.method === 'GET' && req.params.hostName)
+    hostNames.push(req.params.hostName);
+  if (req.method === 'POST' && Array.isArray(req.body))
+    hostNames.push(...req.body);
+  req.providers = _providers.filter(
+    ({ status, data: { clients } }) =>
+      status === 'OK' &&
+      hostNames.some((hostName) =>
+        clients.some(({ name }) => name === hostName)
       )
-        ? provider
-        : null
-    )
-    .filter((provider) => provider);
+  );
   next();
 };
 
@@ -92,7 +92,7 @@ const addProvider = async (provider, root) => {
     return 0;
   } catch (error) {
     console.log(`Error: ${error.message}`);
-    return ADD_EXITCODE;
+    return ADD_EXIT_CODE;
   }
 };
 

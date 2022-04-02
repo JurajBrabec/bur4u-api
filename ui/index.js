@@ -75,7 +75,7 @@ const get = {
   value: (id) => getEl(id).value,
 };
 
-get.JSON = async (url) => {
+get.JSON = async ({ method, url, body } = {}) => {
   let data;
   try {
     set.text('error', '');
@@ -84,7 +84,18 @@ get.JSON = async (url) => {
       const response = await fetch(`${URL}/token?local`);
       if (response.ok) token = await response.text();
     }
-    const response = await fetch(url, { headers: { 'x-auth-token': token } });
+    const init = {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-auth-token': token,
+      },
+    };
+    if (method === 'POST') {
+      init.body = body;
+      init.method = method;
+    }
+    const response = await fetch(url, init);
     if (!response.ok) {
       const error = await response.text();
       throw new Error(`${response.status} ${response.statusText} - ${error}`);
@@ -92,6 +103,7 @@ get.JSON = async (url) => {
     data = await response.json();
     console.log({ url, data });
   } catch (error) {
+    console.error(error);
     set.text('error', error.message);
   } finally {
     set.text('loading', '');
@@ -256,8 +268,9 @@ get.clients = ({ name, timeStamp, data: { clients } }) =>
     get.name(name, get.timeStamp(timeStamp)),
     get.list(...fillClients(clients))
   );
-get.clientConfig = ({ name, timeStamp, data: { settings, backupTypes } }) =>
-  get.listItem(
+get.clientConfig = ({ name, timeStamp, data }) => {
+  const { settings, backupTypes } = data.length ? data[0] : data;
+  return get.listItem(
     settings.product ? CLIENT_ICON : OFFLINE_ICON,
     get.name(name, get.timeStamp(timeStamp)),
     get.list(
@@ -269,12 +282,10 @@ get.clientConfig = ({ name, timeStamp, data: { settings, backupTypes } }) =>
       )
     )
   );
-get.clientStatus = ({
-  name,
-  timeStamp,
-  data: { settings, activeJobs, policies },
-}) =>
-  get.listItem(
+};
+get.clientStatus = ({ name, timeStamp, data }) => {
+  const { settings, activeJobs, policies } = data.length ? data[0] : data;
+  return get.listItem(
     settings.product ? CLIENT_ICON : OFFLINE_ICON,
     get.name(name, get.timeStamp(timeStamp)),
     get.version(settings),
@@ -289,8 +300,10 @@ get.clientStatus = ({
       get.list(...fillPolicies(policies))
     )
   );
-get.clientHistory = ({ name, timeStamp, data: { jobs } }) =>
-  get.listItem(
+};
+get.clientHistory = ({ name, timeStamp, data }) => {
+  const { jobs } = data.length ? data[0] : data;
+  return get.listItem(
     CLIENT_ICON,
     get.name(name, get.timeStamp(timeStamp)),
     get.list(
@@ -301,6 +314,7 @@ get.clientHistory = ({ name, timeStamp, data: { jobs } }) =>
       )
     )
   );
+};
 get.job = (job) =>
   get.row(
     get.cell(get.jobId(job.jobId)),
@@ -340,12 +354,25 @@ get.provider = ({ name, version, status, clients }) =>
     )
   );
 
+const init = (name, url) => {
+  if (!name) throw new Error('Client name is required');
+  let method = 'GET';
+  let body;
+  if (name.includes(',')) {
+    method = 'POST';
+    body = JSON.stringify(name.split(','));
+    url = url.replace(`/${name}`, '');
+  }
+  return { method, body, url };
+};
+
 const read = {
   client: (source) => () => source(get.value('name')),
   status: async (name) => {
     try {
-      if (!name) throw new Error('Client name is required');
-      const { timeStamp, providers } = await get.JSON(`${URL}/clients/${name}`);
+      const { timeStamp, providers } = await get.JSON(
+        init(name, `${URL}/clients/${name}`)
+      );
       set.value('name', name);
       set.text('client', get.time(timeStamp));
       set.list('clientList', ...providers.map(get.clientStatus));
@@ -356,9 +383,8 @@ const read = {
   },
   history: async (name) => {
     try {
-      if (!name) throw new Error('Client name is required');
       const { timeStamp, providers } = await get.JSON(
-        `${URL}/clients/${name}/history`
+        init(name, `${URL}/clients/${name}/history`)
       );
       set.value('name', name);
       set.text('client', get.time(timeStamp));
@@ -372,7 +398,7 @@ const read = {
     try {
       if (!name) throw new Error('Client name is required');
       const { timeStamp, providers } = await get.JSON(
-        `${URL}/clients/${name}/configuration`
+        init(name, `${URL}/clients/${name}/configuration`)
       );
       set.value('name', name);
       set.text('client', get.time(timeStamp));
@@ -385,7 +411,9 @@ const read = {
   clients: async () => {
     let count = 0;
     try {
-      const { timeStamp, providers } = await get.JSON(`${URL}/clients`);
+      const { timeStamp, providers } = await get.JSON({
+        url: `${URL}/clients`,
+      });
       set.text('clients', get.time(timeStamp));
       set.list('clientsList', ...providers.map(get.clients));
       count = providers.reduce(
@@ -401,9 +429,9 @@ const read = {
   },
   providers: async () => {
     try {
-      const { timeStamp, version, providers } = await get.JSON(
-        `${URL}/providers`
-      );
+      const { timeStamp, version, providers } = await get.JSON({
+        url: `${URL}/providers`,
+      });
       set.text('providers', `v${version} @ ${get.time(timeStamp)}`);
       set.list('providersList', ...providers.map(get.provider));
     } catch (error) {
@@ -415,7 +443,9 @@ const read = {
     let count = 0;
     try {
       if (!name) throw new Error('Provider name is required');
-      const { timeStamp, data } = await get.JSON(`${URL}/providers/${name}`);
+      const { timeStamp, data } = await get.JSON({
+        url: `${URL}/providers/${name}`,
+      });
       set.text('clients', get.time(timeStamp));
       set.list('clientsList', get.clients({ name, timeStamp, data }));
       count = data.clients.length;

@@ -10,7 +10,7 @@ BUR4U API is designed to retrieve real-time information from VPC NetBackup BUR e
 - [Get active jobs and policies for a specific client](#get-active-jobs-and-policies-for-a-specific-client)
 - [Get history of jobs for a specific client](#get-history-of-jobs-for-a-specific-client)
 - [Get configuration for a specific client](#get-configuration-for-a-specific-client)
-- [Get active jobs and policies for a lis of clients](#get-active-jobs-and-policies-for-a-list-of-clients)
+- [Get active jobs and policies for a list of clients](#get-active-jobs-and-policies-for-a-list-of-clients)
 - [Get history of jobs for a list of clients](#get-history-of-jobs-for-a-list-of-clients)
 - [Get configuration for a list of clients](#get-configuration-for-a-list-of-clients)
 

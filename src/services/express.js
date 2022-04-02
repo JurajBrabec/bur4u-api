@@ -1,3 +1,4 @@
+const { EOL } = require('os');
 const {
   apicache,
   express,
@@ -7,10 +8,15 @@ const {
   rfs,
 } = require('../modules.js');
 
+const missingCR = EOL.replace(/\n/, '');
+
 const MORGAN_FORMAT = {
-  api: '[:date[iso]] :remote-addr :method :url :status :res[content-length] b :response-time ms',
+  api:
+    '[:date[iso]] :remote-addr :method :url :status :res[content-length] b :response-time ms' +
+    missingCR,
   proxy:
-    ':req[x-auth-token] [:date[iso]] :remote-addr :method :url :status :res[content-length] b :response-time ms',
+    ':req[x-auth-token] [:date[iso]] :remote-addr :method :url :status :res[content-length] b :response-time ms' +
+    missingCR,
 };
 
 module.exports = ({

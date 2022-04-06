@@ -17,10 +17,10 @@ module.exports.resolve = function (req, res, next) {
   if (req.method === 'POST' && Array.isArray(req.body))
     hostNames.push(...req.body);
   req.providers = _providers.filter(
-    ({ status, data: { clients } }) =>
+    ({ status, data }) =>
       status === 'OK' &&
       hostNames.some((hostName) =>
-        clients.some(({ name }) => name === hostName)
+        data.clients.some(({ name }) => name === hostName)
       )
   );
   next();

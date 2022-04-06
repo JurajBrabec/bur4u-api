@@ -97,8 +97,9 @@ get.JSON = async ({ method, url, body } = {}) => {
     }
     const response = await fetch(url, init);
     if (!response.ok) {
+      const { status, statusText } = response;
       const error = await response.text();
-      throw new Error(`${response.status} ${response.statusText} - ${error}`);
+      throw new Error(`${status} ${statusText} - ${error}`);
     }
     data = await response.json();
     console.log({ url, data });
@@ -262,11 +263,11 @@ get.backupTypes = ({ daily, monthly, yearly }) =>
       )
     )
   );
-get.clients = ({ name, timeStamp, data: { clients } }) =>
+get.clients = ({ name, timeStamp, data }) =>
   get.listItem(
     PROVIDER_ICON,
     get.name(name, get.timeStamp(timeStamp)),
-    get.list(...fillClients(clients))
+    get.list(...fillClients(data.clients))
   );
 get.clientConfig = ({ name, timeStamp, data }) => {
   const { settings, backupTypes } = data.length ? data[0] : data;

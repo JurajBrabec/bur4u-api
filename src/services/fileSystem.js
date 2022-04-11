@@ -10,6 +10,9 @@ const {
   watch,
   writeFile,
 } = require('fs/promises');
+const { EOL } = require('os');
+
+const CR = EOL.replace(/\n/, '');
 
 const logRot = async ({ file, time, history = 7 }) => {
   const ts = new Date();
@@ -44,6 +47,7 @@ const logRot = async ({ file, time, history = 7 }) => {
 };
 
 module.exports = {
+  CR,
   statSync,
   utimesSync,
   access,

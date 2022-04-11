@@ -5,7 +5,8 @@ module.exports = {
   port: 28748,
   //API entries
   //moduleName: 'api',
-  nbuBinPath: 'c://program files//veritas//netbackup//bin',
+  nbuBinPath: 'c:/program files/veritas/netbackup/bin',
+  nbuDataPath: 'c:/programdata/veritas/netbackup',
   domain: null,
   user: null,
   password: null,
@@ -25,6 +26,6 @@ module.exports = {
     },
   ],
   queryInterval: 5,
-  tsaEnv: 'FT1',
+  tsaEnv: 'PROD',
   ui: true,
 };

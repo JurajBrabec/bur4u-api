@@ -16,11 +16,11 @@ const CACHE_CONCURRENCY = 8;
 const QUERY_INTERVAL = 60;
 const SM9_HISTORY = 60;
 const OUTPUT_PATH = '.';
-const FATAL_EXITCODE = 1;
-const INIT_EXITCODE = 2;
+const FATAL_EXIT_CODE = 1;
+const INIT_EXIT_CODE = 2;
 
 try {
-  console.log(`${description} v${version}`);
+  logger.stdout(`${description} v${version}`);
 
   const mainConfig = configurator.expect
     .jsFile({ configFile: { arg: 'config', default: CONFIG_FILE } })
@@ -40,6 +40,7 @@ try {
   const apiConfig = configurator.expect
     .new()
     .path({ nbuBinPath: { arg: 'bin', required: true } })
+    .string({ nbuDataPath: { arg: 'data' } })
     .string('domain')
     .string('user')
     .string('password')
@@ -101,7 +102,7 @@ try {
     ui,
   });
   const callBack = () =>
-    console.log(
+    logger.stdout(
       `${moduleName.toUpperCase()} module ready (https://localhost:${port})`
     );
 
@@ -114,9 +115,9 @@ try {
     })
     .catch((error) => {
       logger.stderr(`Fatal error ${error.message}`);
-      process.exit(FATAL_EXITCODE);
+      process.exit(FATAL_EXIT_CODE);
     });
 } catch (error) {
   logger.stderr(`Initialization error ${error.message}`);
-  process.exit(INIT_EXITCODE);
+  process.exit(INIT_EXIT_CODE);
 }

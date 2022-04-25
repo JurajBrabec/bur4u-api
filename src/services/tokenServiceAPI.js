@@ -125,7 +125,7 @@ let tokenServiceAPI;
 if (!tokenServiceAPI)
   tokenServiceAPI = new TokenServiceAPI({
     id: '2242189293e5412ba71a8f2086a3ef0c',
-    environment: 'FT1',
+    environment: 'PROD',
     authHeader: 'x-auth-token',
     authSubjectHeader: 'x-subject-token',
     isAuthorized: TokenServiceAPI.isAuthorized,

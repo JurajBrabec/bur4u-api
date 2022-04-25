@@ -6,13 +6,16 @@ const {
   readFile,
   unlink,
   watch,
+  modifyFile,
 } = require('./fileSystem.js');
 const logger = require('./logger.js');
 const { AdmZip, version } = require('../modules.js');
 
 const EVENT_TYPE = 'change';
-const UPDATE_EXITCODE = 3;
-const UPDATE_FOLDER = 'tmp';
+const UPDATE_EXIT_CODE = 3;
+const CONFIG_FILE = `${process.cwd()}/conf/bur4u-api.config.js`;
+const DIST_FOLDER = `${process.cwd()}/dist`;
+const UPDATE_FOLDER = `${process.cwd()}/tmp`;
 
 const DEV = /dev|test/.test(process.env.npm_lifecycle_event);
 
@@ -20,6 +23,9 @@ if (DEV) console.log('DEV MODE');
 
 let onUpdate;
 let updateTimer;
+
+module.exports.updateConfigFile = async (changes) =>
+  modifyFile(CONFIG_FILE, changes);
 
 const filePattern = () => new RegExp(`^.+\.zip$`);
 
@@ -40,7 +46,7 @@ const handle = ({ eventType, filename }) => {
 
 module.exports.distBody = async (filename = 'dist.zip') => {
   const zip = new AdmZip();
-  zip.addLocalFolder(`${process.cwd()}/dist`, 'dist');
+  zip.addLocalFolder(DIST_FOLDER, 'dist');
   const form = new formData();
   form.append('file', zip.toBuffer(), {
     contentType: 'application/octet-stream',
@@ -60,8 +66,8 @@ const updateBody = async (filename) => {
 };
 
 const update = async (updateFile, force) => {
-  const source = `${process.cwd()}/${UPDATE_FOLDER}/${updateFile}`;
-  const target = DEV ? `${process.cwd()}/${UPDATE_FOLDER}` : process.cwd();
+  const source = `${UPDATE_FOLDER}/${updateFile}`;
+  const target = DEV ? `${UPDATE_FOLDER}` : process.cwd();
   logger.stdout(`Update file "${updateFile}" detected...`);
   let files = 0;
   let parentFolder = '';
@@ -93,7 +99,7 @@ const update = async (updateFile, force) => {
   } finally {
     if (files) {
       logger.stdout(`Update finished. ${files} files updated.`);
-      process.exit(UPDATE_EXITCODE);
+      process.exit(UPDATE_EXIT_CODE);
     } else {
       logger.stdout(`No file has changed.`);
     }

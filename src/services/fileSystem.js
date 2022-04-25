@@ -46,6 +46,60 @@ const logRot = async ({ file, time, history = 7 }) => {
   }
 };
 
+const modifyFile = async (fileName, changes, newFileName) => {
+  const hasKey = (searchKey) => {
+    const { line } = matchKey(searchKey);
+    return !!line;
+  };
+  const matchKey = (searchKey) => {
+    const valuePattern = (searchValue) =>
+      `^  (${searchKey}): (${searchValue}),$`;
+
+    const arrayPattern = new RegExp(
+      valuePattern('\\[(?:\\[??[^\\[]*?\\])'),
+      'm'
+    );
+    const simplePattern = new RegExp(valuePattern('.+'), 'm');
+    const [line, key, value] =
+      file.match(arrayPattern) || file.match(simplePattern) || [];
+    return { line, key, value };
+  };
+
+  let changed;
+  let file = await readFile(fileName, {
+    encoding: 'utf8',
+  });
+
+  changes.forEach((change) => {
+    if (change.add) {
+      if (hasKey(change.add)) return;
+      const { line, key, value } = matchKey(change.after || change.before);
+      if (!line) return;
+      let newLine = line.replace(key, change.add).replace(value, change.value);
+      if (change.after) newLine = line + EOL + newLine;
+      if (change.before) newLine = newLine + EOL + line;
+      file = file.replace(line, newLine);
+      changed = true;
+    }
+    if (change.remove) {
+      const { line } = matchKey(change.remove);
+      if (!line) return;
+      file = file.replace(line + EOL, '');
+      changed = true;
+    }
+    if (change.set) {
+      const { line, value } = matchKey(change.set);
+      if (!line) return;
+      const newLine = line.replace(value, change.value);
+      if (newLine === line) return;
+      file = file.replace(line, newLine);
+      changed = true;
+    }
+  });
+  if (!changed) return;
+  await writeFile(newFileName || fileName, file);
+};
+
 module.exports = {
   CR,
   statSync,
@@ -60,4 +114,5 @@ module.exports = {
   watch,
   writeFile,
   logRot,
+  modifyFile,
 };

@@ -107,7 +107,7 @@ Steps are:
 
 ### ESL export (API / Windows only)
 
-- Recommended interval is `360` minutes (6 hours)
+- Recommended schedule is `'0 */6 * * *'` (ech 6 hours)
 - Required output path is: `c:\hp\hps\obcheck2esl\upload`
 
 1. Stop the service
@@ -115,26 +115,8 @@ Steps are:
    sc stop bur4u-api
    ```
 1. Open configuration file `conf\bur4u-api.config.js`
-1. Modify field `eslInterval: 0`, enter interval in minutes, `0` to disable.
+1. Modify field `eslCron: '0 */6 * * *'`, enter cron entry, `null` to disable.
 1. Modify value `eslPath: '.'`
-1. Start the service
-   ```
-   sc start bur4u-api
-   ```
-
-### SM9 export (API / Windows only)
-
-- Recommended interval is `5` minutes
-- Recommended history is `60` minutes
-- Required output path is: `c:\osit\log`
-
-1. Stop the service
-   ```
-   sc stop bur4u-api
-   ```
-1. Open configuration file `conf\bur4u-api.config.js`
-1. Modify field `sm9Interval: 0`, enter interval in minutes, `0` to disable.
-1. Modify value `sm9Path: '.'`
 1. Start the service
    ```
    sc start bur4u-api

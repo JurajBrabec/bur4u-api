@@ -3,6 +3,7 @@ const make = require('../models/proxy-responses-v1.js');
 const tokenService = require('./tokenServiceAPI.js');
 const logger = require('./logger.js');
 const update = require('./update.js');
+const { scheduleJob } = require('./cron.js');
 
 const ADD_EXIT_CODE = 6;
 
@@ -55,7 +56,7 @@ module.exports.init = async ({
   addName,
   root,
   providers,
-  queryInterval,
+  queryCron,
   tsaEnv,
 }) => {
   if (addName) process.exit(await addProvider(addName, root));
@@ -69,9 +70,7 @@ module.exports.init = async ({
       throw new Error(`importing providers: ${error.message}`);
     }
   };
-  queryRoutine(false).then(() =>
-    setInterval(queryRoutine, queryInterval * 1000 * 60)
-  );
+  if (queryCron) scheduleJob(queryCron, queryRoutine);
 };
 
 const addProvider = async (provider, root) => {

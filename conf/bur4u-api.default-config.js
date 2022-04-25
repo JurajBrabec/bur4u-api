@@ -7,16 +7,10 @@ module.exports = {
   //moduleName: 'api',
   nbuBinPath: 'c:/program files/veritas/netbackup/bin',
   nbuDataPath: 'c:/programdata/veritas/netbackup',
-  domain: null,
-  user: null,
-  password: null,
-  cacheInterval: 60 * 12,
+  cacheCron: '0 */8 * * *',
   cacheConcurrency: 4,
-  eslInterval: 0,
+  eslCron: null,
   eslPath: '.',
-  sm9Interval: 0,
-  sm9Path: '.',
-  sm9History: 60,
   //PROXY entries
   //moduleName: 'proxy',
   providers: [
@@ -25,7 +19,6 @@ module.exports = {
       api_token: '',
     },
   ],
-  queryInterval: 5,
-  tsaEnv: 'PROD',
+  queryCron: '*/5 * * * *',
   ui: true,
 };

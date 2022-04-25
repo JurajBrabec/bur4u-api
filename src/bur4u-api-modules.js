@@ -11,6 +11,7 @@ const NBU = require('../lib/nbu-cli.js');
 const nJwt = require('njwt');
 const rfs = require('rotating-file-stream');
 const AdmZip = require('adm-zip');
+const Cron = require('croner');
 
 module.exports = {
   description,
@@ -27,4 +28,5 @@ module.exports = {
   nJwt,
   rfs,
   AdmZip,
+  Cron,
 };

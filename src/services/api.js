@@ -4,6 +4,7 @@ const jwt = require('./jwtAPI.js');
 const logger = require('./logger.js');
 const ESL = require('./esl.js');
 const SM9 = require('./sm9.js');
+const { scheduleJob } = require('./cron.js');
 
 const cached = Cached.depot('config');
 
@@ -60,14 +61,14 @@ module.exports.init = async ({
   domain,
   user,
   password,
+  eslCron,
   eslExport,
-  eslInterval,
   eslPath,
+  sm9Cron,
   sm9Export,
   sm9History,
-  sm9Interval,
   sm9Path,
-  cacheInterval,
+  cacheCron,
   cacheConcurrency,
 }) => {
   if (nbuDataPath) await waitForPath(nbuDataPath);
@@ -84,19 +85,11 @@ module.exports.init = async ({
     process.exit(
       await SM9({ nbu, outputPath: sm9Export, minutes: sm9History })
     );
-  if (eslInterval)
-    ESL({ nbu, outputPath: eslPath }).then(() =>
-      setInterval(
-        () => ESL({ nbu, outputPath: eslPath }),
-        eslInterval * 1000 * 60
-      )
-    );
-  if (sm9Interval)
-    SM9({ nbu, outputPath: sm9Path, minutes: sm9History }).then(() =>
-      setInterval(
-        () => SM9({ nbu, outputPath: sm9Path, minutes: sm9History }),
-        sm9Interval * 1000 * 60
-      )
+  if (eslCron) scheduleJob(eslCron, () => ESL({ nbu, outputPath: eslPath }));
+  if (sm9Cron)
+    scheduleJob(
+      sm9Cron,
+      SM9({ nbu, outputPath: sm9Path, minutes: sm9History })
     );
   const cacheConfigs = async () => {
     let buf = 0;
@@ -135,7 +128,5 @@ module.exports.init = async ({
       throw new Error(`caching clients: ${error.message}`);
     }
   };
-  cacheConfigs().then(() =>
-    setInterval(cacheConfigs, cacheInterval * 1000 * 60)
-  );
+  if (cacheCron) scheduleJob(cacheCron, cacheConfigs);
 };

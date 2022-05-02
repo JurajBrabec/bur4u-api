@@ -36,13 +36,16 @@ export const getClients = async (name) => {
   try {
     const url = name ? `${URL}/providers/${name}` : `${URL}/clients`;
     const { providers, data } = await getJSON({ url });
+    let result;
     if (name) {
-      clients.set([{ name, clients: data.clients }]);
+      result = [{ name, clients: data.clients }];
     } else {
-      clients.set(
-        providers.map(({ name, data: { clients } }) => ({ name, clients }))
-      );
+      result = providers.map(({ name, data: { clients } }) => ({
+        name,
+        clients,
+      }));
     }
+    clients.set(result);
   } catch (err) {
     loading.set(false);
     error.set(err.message);

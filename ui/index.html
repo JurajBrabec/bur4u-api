@@ -9,49 +9,55 @@
     <title>BUR-4U-API user Interface</title>
   </head>
   <body>
-    <body>
-      <header id="header">
-        <h2>BUR-4U-API user Interface
-          <div class="error"><i class="ico">🛑</i><span id="error"></span></div>
-          <div class="loading"><i class="ico">♻</i><span id="loading"></span></div>
-        </h2>
-        <div class="update">
-          <form enctype="multipart/form-data" method="post" action="/api/v1/script/update">
-            <input name="file" type="file" />
-            <input type="submit" value="submit" id="submit" />
-          </form>
+    <header id="header">
+      <h2>
+        BUR-4U-API user Interface
+        <div class="error"><i class="ico">🛑</i><span id="error"></span></div>
+        <div class="loading">
+          <i class="ico">♻</i><span id="loading"></span>
         </div>
-      </header>
-      <nav id="nav">
-        <h4>
-          <button id="allClients"><i class="ico">💻</i>Clients</button>
-          <input id="filter" type="text" placeholder="Filter by name"/>
-          <span><span id="filtered">0</span> clients</span>
-        </h4>
-        <div class="container">
-          <ul id="clientsList"></ul>
-          <pre id="clients"></pre>
-        </div>
-      </nav>
-      <article id="main">
-          <h4>
-            <button id="allProviders"><i class="ico">🖥</i>Providers</button>
-          </h4>
-          <div class="container">
-          <ul id="providersList"></ul>
-          <pre id="providers"></pre>
-        </div>
-          <h4>
-            <input id="name" type="text" placeholder="Host name"/>
-            <button id="status"><i class="ico">💡</i>Status</button>
-            <button id="history"><i class="ico">📊</i>History</button>
-            <button id="config"><i class="ico">⚙</i>Config</button>
-          </h4>
-          <div class="container">
-          <ul id="clientList"></ul>
-          <pre id="client"></pre>
-        </div>
-     </article>
-      <footer id="footer">&copy; 2021 DXC.technology Juraj Brabec</footer>
-    </body>
+      </h2>
+      <div class="update">
+        <form
+          enctype="multipart/form-data"
+          method="post"
+          action="/api/v1/script/update"
+        >
+          <input name="file" type="file" />
+          <input type="submit" value="submit" id="submit" />
+        </form>
+      </div>
+    </header>
+    <nav id="nav">
+      <h4>
+        <button id="allClients"><i class="ico">💻</i>Clients</button>
+        <input id="filter" type="text" placeholder="Filter by name" />
+        <span><span id="filtered">0</span> clients</span>
+      </h4>
+      <div class="container">
+        <ul id="clientsList"></ul>
+        <pre id="clients"></pre>
+      </div>
+    </nav>
+    <article id="main">
+      <h4>
+        <button id="allProviders"><i class="ico">🖥</i>Providers</button>
+      </h4>
+      <div class="container">
+        <ul id="providersList"></ul>
+        <pre id="providers"></pre>
+      </div>
+      <h4>
+        <input id="name" type="text" placeholder="Host name" />
+        <button id="status"><i class="ico">💡</i>Status</button>
+        <button id="history"><i class="ico">📊</i>History</button>
+        <button id="config"><i class="ico">⚙</i>Config</button>
+      </h4>
+      <div class="container">
+        <ul id="clientList"></ul>
+        <pre id="client"></pre>
+      </div>
+    </article>
+    <footer id="footer">&copy; 2021 DXC.technology Juraj Brabec</footer>
+  </body>
 </html>

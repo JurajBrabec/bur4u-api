@@ -30,7 +30,7 @@ div {
 #footer {
   grid-area: footer;
 }
-#main {
+#article {
   grid-area: article;
 }
 #nav {

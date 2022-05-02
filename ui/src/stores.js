@@ -114,7 +114,7 @@ const getJSON = async ({ method = 'GET', url = '', body = '' } = {}) => {
   }
   data = await response.json();
   const { version, timeStamp } = data;
-  const hostName = response.url.match(/^https:\/\/(\w+)\//)[1];
+  const hostName = response.url.match(/^https:\/\/([^\/]+)\//)[1];
   const date = new Date(timeStamp).toISOString();
   label.set(`${hostName} PROXY response v${version} @ ${date}`);
   console.log({ url, data });

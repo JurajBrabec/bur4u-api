@@ -22,6 +22,7 @@ router.post('/clients/configuration', Providers.resolve, v1.proxy);
 router.post('/clients/history', Providers.resolve, v1.proxy);
 router.post('/clients', Providers.resolve, v1.proxy);
 
+router.use('/script', tokenService.middleWare());
 router.post('/script/update', v1.update);
 
 module.exports = router;

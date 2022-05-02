@@ -66,7 +66,12 @@ module.exports.update = async (req, res) => {
     if (!req.files) throw new Error('No files were uploaded.');
     const { file } = req.files;
     await update.upload(file);
-    res.sendStatus(200);
+    res.status(200).json(
+      make.Provider({
+        addr: req.socket.servername,
+        data: `File "${file.name}" was uploaded successfully.`,
+      })
+    );
   } catch (error) {
     res.status(400).json(make.Error(error));
   }

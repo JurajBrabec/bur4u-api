@@ -18,21 +18,7 @@ const SM9_HISTORY = 60;
 const OUTPUT_PATH = '.';
 const INIT_EXIT_CODE = 1;
 
-const CONFIG_CHANGES = [
-  { add: 'cacheCron', value: `'0 */8 * * *'`, before: 'cacheInterval' },
-  { add: 'eslCron', value: `'0 */6 * * *'`, before: 'eslInterval' },
-  { add: 'queryCron', value: `'*/5 * * * *'`, before: 'queryInterval' },
-  { remove: 'domain' },
-  { remove: 'user' },
-  { remove: 'password' },
-  { remove: 'cacheInterval' },
-  { remove: 'eslInterval' },
-  { remove: 'sm9Interval' },
-  { remove: 'sm9Path' },
-  { remove: 'sm9History' },
-  { remove: 'queryInterval' },
-  { remove: 'tsaEnv' },
-];
+const CONFIG_CHANGES = [];
 
 const main = async () => {
   try {

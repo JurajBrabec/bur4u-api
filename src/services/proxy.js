@@ -19,10 +19,11 @@ module.exports.resolve = function (req, res, next) {
     hostNames.push(...req.body);
   req.providers = _providers.filter(
     ({ status, data }) =>
-      (status === 'OK' && hostNames.length === 0) ||
-      hostNames.some((hostName) =>
-        data.clients.some(({ name }) => name === hostName)
-      )
+      status === 'OK' &&
+      (hostNames.length === 0 ||
+        hostNames.some((hostName) =>
+          data.clients.some(({ name }) => name === hostName)
+        ))
   );
   next();
 };

@@ -11,15 +11,16 @@
       {#each $providers as provider}
         <li>
           <i>{provider.status === 'OK' ? '🖥' : '❌'}</i>
-          <span
-            class="name"
-            title="Click to query clients"
-            on:click={() => getClients(provider.name)}>{provider.name}</span
-          >
           {#if provider.status === 'OK'}
+            <span
+              class="name"
+              title="Click to query clients"
+              on:click={() => getClients(provider.name)}>{provider.name}</span
+            >
             <span class="clients">{provider.clients} clients</span>
             (<span class="version">v{provider.version}</span>)
           {:else}
+            <span>{provider.name}</span>
             <span class="status">{provider.status}</span>
           {/if}
         </li>

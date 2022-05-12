@@ -39,7 +39,7 @@
             <div>{bt.timeWindow}</div>
             <div>{bt.backupRetention || ''}</div>
             <div>{bt.copyRetention || ''}</div>
-            <div class:error={!bt.lastJob || bt.lastjob.status > 0}>
+            <div class:error={!bt.lastJob || bt.lastjob?.status > 0}>
               {bt.lastJob?.started || 'N/A'}
             </div>
           </div>
@@ -62,7 +62,7 @@
             <div>{bt.calendar}</div>
             <div>{bt.backupRetention || ''}</div>
             <div>{bt.copyRetention || ''}</div>
-            <div class:error={!bt.lastJob || bt.lastjob.status > 0}>
+            <div class:error={!bt.lastJob || bt.lastjob?.status > 0}>
               {bt.lastJob?.started || 'N/A'}
             </div>
           </div>
@@ -86,7 +86,7 @@
             <div>{bt.calendar}</div>
             <div>{bt.backupRetention || ''}</div>
             <div>{bt.copyRetention || ''}</div>
-            <div class:error={!bt.lastJob || bt.lastjob.status > 0}>
+            <div class:error={!bt.lastJob || bt.lastjob?.status > 0}>
               {bt.lastJob?.started || 'N/A'}
             </div>
           </div>

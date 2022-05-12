@@ -14,6 +14,7 @@
   <Loading bind:loading={$loading}>Loading...</Loading>
   <header>
     <h2>BUR-4U-API User Interface</h2>
+    <code>{$label}</code>
     <Update />
   </header>
   <nav>
@@ -25,7 +26,6 @@
         ><i>💻</i></button
       >
     </h3>
-    <code>{$label}</code>
     <Providers />
     <Clients />
   </nav>

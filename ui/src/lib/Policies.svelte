@@ -28,6 +28,10 @@
           <div>{policy.clients.length}</div>
           <div>{policy.schedules.map((s) => s.name).join(',')}</div>
         </div>
+      {:else}
+        <div class="row">
+          <div class="name failure">No policies found</div>
+        </div>
       {/each}
     </div>
   </div>

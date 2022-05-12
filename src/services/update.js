@@ -9,15 +9,13 @@ const {
   modifyFile,
 } = require('./fileSystem.js');
 const logger = require('./logger.js');
-const { AdmZip, version } = require('../modules.js');
+const { AdmZip, version, DEV } = require('../modules.js');
 
 const EVENT_TYPE = 'change';
 const UPDATE_EXIT_CODE = 3;
 const CONFIG_FILE = `${process.cwd()}/conf/bur4u-api.config.js`;
 const DIST_FOLDER = `${process.cwd()}/dist`;
 const UPDATE_FOLDER = `${process.cwd()}/tmp`;
-
-const DEV = /dev|test/.test(process.env.npm_lifecycle_event);
 
 if (DEV) console.log('DEV MODE');
 

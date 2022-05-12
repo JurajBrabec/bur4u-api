@@ -6,6 +6,7 @@ const {
   cors,
   morgan,
   rfs,
+  DEV,
 } = require('../modules.js');
 
 const MORGAN_FORMAT = {
@@ -53,7 +54,7 @@ module.exports = ({
       })
     );
   }
-  if (ui) app.use('/ui', express.static('ui'));
+  if (ui) app.use('/ui', express.static(DEV ? 'ui/dist' : 'ui'));
   app.use(root, routes);
   app.use((req, res) => res.sendStatus(501));
   return app;

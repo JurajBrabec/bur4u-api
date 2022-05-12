@@ -24,8 +24,7 @@ if (DEV) console.log('DEV MODE');
 let onUpdate;
 let updateTimer;
 
-module.exports.updateConfigFile = async (changes) =>
-  modifyFile(CONFIG_FILE, changes);
+module.exports.updateConfigFile = async () => modifyFile(CONFIG_FILE, []);
 
 const filePattern = () => new RegExp(`^.+\.zip$`);
 

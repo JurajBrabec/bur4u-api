@@ -18,13 +18,11 @@ const SM9_HISTORY = 60;
 const OUTPUT_PATH = '.';
 const INIT_EXIT_CODE = 1;
 
-const CONFIG_CHANGES = [];
-
 const main = async () => {
   try {
     logger.stdout(`${description} v${version}`);
 
-    await update.updateConfigFile(CONFIG_CHANGES);
+    await update.updateConfigFile();
 
     const mainConfig = configurator.expect
       .jsFile({ configFile: { arg: 'config', default: CONFIG_FILE } })

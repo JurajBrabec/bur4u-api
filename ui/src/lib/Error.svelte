@@ -12,6 +12,9 @@
 
 <style>
   div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     position: absolute;
     top: 70px;
     left: 28%;

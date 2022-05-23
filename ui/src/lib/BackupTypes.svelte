@@ -28,7 +28,7 @@
         {#each backupType.daily || [] as bt}
           <div class="row" class:disabled={bt.state === 'Disabled'}>
             <div class="name">
-              {#if bt.state === 'Disabled'}<i>🚫 </i>{/if}
+              {#if bt.state === 'Disabled'}🚫 {/if}
 
               Daily
             </div>
@@ -52,7 +52,7 @@
         {#each backupType.monthly || [] as bt}
           <div class="row" class:disabled={bt.state === 'Disabled'}>
             <div class="name">
-              {#if bt.state === 'Disabled'}<i>🚫 </i>{/if}
+              {#if bt.state === 'Disabled'}🚫 {/if}
               Monthly
             </div>
             <div />
@@ -75,8 +75,7 @@
         {#each backupType.yearly || [] as bt}
           <div class="row" class:disabled={bt.state === 'Disabled'}>
             <div class="name">
-              {#if bt.state === 'Disabled'}<i>🚫 </i>{/if}
-
+              {#if bt.state === 'Disabled'}🚫 {/if}
               Yearly
             </div>
             <div />

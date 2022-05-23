@@ -19,11 +19,8 @@
   </header>
   <nav>
     <h3>
-      <button on:click={() => getProviders()} title="Query providers"
-        ><i>🖥</i></button
-      >
-      <button on:click={() => getClients()} title="Query all clients"
-        ><i>💻</i></button
+      <button on:click={() => getProviders()} title="Query providers">🖥</button>
+      <button on:click={() => getClients()} title="Query all clients">💻</button
       >
     </h3>
     <Providers />
@@ -31,8 +28,7 @@
   </nav>
   <article><Client /></article>
   <footer>
-    <strong>&copy; 2022</strong> DXC.technology /
-    <em>Juraj Brabec</em>
+    <strong>&copy; 2022</strong> <kbd>DXC.technology</kbd>Juraj Brabec
   </footer>
 </main>
 
@@ -51,8 +47,8 @@
       'footer footer';
     grid-template-rows: 85px 1fr;
     grid-template-columns: min(512px, 37%) 1fr;
-    grid-row-gap: 4px;
-    grid-column-gap: 4px;
+    grid-row-gap: 2px;
+    grid-column-gap: 2px;
     height: 98vh;
     margin: 0px;
   }
@@ -71,9 +67,12 @@
   }
   footer {
     grid-area: footer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 1.2em;
     color: rgb(90, 90, 90);
-    padding: 15px;
+    padding: 10px;
   }
   article {
     grid-area: article;
@@ -93,5 +92,10 @@
   code {
     font-size: 0.9em;
     color: gray;
+  }
+  kbd {
+    color: white;
+    padding: 5px 10px;
+    background-color: black;
   }
 </style>

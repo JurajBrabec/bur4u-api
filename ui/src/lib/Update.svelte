@@ -13,7 +13,9 @@
 </script>
 
 <form on:submit|preventDefault={submit}>
-  <button type="button" on:click={() => input.click()}>📂 Select file</button>
+  <button type="button" title="Select file" on:click={() => input.click()}
+    >📂</button
+  >
   <input
     bind:this={input}
     bind:files
@@ -22,8 +24,10 @@
     name="file"
     type="file"
   />
-  <button disabled={!files?.length} type="submit"
-    >☣️ Update {files ? files[0].name : ''}</button
+  <button
+    disabled={!files?.length}
+    title="Update {files ? files[0].name : ''}"
+    type="submit">☣️</button
   >
 </form>
 

@@ -26,7 +26,7 @@
 {#if $clients.length}
   <div>
     <h3>
-      <i>💻</i>{` Clients (${total})`}
+      💻{` Clients (${total})`}
     </h3>
     <input
       type="text"
@@ -38,13 +38,13 @@
       {#each list as provider (provider.name)}
         <li>
           <h4>
-            <i>🖥</i>{` ${provider.name} (${provider.clients.length} clients)`}
+            🖥{` ${provider.name} (${provider.clients.length} clients)`}
           </h4>
           <ul>
             {#each provider.clients as client, index (client.name)}
               {#if index >= (page - 1) * limit && index < page * limit}
                 <li>
-                  <i>{client.settings.product ? '💻' : '❌'}</i>
+                  {client.settings.product ? '💻' : '❌'}
                   <span
                     class="name"
                     on:click={() => getStatus(client.name)}

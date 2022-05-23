@@ -9,11 +9,12 @@
 <style>
   div {
     position: absolute;
+    display: flex;
+    align-items: center;
     top: 140px;
     left: 35%;
     padding: 20px;
-    text-align: center;
-    width: 25%;
+    width: 40%;
     color: #39ba4a;
     background: #ecffe0;
     outline: 1px solid #3ea33a;

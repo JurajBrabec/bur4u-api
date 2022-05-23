@@ -18,16 +18,12 @@
 
 <div>
   <h3>
-    <i>💻</i>
+    💻
     <input type="text" bind:value={name} placeholder="Client name" />
-    <button on:click={() => getStatus(name)} title="Query status"
-      ><i>💡</i></button
-    >
-    <button on:click={() => getHistory(name)} title="Query history"
-      ><i>📊</i></button
-    >
+    <button on:click={() => getStatus(name)} title="Query status">💡</button>
+    <button on:click={() => getHistory(name)} title="Query history">📊</button>
     <button on:click={() => getConfig(name)} title="Query configuration"
-      ><i>⚙</i></button
+      >⚙</button
     >
   </h3>
   {#if $client}

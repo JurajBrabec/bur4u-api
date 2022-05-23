@@ -5,12 +5,12 @@
 {#if $providers.length}
   <div>
     <h3>
-      <i>🖥</i>{` Providers (${$providers.length})`}
+      🖥{` Providers (${$providers.length})`}
     </h3>
     <ul>
       {#each $providers as provider}
         <li>
-          <i>{provider.status === 'OK' ? '🖥' : '❌'}</i>
+          {provider.status === 'OK' ? '🖥' : '❌'}
           {#if provider.status === 'OK'}
             <span
               class="name"

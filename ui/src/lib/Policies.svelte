@@ -20,7 +20,7 @@
       {#each policies as policy}
         <div class="row" class:disabled={policy.state === 'Disabled'}>
           <div class="name">
-            {#if policy.state === 'Disabled'}<i>🚫 </i>{/if}
+            {#if policy.state === 'Disabled'}🚫 {/if}
             {policy.name}
           </div>
           <div>{policy.policyType}</div>

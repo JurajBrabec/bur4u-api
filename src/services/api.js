@@ -59,7 +59,7 @@ module.exports.init = async ({
   nbuDataPath,
   nbuBinPath,
   domain,
-  userName,
+  user,
   password,
   eslCron,
   eslExport,
@@ -72,9 +72,7 @@ module.exports.init = async ({
   cacheConcurrency,
 }) => {
   if (nbuDataPath) await waitForPath(nbuDataPath);
-  const credentials = userName
-    ? { domain, user: userName, password }
-    : undefined;
+  const credentials = password ? { domain, user, password } : undefined;
   const nbu = await waitForNbu({
     bin: nbuBinPath,
     credentials,

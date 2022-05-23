@@ -54,7 +54,7 @@ const main = async () => {
           .path({ nbuBinPath: { arg: 'bin', required: true } })
           .string({ nbuDataPath: { arg: 'data' } })
           .string('domain')
-          .string('userName')
+          .string('user')
           .string('password')
           .path('eslExport')
           .string('eslCron')

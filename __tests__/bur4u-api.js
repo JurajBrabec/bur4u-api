@@ -171,18 +171,8 @@ describe('PROXY endpoints tests', () => {
   describe('Without TSA token', () => {
     it('should return 501 on "/" endpoint', () => request.get('/').expect(501));
 
-    it('should return 401 on "/providers" endpoint', async () => {
-      const headers = [
-        { field: 'X-Auth-Token', value: '' }, // no authorization header
-        { field: 'X-Auth-Token', value: 'invalid' }, // invalid authorization header
-      ];
-      headers.forEach(async (header) => {
-        return request
-          .get(`${root}/providers`)
-          .set(header.field, header.value)
-          .expect(401);
-      });
-    });
+    it('should return 401 on "/providers" endpoint', () =>
+      request.get(`${root}/providers`).set('X-Auth-Token', '').expect(401));
 
     it('should return 200 and version "/version" endpoint', () =>
       request

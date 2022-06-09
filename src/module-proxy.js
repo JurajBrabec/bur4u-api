@@ -18,5 +18,5 @@ module.exports = async () => {
   const { ui } = params;
 
   await service.init(params);
-  return { routes: { path: '/api/v1', routes }, ui };
+  return { routes: [{ path: '/api/v1', routes }], ui };
 };

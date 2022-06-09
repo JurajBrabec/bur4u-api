@@ -65,7 +65,7 @@ const proxyResponseToHave = ({
 describe('API endpoint tests', () => {
   beforeAll(() => {
     const routes = require('../src/routes/api/v1');
-    const app = express({ routes: { path, routes } });
+    const app = express({ routes: [{ path, routes }] });
     request = supertest(app);
   });
 
@@ -164,7 +164,7 @@ describe('API endpoint tests', () => {
 describe('PROXY endpoints tests', () => {
   beforeAll(() => {
     const routes = require('../src/routes/proxy/v1');
-    const app = express({ routes: { path, routes } });
+    const app = express({ routes: [{ path, routes }] });
     request = supertest(app);
   });
 

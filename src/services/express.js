@@ -23,7 +23,7 @@ module.exports = ({
   cacheTime,
   logPath,
   logRotation,
-  routes: { path, routes },
+  routes,
   ui,
 }) => {
   const app = express();
@@ -54,7 +54,7 @@ module.exports = ({
     );
   }
   if (ui) app.use('/ui', express.static(DEV ? 'ui/dist' : 'ui'));
-  app.use(path, routes);
+  routes.forEach(({ path, routes }) => app.use(path, routes));
   app.use((req, res) => res.sendStatus(501));
   return app;
 };

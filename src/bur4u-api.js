@@ -1,4 +1,9 @@
-const { configurator, description, version } = require('./modules.js');
+const {
+  configurator,
+  createModule,
+  description,
+  version,
+} = require('./modules.js');
 const express = require('./services/express.js');
 const logger = require('./services/logger.js');
 const server = require('./services/server.js');
@@ -8,20 +13,7 @@ const CACHE_TIME = '15 seconds';
 const CONFIG_FILE = './conf/bur4u-api.config.js';
 const INIT_EXIT_CODE = 1;
 const LOG_ROT = '1d';
-const MODULE_API = 'api';
-const MODULE_PROXY = 'proxy';
 const PORT = 28748;
-
-const createModule = async (moduleName) => {
-  switch (moduleName) {
-    case MODULE_API:
-      return require('./module-api.js')();
-    case MODULE_PROXY:
-      return require('./module-proxy.js')();
-    default:
-      throw new Error(`wrong parameter --module '${moduleName}'.`);
-  }
-};
 
 const main = async () => {
   try {
@@ -47,15 +39,14 @@ const main = async () => {
     const { moduleName, cacheTime, logPath, logRotation, port } =
       configurator.compile(mainConfig);
 
-    const { routes, ui } = await createModule(moduleName);
+    const settings = await createModule(moduleName);
 
     const app = express({
       moduleName,
       cacheTime,
       logPath,
       logRotation,
-      routes,
-      ui,
+      ...settings,
     });
     const callBack = () =>
       logger.stdout(

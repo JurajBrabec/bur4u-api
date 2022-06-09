@@ -26,5 +26,5 @@ module.exports = async () => {
   const params = configurator.compile(config);
   await service.init(params);
 
-  return { routes: { path: '/api/v1', routes } };
+  return { routes: [{ path: '/api/v1', routes }] };
 };

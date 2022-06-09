@@ -1,8 +1,10 @@
-const uniqueArray = (array) => Array.from(new Set(array)).join(',');
+const { NBU, make, getHostNames, cached, settings } = require('./helpers.js');
 
 let policies;
 let slps;
 let jobs;
+
+const uniqueArray = (array) => Array.from(new Set(array)).join(',');
 
 const isDailyPolicy = (policy) => !policy.name.match(/(DUMMY|TEMPLATE|_\d+Y_)/);
 const isYearlyPolicy = (policy) => policy.name.match(/_\d+Y_/);
@@ -129,9 +131,8 @@ const processPolicies = (policies) => {
     ),
   };
 };
-module.exports.settings = (config) => (config ? config[0] : {});
 
-module.exports.backupTypes = (hostName, allPolicies, allSlps, allJobs) => {
+const backupTypes = (hostName, allPolicies, allSlps, allJobs) => {
   policies = allPolicies
     .filter((policy) =>
       policy.clients.find((client) => client.name === hostName)
@@ -164,4 +165,26 @@ module.exports.backupTypes = (hostName, allPolicies, allSlps, allJobs) => {
     )
   );
   return backupTypes;
+};
+
+module.exports = async (req, res) => {
+  try {
+    const hostNames = getHostNames(req);
+    const nbu = await NBU();
+    const [policies, slps, jobs] = await Promise.all([
+      nbu.policies(),
+      nbu.slps(),
+      nbu.jobs({ daysBack: 7 }),
+    ]);
+    const responses = hostNames.map((hostName) =>
+      make.ClientConfiguration(
+        hostName,
+        settings(cached.get(hostName)),
+        backupTypes(hostName, policies, slps, jobs)
+      )
+    );
+    res.json(req.method === 'POST' ? responses : responses[0]);
+  } catch (error) {
+    res.status(500).json(make.Error(error));
+  }
 };

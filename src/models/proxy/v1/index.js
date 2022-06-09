@@ -1,4 +1,4 @@
-const { Response, Error } = require('./responses-v1.js');
+const { Response, Error } = require('../../responses-v1.js');
 class ProviderResponse extends Response {
   constructor(provider) {
     super();

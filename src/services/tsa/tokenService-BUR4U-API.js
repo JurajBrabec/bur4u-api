@@ -1,5 +1,5 @@
 const https = require('https');
-const { fetch } = require('../modules.js');
+const { fetch } = require('../../modules.js');
 const TokenService = require('./tokenService.js');
 
 class TokenServiceAPI extends TokenService {

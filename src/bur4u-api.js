@@ -1,22 +1,27 @@
 const { configurator, description, version } = require('./modules.js');
 const express = require('./services/express.js');
-const server = require('./services/server.js');
 const logger = require('./services/logger.js');
+const server = require('./services/server.js');
 const update = require('./services/update.js');
 
-const API_ROOT = '/api/v1';
 const CACHE_TIME = '15 seconds';
+const CONFIG_FILE = './conf/bur4u-api.config.js';
+const INIT_EXIT_CODE = 1;
 const LOG_ROT = '1d';
 const MODULE_API = 'api';
 const MODULE_PROXY = 'proxy';
 const PORT = 28748;
-const CONFIG_FILE = './conf/bur4u-api.config.js';
-const CACHE_CRON = '0 */8 * * *';
-const CACHE_CONCURRENCY = 8;
-const QUERY_CRON = '0 * * * *';
-const SM9_HISTORY = 60;
-const OUTPUT_PATH = '.';
-const INIT_EXIT_CODE = 1;
+
+const createModule = async (moduleName) => {
+  switch (moduleName) {
+    case MODULE_API:
+      return require('./module-api.js')();
+    case MODULE_PROXY:
+      return require('./module-proxy.js')();
+    default:
+      throw new Error(`wrong parameter --module '${moduleName}'.`);
+  }
+};
 
 const main = async () => {
   try {
@@ -42,64 +47,13 @@ const main = async () => {
     const { moduleName, cacheTime, logPath, logRotation, port } =
       configurator.compile(mainConfig);
 
-    let mainModule;
-    let params;
-    let routes;
-    let ui;
-
-    switch (moduleName) {
-      case MODULE_API:
-        const apiConfig = configurator.expect
-          .new()
-          .path({ nbuBinPath: { arg: 'bin', required: true } })
-          .string({ nbuDataPath: { arg: 'data' } })
-          .string('domain')
-          .string('user')
-          .string('password')
-          .path('eslExport')
-          .string('eslCron')
-          .path({ eslPath: { default: OUTPUT_PATH } })
-          .path('sm9Export')
-          .string('sm9Cron')
-          .path({ sm9Path: { default: OUTPUT_PATH } })
-          .num({ sm9History: { default: SM9_HISTORY } })
-          .string({ cacheCron: { arg: 'cron', default: CACHE_CRON } })
-          .num({
-            cacheConcurrency: {
-              arg: 'concurrency',
-              default: CACHE_CONCURRENCY,
-            },
-          })
-          .save();
-        mainModule = require('./services/api.js');
-        routes = require('./routes/api-v1.js');
-        params = configurator.compile(apiConfig);
-        break;
-      case MODULE_PROXY:
-        const proxyConfig = configurator.expect
-          .new()
-          .string({ root: { default: API_ROOT } })
-          .array({ providers: { arg: 'list', default: [] } })
-          .string({ queryCron: { arg: 'cron', default: QUERY_CRON } })
-          .string({ addName: { arg: 'add' } })
-          .string({ tsaEnv: { default: 'PROD' } })
-          .bool('ui')
-          .save();
-        mainModule = require('./services/proxy.js');
-        routes = require('./routes/proxy-v1.js');
-        params = configurator.compile(proxyConfig);
-        ui = params.ui;
-        break;
-      default:
-        throw new Error(`wrong parameter --module '${moduleName}'.`);
-    }
+    const { routes, ui } = await createModule(moduleName);
 
     const app = express({
       moduleName,
       cacheTime,
       logPath,
       logRotation,
-      root: API_ROOT,
       routes,
       ui,
     });
@@ -108,7 +62,6 @@ const main = async () => {
         `${moduleName.toUpperCase()} module ready (https://localhost:${port})`
       );
 
-    await mainModule.init(params);
     await update.check();
     await server.create({ app, port, callBack });
     update.watch();

@@ -1,6 +1,6 @@
-const { express } = require('../modules.js');
-const jwt = require('../services/jwtAPI.js');
-const v1 = require('../controllers/api-v1.js');
+const { express } = require('../../../modules.js');
+const jwt = require('../../../services/jwt');
+const v1 = require('../../../controllers/api/v1');
 
 const router = express.Router();
 

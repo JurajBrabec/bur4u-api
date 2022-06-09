@@ -1,6 +1,6 @@
 const server = require('./server.js');
-const make = require('../models/proxy-responses-v1.js');
-const tokenService = require('./tokenServiceAPI.js');
+const make = require('../models/proxy/v1');
+const tokenService = require('./tsa');
 const logger = require('./logger.js');
 const update = require('./update.js');
 const { scheduleJob } = require('./cron.js');
@@ -9,6 +9,7 @@ const ADD_EXIT_CODE = 6;
 
 let _providers;
 if (!_providers) _providers = [];
+
 module.exports.get = () => _providers;
 
 module.exports.resolve = function (req, res, next) {
@@ -53,19 +54,13 @@ module.exports.query = async (provider, req) => {
   return make.Provider({ ...provider, ...{ data, status } });
 };
 
-module.exports.init = async ({
-  addName,
-  root,
-  providers,
-  queryCron,
-  tsaEnv,
-}) => {
-  if (addName) process.exit(await addProvider(addName, root));
+module.exports.init = async ({ addName, providers, queryCron, tsaEnv }) => {
+  if (addName) process.exit(await addProvider(addName));
   if (tsaEnv) tokenService.setEnvironment(tsaEnv);
-  update.onUpdate((getBody) => updateProviders(root, providers, getBody));
+  update.onUpdate((getBody) => updateProviders(providers, getBody));
   const queryRoutine = async (autoUpdate = true) => {
     try {
-      await readProviders(root, providers, autoUpdate);
+      await readProviders(providers, autoUpdate);
       logger.stdout(`Imported ${providers.length} providers.`);
     } catch (error) {
       throw new Error(`importing providers: ${error.message}`);
@@ -74,13 +69,13 @@ module.exports.init = async ({
   if (queryCron) scheduleJob(queryCron, queryRoutine);
 };
 
-const addProvider = async (provider, root) => {
+const addProvider = async (provider) => {
   const [name, port] = provider.split(':');
   const addr = `${name}:${port || 28748}`;
   let api_token = '';
   console.log(`Adding provider ${name}...`);
   try {
-    const response = await server.anonymousGet(`${addr}${root}/token`);
+    const response = await server.anonymousGet(`${addr}/api/v1/token`);
     if (response.status !== 200) {
       throw new Error(`${response.status}:${response.statusText}`);
     }
@@ -96,9 +91,9 @@ const addProvider = async (provider, root) => {
   }
 };
 
-readProviders = async (root, providers, autoUpdate = true) => {
+readProviders = async (providers, autoUpdate = true) => {
   try {
-    const req = { method: 'GET', originalUrl: `${root}/clients` };
+    const req = { method: 'GET', originalUrl: `/api/v1/clients` };
     const responses = await Promise.all(
       providers.map((provider) => exports.query(provider, req))
     );
@@ -108,12 +103,7 @@ readProviders = async (root, providers, autoUpdate = true) => {
       if (autoUpdate && update.versionCheck(version))
         setTimeout(
           () =>
-            updateProvider(
-              root,
-              provider.addr,
-              provider.api_token,
-              update.distBody
-            ),
+            updateProvider(provider.addr, provider.api_token, update.distBody),
           1000
         );
       return make.Entry({
@@ -127,10 +117,10 @@ readProviders = async (root, providers, autoUpdate = true) => {
   return _providers;
 };
 
-updateProvider = async (root, addr, api_token, getBody) => {
+updateProvider = async (addr, api_token, getBody) => {
   try {
     logger.stdout(`Updating ${addr}...`);
-    const url = `${addr}${root}/script/update`;
+    const url = `${addr}$/api/v1/script/update`;
     const body = await getBody();
     const response = await server.post({ url, api_token, body });
     if (response.status !== 200) throw new Error(response.statusText);
@@ -142,10 +132,10 @@ updateProvider = async (root, addr, api_token, getBody) => {
   }
 };
 
-updateProviders = async (root, providers, getBody) => {
+updateProviders = async (providers, getBody) => {
   let result = true;
   for (let { addr, api_token } of providers) {
-    result = result && (await updateProvider(root, addr, api_token, getBody));
+    result = result && (await updateProvider(addr, api_token, getBody));
   }
   return result;
 };

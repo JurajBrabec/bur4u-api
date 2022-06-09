@@ -1,4 +1,4 @@
-const JWT = require('../services/jwt.js');
+const JWT = require('./jwt.js');
 
 class JWTAPI extends JWT {
   getToken(req) {
@@ -12,6 +12,7 @@ class JWTAPI extends JWT {
     this.claims.iss = issuer;
   }
 }
+
 let jwtAPI;
 if (!jwtAPI)
   jwtAPI = new JWTAPI({

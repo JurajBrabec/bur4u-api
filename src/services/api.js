@@ -1,9 +1,8 @@
 const { Cached, NBU } = require('../modules.js');
 const { access } = require('./fileSystem.js');
-const jwt = require('./jwtAPI.js');
+const jwt = require('./jwt');
 const logger = require('./logger.js');
 const ESL = require('./esl.js');
-const SM9 = require('./sm9.js');
 const { scheduleJob } = require('./cron.js');
 
 const cached = Cached.depot('config');
@@ -24,11 +23,11 @@ const CACHE_AGE = {
   policies: 1000 * 60 * 5,
 };
 
-const waitForNbu = async ({ bin, credentials, age }) => {
+const waitForNbu = async ({ bin, age }) => {
   let nbu;
   do {
     try {
-      nbu = await NBU({ bin, credentials, age });
+      nbu = await NBU({ bin, age });
     } catch (error) {
       if (!/NBU is down/.test(error.message))
         throw new Error(`starting NBU integration: ${error.message}`);
@@ -58,39 +57,21 @@ const waitForPath = async (path) => {
 module.exports.init = async ({
   nbuDataPath,
   nbuBinPath,
-  domain,
-  user,
-  password,
   eslCron,
   eslExport,
   eslPath,
-  sm9Cron,
-  sm9Export,
-  sm9History,
-  sm9Path,
   cacheCron,
   cacheConcurrency,
 }) => {
   if (nbuDataPath) await waitForPath(nbuDataPath);
-  const credentials = password ? { domain, user, password } : undefined;
   const nbu = await waitForNbu({
     bin: nbuBinPath,
-    credentials,
     age: CACHE_AGE,
   });
   jwt.setIssuer(nbu.masterServer);
   logger.stdout(`Started NBU integration with ${nbu.masterServer}.`);
   if (eslExport) process.exit(await ESL({ nbu, outputPath: eslExport }));
-  if (sm9Export)
-    process.exit(
-      await SM9({ nbu, outputPath: sm9Export, minutes: sm9History })
-    );
   if (eslCron) scheduleJob(eslCron, () => ESL({ nbu, outputPath: eslPath }));
-  if (sm9Cron)
-    scheduleJob(
-      sm9Cron,
-      SM9({ nbu, outputPath: sm9Path, minutes: sm9History })
-    );
   const cacheConfigs = async () => {
     let buf = 0;
     logger.stdout(`Caching of clients started...`);

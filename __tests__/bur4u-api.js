@@ -4,7 +4,7 @@ const express = require('../src/services/express.js');
 const NBU = require('../lib/nbu-cli.js');
 jest.mock('../lib/nbu-cli');
 
-const root = '/api/v1';
+const path = '/api/v1';
 const JWTtoken = /eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9./;
 const TSAtoken = '2242189293e5412ba71a8f2086a3ef0c';
 
@@ -64,8 +64,8 @@ const proxyResponseToHave = ({
 
 describe('API endpoint tests', () => {
   beforeAll(() => {
-    const routes = require('../src/routes/api-v1.js');
-    const app = express({ root, routes });
+    const routes = require('../src/routes/api/v1');
+    const app = express({ routes: { path, routes } });
     request = supertest(app);
   });
 
@@ -80,7 +80,7 @@ describe('API endpoint tests', () => {
       ];
       headers.forEach(async (header) => {
         return request
-          .get(`${root}/clients`)
+          .get(`${path}/clients`)
           .set(header.field, header.value)
           .expect(401);
       });
@@ -88,7 +88,7 @@ describe('API endpoint tests', () => {
 
     it('should return 200 and version "/version" endpoint', () =>
       request
-        .get(`${root}/version`)
+        .get(`${path}/version`)
         .expect(200)
         .then((res) => {
           expect(res.body).toHaveProperty('version');
@@ -96,7 +96,7 @@ describe('API endpoint tests', () => {
 
     it('should return 200 and a JWT token on "/token" endpoint', () =>
       request
-        .get(`${root}/token`)
+        .get(`${path}/token`)
         .expect(200)
         .then((res) => {
           expect(res.text).toMatch(JWTtoken);
@@ -108,7 +108,7 @@ describe('API endpoint tests', () => {
 
     beforeAll(() =>
       request
-        .get(`${root}/token`)
+        .get(`${path}/token`)
         .expect(200)
         .then((res) => {
           token = res.text;
@@ -117,7 +117,7 @@ describe('API endpoint tests', () => {
 
     it('should return 200 and Clients on "/clients" endpoint', () =>
       request
-        .get(`${root}/clients`)
+        .get(`${path}/clients`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200)
         .then((res) =>
@@ -126,7 +126,7 @@ describe('API endpoint tests', () => {
 
     it(`should return 200 and ClientStatus on "/clients/${client}" endpoint`, () =>
       request
-        .get(`${root}/clients/${client}`)
+        .get(`${path}/clients/${client}`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200)
         .then((res) =>
@@ -139,7 +139,7 @@ describe('API endpoint tests', () => {
 
     it(`should return 200 and ClientHistory on "/clients/${client}/history" endpoint`, () =>
       request
-        .get(`${root}/clients/${client}/history`)
+        .get(`${path}/clients/${client}/history`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200)
         .then((res) =>
@@ -148,7 +148,7 @@ describe('API endpoint tests', () => {
 
     it(`should return 200 and ClientConfiguration on "/clients/${client}/configuration" endpoint`, () =>
       request
-        .get(`${root}/clients/${client}/configuration`)
+        .get(`${path}/clients/${client}/configuration`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200)
         .then((res) =>
@@ -163,8 +163,8 @@ describe('API endpoint tests', () => {
 
 describe('PROXY endpoints tests', () => {
   beforeAll(() => {
-    const routes = require('../src/routes/proxy-v1.js');
-    const app = express({ root, routes });
+    const routes = require('../src/routes/proxy/v1');
+    const app = express({ routes: { path, routes } });
     request = supertest(app);
   });
 
@@ -172,11 +172,11 @@ describe('PROXY endpoints tests', () => {
     it('should return 501 on "/" endpoint', () => request.get('/').expect(501));
 
     it('should return 401 on "/providers" endpoint', () =>
-      request.get(`${root}/providers`).set('X-Auth-Token', '').expect(401));
+      request.get(`${path}/providers`).set('X-Auth-Token', '').expect(401));
 
     it('should return 200 and version "/version" endpoint', () =>
       request
-        .get(`${root}/version`)
+        .get(`${path}/version`)
         .expect(200)
         .then((res) => {
           expect(res.body).toHaveProperty('version');
@@ -184,7 +184,7 @@ describe('PROXY endpoints tests', () => {
 
     it('should return 200 and a TSA token on "/token" endpoint', () =>
       request
-        .get(`${root}/token?local`)
+        .get(`${path}/token?local`)
         .expect(200)
         .then((res) => {
           expect(res.text).toMatch(TSAtoken);
@@ -197,7 +197,7 @@ describe('PROXY endpoints tests', () => {
 
     beforeAll(() =>
       request
-        .get(`${root}/token?local`)
+        .get(`${path}/token?local`)
         .expect(200)
         .then((res) => {
           token = res.text;
@@ -206,7 +206,7 @@ describe('PROXY endpoints tests', () => {
 
     it('should return 200 and Providers on "/providers" endpoint', () =>
       request
-        .get(`${root}/providers`)
+        .get(`${path}/providers`)
         .set('X-Auth-Token', token)
         .expect(200)
         .then((res) =>
@@ -222,7 +222,7 @@ describe('PROXY endpoints tests', () => {
 
     it(`should return 200 and Provider on "/providers/${provider}" endpoint`, () =>
       request
-        .get(`${root}/providers/${provider}`)
+        .get(`${path}/providers/${provider}`)
         .set('X-Auth-Token', token)
         .expect(200)
         .then((res) =>
@@ -236,7 +236,7 @@ describe('PROXY endpoints tests', () => {
 
     it(`should return 200 and ClientsList on "/clients" endpoint`, () =>
       request
-        .get(`${root}/clients`)
+        .get(`${path}/clients`)
         .set('X-Auth-Token', token)
         .expect(200)
         .then((res) =>
@@ -249,7 +249,7 @@ describe('PROXY endpoints tests', () => {
 
     it(`should return 200 and ClientStatus on "/clients/${client}" endpoint`, () =>
       request
-        .get(`${root}/clients/${client}`)
+        .get(`${path}/clients/${client}`)
         .set('X-Auth-Token', token)
         .expect(200)
         .then((res) =>
@@ -262,7 +262,7 @@ describe('PROXY endpoints tests', () => {
 
     it(`should return 200 and ClientHistory for "/clients/${client}/history" endpoint`, () =>
       request
-        .get(`${root}/clients/${client}/history`)
+        .get(`${path}/clients/${client}/history`)
         .set('X-Auth-Token', token)
         .expect(200)
         .then((res) =>
@@ -274,7 +274,7 @@ describe('PROXY endpoints tests', () => {
         ));
     it(`should return 200 and ClientConfiguration for "/clients/${client}/configuration" endpoint`, () =>
       request
-        .get(`${root}/clients/${client}/configuration`)
+        .get(`${path}/clients/${client}/configuration`)
         .set('X-Auth-Token', token)
         .expect(200)
         .then((res) =>

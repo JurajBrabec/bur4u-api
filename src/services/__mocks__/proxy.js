@@ -1,5 +1,5 @@
 const NBU = require('../../../lib/nbu-cli.js');
-const make = require('../../models/proxy-responses-v1.js');
+const make = require('../../models/proxy/v1');
 
 const { masterServer, client } = NBU;
 const port = 28749;

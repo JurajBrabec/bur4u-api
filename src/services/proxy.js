@@ -120,7 +120,7 @@ readProviders = async (providers, autoUpdate = true) => {
 updateProvider = async (addr, api_token, getBody) => {
   try {
     logger.stdout(`Updating ${addr}...`);
-    const url = `${addr}$/api/v1/script/update`;
+    const url = `${addr}/api/v1/script/update`;
     const body = await getBody();
     const response = await server.post({ url, api_token, body });
     if (response.status !== 200) throw new Error(response.statusText);

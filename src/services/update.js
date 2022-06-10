@@ -74,7 +74,7 @@ const update = async (updateFile, force) => {
       const { entryName, isDirectory, header } = entry;
       let method = '';
       try {
-        const { size, mtime } = statSync(`${process.cwd()}/${entryName}`);
+        const { size, mtime } = statSync(`${target}/${entryName}`);
         if (isDirectory) return;
         const hSize = header.size;
         const hDate = new Date(header.time).getTime();

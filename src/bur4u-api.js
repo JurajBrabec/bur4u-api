@@ -39,14 +39,14 @@ const main = async () => {
     const { moduleName, cacheTime, logPath, logRotation, port } =
       configurator.compile(mainConfig);
 
-    const settings = await createModule(moduleName);
+    const moduleParams = await createModule(moduleName);
 
     const app = express({
       moduleName,
       cacheTime,
       logPath,
       logRotation,
-      ...settings,
+      ...moduleParams,
     });
     const callBack = () =>
       logger.stdout(

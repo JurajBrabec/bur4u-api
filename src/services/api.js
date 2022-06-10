@@ -1,4 +1,4 @@
-const { Cached, NBU } = require('../modules.js');
+const { Cached, NBU } = require('../modules');
 const { access } = require('./fileSystem.js');
 const jwt = require('./jwt');
 const logger = require('./logger.js');

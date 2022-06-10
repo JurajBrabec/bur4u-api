@@ -1,4 +1,4 @@
-const { express } = require('../../../modules.js');
+const { express } = require('../../../modules');
 const jwt = require('../../../services/jwt');
 const v1 = require('../../../controllers/api/v1');
 

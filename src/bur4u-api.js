@@ -3,7 +3,7 @@ const {
   createModule,
   description,
   version,
-} = require('./modules.js');
+} = require('./modules');
 const express = require('./services/express.js');
 const logger = require('./services/logger.js');
 const server = require('./services/server.js');

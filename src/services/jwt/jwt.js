@@ -1,4 +1,4 @@
-const { nJwt } = require('../../modules.js');
+const { nJwt } = require('../../modules');
 
 const dateAddYears = (years) =>
   new Date(new Date().setFullYear(new Date().getFullYear() + years));

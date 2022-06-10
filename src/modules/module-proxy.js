@@ -1,6 +1,6 @@
-const { configurator } = require('./modules.js');
-const service = require('./services/proxy.js');
-const routes = require('./routes/proxy/v1');
+const { configurator } = require('../modules');
+const service = require('../services/proxy.js');
+const routes = require('../routes/proxy/v1');
 
 const QUERY_CRON = '0 * * * *';
 

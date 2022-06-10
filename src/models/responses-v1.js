@@ -1,4 +1,4 @@
-const { version } = require('../modules.js');
+const { version } = require('../modules');
 
 class Response {
   constructor() {

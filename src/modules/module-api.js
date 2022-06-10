@@ -1,6 +1,6 @@
-const { configurator } = require('./modules.js');
-const service = require('./services/api.js');
-const routes = require('./routes/api/v1');
+const { configurator } = require('../modules');
+const service = require('../services/api.js');
+const routes = require('../routes/api/v1');
 
 const OUTPUT_PATH = '.';
 const CACHE_CRON = '0 */8 * * *';

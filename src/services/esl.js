@@ -1,4 +1,4 @@
-const { version } = require('../modules.js');
+const { version } = require('../modules');
 const { logRot, writeFile } = require('./fileSystem.js');
 const logger = require('./logger.js');
 

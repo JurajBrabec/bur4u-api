@@ -1,4 +1,4 @@
-const { Cached, NBU, version } = require('../../../modules.js');
+const { Cached, NBU, version } = require('../../../modules');
 const make = require('../../../models/api/v1');
 const jwt = require('../../../services/jwt');
 const update = require('../../../services/update.js');

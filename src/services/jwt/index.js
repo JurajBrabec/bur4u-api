@@ -1,1 +1,1 @@
-module.exports = require('./jwt-BUR4U-API.js');
+module.exports = require('./jwt-API.js');

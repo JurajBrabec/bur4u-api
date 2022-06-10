@@ -1,4 +1,4 @@
-const { Cron } = require('../modules.js');
+const { Cron } = require('../modules');
 
 const scheduleJob = (pattern, fn) => {
   const job = Cron(pattern);

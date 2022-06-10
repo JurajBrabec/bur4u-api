@@ -1,25 +1,42 @@
 const https = require('https');
-const { fetch } = require('../../modules.js');
+const { fetch } = require('../../modules');
 const TokenService = require('./tokenService.js');
 
-class TokenServiceAPI extends TokenService {
-  static endPoints = new Map([
-    ['FT1', 'pln-cd1-apigw-vip.ft1core.mcloud.entsvcs.net'],
-    ['FT2', 'pln-ce1-itokenv.ft2core.mcloud.entsvcs.net'],
-    ['STAGE', 'tub-crs1-iapig.mcloud.entsvcs.com'],
-    ['PROD', 'atcswa-cr-iapig.mcloud.entsvcs.com'],
-  ]);
-  static environments = new Set(TokenServiceAPI.endPoints.keys());
-  static testUsers = new Map([
-    ['FT1', { name: 'ngp_bur_user', password: 'tadrur!9-iV_!55I2lFr' }],
-    [
-      'PROD',
-      { name: 'juraj.brabec@dxc.com', password: '5=F42*f*b0samew?tHi$' },
-    ],
-  ]);
-  static isAuthorized = (token) =>
+const ENDPOINTS = [
+  { instance: 'FT1', endPoint: 'pln-cd1-apigw-vip.ft1core.mcloud.entsvcs.net' },
+  { instance: 'FT2', endPoint: 'pln-ce1-itokenv.ft2core.mcloud.entsvcs.net' },
+  { instance: 'STAGE', endPoint: 'tub-crs1-iapig.mcloud.entsvcs.com' },
+  { instance: 'PROD', endPoint: 'atcswa-cr-iapig.mcloud.entsvcs.com' },
+];
+
+const USERS = [
+  { instance: 'FT1', name: 'ngp_bur_user', password: 'tadrur!9-iV_!55I2lFr' },
+  {
+    instance: 'PROD',
+    name: 'juraj.brabec@dxc.com',
+    password: '5=F42*f*b0samew?tHi$',
+  },
+];
+
+const OPTIONS = {
+  id: '2242189293e5412ba71a8f2086a3ef0c',
+  environment: 'PROD',
+  authHeader: 'x-auth-token',
+  authSubjectHeader: 'x-subject-token',
+  useCache: true,
+};
+
+class TSA extends TokenService {
+  static endPoints = new Map(
+    ENDPOINTS.map(({ instance, endPoint }) => [instance, endPoint])
+  );
+  static environments = new Set(ENDPOINTS.map(({ instance }) => instance));
+  static users = new Map(
+    USERS.map(({ instance, name, password }) => [instance, { name, password }])
+  );
+  static isAuthorized = (token, options) =>
     token.roles.reduce(
-      (found, role) => found || role.name === 'bur4u_api_consumer',
+      (found, role) => found || role.name === options.role,
       false
     );
   constructor({
@@ -31,8 +48,8 @@ class TokenServiceAPI extends TokenService {
     useCache = true,
   } = {}) {
     let endPoint;
-    if (TokenServiceAPI.environments.has(environment)) {
-      endPoint = TokenServiceAPI.endPoints.get(environment);
+    if (TSA.environments.has(environment)) {
+      endPoint = TSA.endPoints.get(environment);
     }
     super({ id, endPoint, authHeader, useCache });
     this.environment = environment;
@@ -42,8 +59,7 @@ class TokenServiceAPI extends TokenService {
     });
     if (isAuthorized) this.isAuthorized = isAuthorized;
   }
-  AuthBody() {
-    const { name, password } = TokenServiceAPI.testUsers.get(this.environment);
+  AuthBody({ name, password }) {
     return {
       auth: {
         identity: {
@@ -65,16 +81,13 @@ class TokenServiceAPI extends TokenService {
     };
   }
   setEnvironment(environment) {
-    if (TokenServiceAPI.environments.has(environment)) {
+    if (TSA.environments.has(environment)) {
       this.environment = environment;
-      this.endPoint = TokenServiceAPI.endPoints.get(environment);
+      this.endPoint = TSA.endPoints.get(environment);
     }
   }
   Url(hostName) {
     return `https://${hostName}:35357/v3/auth/tokens?nocatalog`;
-  }
-  async tokenId() {
-    return this.fetchTokenId();
   }
 
   async fetchTokenId() {
@@ -84,8 +97,11 @@ class TokenServiceAPI extends TokenService {
       accept: 'application/json',
       'content-type': 'application/json',
     };
-    const body = JSON.stringify(this.AuthBody());
+    const credentials = TSA.users.get(this.environment);
+    if (!credentials) return null;
+
     const agent = this.agent;
+    const body = JSON.stringify(this.AuthBody(credentials));
     let id;
     try {
       const response = await fetch(url, {
@@ -121,15 +137,7 @@ class TokenServiceAPI extends TokenService {
   }
 }
 
-let tokenServiceAPI;
-if (!tokenServiceAPI)
-  tokenServiceAPI = new TokenServiceAPI({
-    id: '2242189293e5412ba71a8f2086a3ef0c',
-    environment: 'PROD',
-    authHeader: 'x-auth-token',
-    authSubjectHeader: 'x-subject-token',
-    isAuthorized: TokenServiceAPI.isAuthorized,
-    useCache: true,
-  });
+let tokenService;
+if (!tokenService) tokenService = new TSA(OPTIONS);
 
-module.exports = tokenServiceAPI;
+module.exports = tokenService;

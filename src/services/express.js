@@ -7,7 +7,7 @@ const {
   morgan,
   rfs,
   DEV,
-} = require('../modules.js');
+} = require('../modules');
 
 const MORGAN_FORMAT = {
   api:

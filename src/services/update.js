@@ -9,7 +9,7 @@ const {
   modifyFile,
 } = require('./fileSystem.js');
 const logger = require('./logger.js');
-const { AdmZip, version, DEV } = require('../modules.js');
+const { AdmZip, version, DEV } = require('../modules');
 
 const EVENT_TYPE = 'change';
 const UPDATE_EXIT_CODE = 3;

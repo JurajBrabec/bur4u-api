@@ -1,6 +1,12 @@
 const JWT = require('./jwt.js');
 
-class JWTAPI extends JWT {
+const OPTIONS = {
+  claims: { iss: 'bur4u-api', aud: 'bur4u-api' },
+  secret: 'dxc.technology',
+  validYears: 1,
+};
+
+class JWT_API extends JWT {
   getToken(req) {
     const claims = this.reqToClaims(req);
     return super.getToken(claims);
@@ -13,12 +19,7 @@ class JWTAPI extends JWT {
   }
 }
 
-let jwtAPI;
-if (!jwtAPI)
-  jwtAPI = new JWTAPI({
-    claims: { iss: 'bur4u-api', aud: 'bur4u-api' },
-    secret: 'dxc.technology',
-    validYears: 1,
-  });
+let jwt;
+if (!jwt) jwt = new JWT_API(OPTIONS);
 
-module.exports = jwtAPI;
+module.exports = jwt;

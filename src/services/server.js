@@ -1,7 +1,7 @@
 const https = require('https');
 const { hostname } = require('os');
 const { access, readFile } = require('./fileSystem.js');
-const { fetch } = require('../modules.js');
+const { fetch } = require('../modules');
 
 const agent = new https.Agent({
   rejectUnauthorized: false,

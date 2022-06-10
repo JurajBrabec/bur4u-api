@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run build-modules && npm run build-main",
     "build-main": "esbuild ./src/bur4u-api.js --bundle --minify --platform=node --external:*bur4u-api-modules.js --outfile=./dist/bur4u-api.js",
-    "build-modules": "esbuild ./src/bur4u-api-modules.js --bundle --minify --platform=node --outfile=./dist/bur4u-api-modules.js",
+    "build-modules": "esbuild ./src/modules/bur4u-api-modules.js --bundle --minify --platform=node --outfile=./dist/bur4u-api-modules.js",
     "dev-api": "nodemon --watch src ./src/bur4u-api.js --module api",
     "dev-proxy": "nodemon --watch src --delay 2 ./src/bur4u-api.js --module proxy --port 443",
     "prod-api": "node ./dist/bur4u-api.js --module api",

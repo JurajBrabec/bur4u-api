@@ -1,4 +1,5 @@
 <script>
+  import Login from './lib/Login.svelte';
   import Error from './lib/Error.svelte';
   import Loading from './lib/Loading.svelte';
   import Providers from './lib/Providers.svelte';
@@ -6,7 +7,14 @@
   import Client from './lib/Client.svelte';
   import Update from './lib/Update.svelte';
 
-  import { error, loading, label, getProviders, getClients } from './stores.js';
+  import {
+    token,
+    error,
+    loading,
+    label,
+    getProviders,
+    getClients,
+  } from './stores.js';
 </script>
 
 <main>
@@ -15,18 +23,30 @@
   <header>
     <h2>BUR-4U-API User Interface</h2>
     <code>{$label}</code>
-    <Update />
+    <div class="buttons">
+      {#if $token}
+        <Update />
+        <button on:click={() => token.set()} title="Log out">🔐</button>
+      {:else}
+        <Login />
+      {/if}
+    </div>
   </header>
-  <nav>
-    <h3>
-      <button on:click={() => getProviders()} title="Query providers">🖥</button>
-      <button on:click={() => getClients()} title="Query all clients">💻</button
-      >
-    </h3>
-    <Providers />
-    <Clients />
-  </nav>
-  <article><Client /></article>
+  {#if $token}
+    <nav>
+      <h3>
+        <button on:click={() => getProviders()} title="Query providers"
+          >🖥</button
+        >
+        <button on:click={() => getClients()} title="Query all clients"
+          >💻</button
+        >
+      </h3>
+      <Providers />
+      <Clients />
+    </nav>
+    <article><Client /></article>
+  {/if}
   <footer>
     <strong>&copy; 2022</strong> <kbd>DXC.technology</kbd>Juraj Brabec
   </footer>
@@ -97,5 +117,10 @@
     color: white;
     padding: 5px 10px;
     background-color: black;
+  }
+  .buttons {
+    display: flex;
+    align-items: center;
+    gap: 3px;
   }
 </style>

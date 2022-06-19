@@ -1,5 +1,6 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 
+export const token = writable();
 export const error = writable('');
 export const loading = writable(false);
 export const label = writable('');
@@ -8,7 +9,6 @@ export const clients = writable([]);
 export const client = writable();
 
 const URL = `https://${window.location.hostname}/api/v1`;
-let token;
 
 const params = (names, url) => {
   let method = 'GET';
@@ -88,19 +88,41 @@ export const update = async (body) => {
   return data;
 };
 
+export const getToken = async ({ name, password }) => {
+  try {
+    if (!name) throw new Error('Username is required');
+    let response;
+    if (name === 'local') {
+      response = await fetch(`${URL}/token?local`);
+    } else {
+      response = await fetch(`${URL}/token`, {
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({ name, password }),
+      });
+    }
+    if (!response.ok)
+      throw new Error(`${response.status} ${response.statusText}`);
+    token.set(await response.text());
+    return get(token);
+  } catch (err) {
+    token.set();
+    return { error: err.message };
+  }
+};
+
 const getJSON = async ({ method = 'GET', url = '', body = '' } = {}) => {
   let data;
   error.set('');
   label.set('Loading...');
   loading.set(true);
-  if (!token) {
-    const response = await fetch(`${URL}/token?local`);
-    if (response.ok) token = await response.text();
-  }
   const init = {
     headers: {
       Accept: 'application/json',
-      'x-auth-token': token,
+      'x-auth-token': get(token),
     },
   };
   if (method === 'POST') {

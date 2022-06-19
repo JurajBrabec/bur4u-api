@@ -46,9 +46,6 @@ module.exports = class TokenService {
   Url(hostName = 'localhost') {
     return `https://${hostName}`;
   }
-  isAuthorized(token, options) {
-    return token;
-  }
 
   async fetchTokenId() {
     return this.id;
@@ -60,7 +57,7 @@ module.exports = class TokenService {
     return { status, header, body };
   }
 
-  async token(id, options) {
+  async token(id) {
     const startTime = Date.now();
     let token;
     try {
@@ -73,8 +70,6 @@ module.exports = class TokenService {
       if (!token) {
         const { status, header, body } = await this.fetchToken(id);
         if (status !== 200) throw body.error;
-        if (!this.isAuthorized(body.token, options))
-          throw new Error('token not authorized');
         if (id !== header) throw new Error('token mismatch');
         token = this.makeToken({
           id,
@@ -89,12 +84,12 @@ module.exports = class TokenService {
     token.time = Date.now() - startTime;
     return token;
   }
-  middleWare(options) {
+  middleWare() {
     const func = async (req, res, next) => {
       try {
         const id = req.headers[this.authHeader];
-        const token = await this.token(id, options);
-        if (token.isValid) {
+        const token = await this.token(id);
+        if (!token.isValid) {
           req.token = token;
           return next();
         }

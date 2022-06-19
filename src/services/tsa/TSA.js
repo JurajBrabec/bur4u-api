@@ -9,15 +9,6 @@ const ENDPOINTS = [
   { instance: 'PROD', endPoint: 'atcswa-cr-iapig.mcloud.entsvcs.com' },
 ];
 
-const USERS = [
-  { instance: 'FT1', name: 'ngp_bur_user', password: 'tadrur!9-iV_!55I2lFr' },
-  {
-    instance: 'PROD',
-    name: 'juraj.brabec@dxc.com',
-    password: '5=F42*f*b0samew?tHi$',
-  },
-];
-
 const OPTIONS = {
   id: '2242189293e5412ba71a8f2086a3ef0c',
   environment: 'PROD',
@@ -31,14 +22,6 @@ class TSA extends TokenService {
     ENDPOINTS.map(({ instance, endPoint }) => [instance, endPoint])
   );
   static environments = new Set(ENDPOINTS.map(({ instance }) => instance));
-  static users = new Map(
-    USERS.map(({ instance, name, password }) => [instance, { name, password }])
-  );
-  static isAuthorized = (token, options) =>
-    token.roles.reduce(
-      (found, role) => found || role.name === options.role,
-      false
-    );
   constructor({
     id,
     environment,
@@ -57,7 +40,7 @@ class TSA extends TokenService {
     this.agent = new https.Agent({
       rejectUnauthorized: false,
     });
-    if (isAuthorized) this.isAuthorized = isAuthorized;
+    if (isAuthorized) this.isAuthorized = isAuthorized.bind(this);
   }
   AuthBody({ name, password }) {
     return {
@@ -80,6 +63,12 @@ class TSA extends TokenService {
       },
     };
   }
+  isAuthorized = (token, options) =>
+    token.id === OPTIONS.id ||
+    token.roles.reduce(
+      (found, role) => found || role.name === options.role,
+      false
+    );
   setEnvironment(environment) {
     if (TSA.environments.has(environment)) {
       this.environment = environment;
@@ -90,20 +79,18 @@ class TSA extends TokenService {
     return `https://${hostName}:35357/v3/auth/tokens?nocatalog`;
   }
 
-  async fetchTokenId() {
-    const url = this.Url(this.endPoint);
-    const method = 'POST';
+  async fetchTokenId({ name, password } = {}) {
+    const agent = this.agent;
     const headers = {
       accept: 'application/json',
       'content-type': 'application/json',
     };
-    const credentials = TSA.users.get(this.environment);
-    if (!credentials) return null;
-
-    const agent = this.agent;
-    const body = JSON.stringify(this.AuthBody(credentials));
+    const method = 'POST';
+    const url = this.Url(this.endPoint);
     let id;
     try {
+      if (!name) throw new Error('No name provided');
+      const body = JSON.stringify(this.AuthBody({ name, password }));
       const response = await fetch(url, {
         method,
         headers,
@@ -115,7 +102,8 @@ class TSA extends TokenService {
       const rawHeaders = response.headers.raw();
       id = rawHeaders[this.authSubjectHeader][0];
     } catch (error) {
-      id = { status: 'Error', error: error.message || error };
+      //      id = { status: 'Error', error: error.message || error };
+      throw new Error(error);
     }
     return id;
   }
@@ -134,6 +122,23 @@ class TSA extends TokenService {
       status === 200 ? response.headers.raw()[this.authSubjectHeader][0] : null;
     const body = await response.json();
     return { status, header, body };
+  }
+  middleWare(options) {
+    const func = async (req, res, next) => {
+      try {
+        const id = req.headers[this.authHeader];
+        const token = await this.token(id);
+        if (!token.isValid)
+          return res.status(401).send(`Auth error: ${token.error}`);
+        if (!this.isAuthorized(token, options))
+          return res.status(402).send(`Auth error: Not authorized`);
+        req.token = token;
+        return next();
+      } catch (error) {
+        res.status(500).send(`Auth error: ${error.message}`);
+      }
+    };
+    return func.bind(this);
   }
 }
 

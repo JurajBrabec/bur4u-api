@@ -20,7 +20,7 @@ const OPTIONS = {
 
 const LOCAL_USER = {
   id: '2242189293e5412ba71a8f2086a3ef0c',
-  roles: [ROLES.read, ROLES.write],
+  roles: [{ name: ROLES.read }, { name: ROLES.write }],
 };
 
 class TSA extends TokenService {
@@ -130,7 +130,7 @@ class TSA extends TokenService {
         if (!token.isValid)
           return res.status(401).send(`Auth error: ${token.error}`);
         if (isAuthorized && !isAuthorized(token))
-          return res.status(402).send(`Auth error: Not authorized`);
+          return res.status(403).send(`Auth error: Not authorized`);
         req.token = token;
         return next();
       } catch (error) {

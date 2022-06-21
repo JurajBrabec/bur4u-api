@@ -2,8 +2,10 @@ const { express } = require('../../../modules');
 const v1 = require('../../../controllers/proxy/v1');
 const tsa = require('../../../services/tsa');
 
-const readAccess = (token) => token.roles.includes(tsa.ROLES.read);
-const writeAccess = (token) => token.roles.includes(tsa.ROLES.write);
+const readAccess = (token) =>
+  token.roles.find((role) => role.name === tsa.ROLES.read);
+const writeAccess = (token) =>
+  token.roles.find((role) => role.name === tsa.ROLES.write);
 
 const router = express.Router();
 

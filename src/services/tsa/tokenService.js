@@ -13,12 +13,14 @@ module.exports = class TokenService {
     useCache = true,
     validYears = 1,
     authHeader = 'x-auth-token',
+    roles,
   } = {}) {
     this.id = id;
     if (this.id)
       this._token = this.makeToken({
         id: this.id,
         expires: dateAddYears(validYears),
+        roles,
       });
     this.endPoint = endPoint;
     this.authHeader = authHeader;
@@ -32,14 +34,16 @@ module.exports = class TokenService {
     isValid = true,
     issued = new Date(),
     expires = new Date(),
+    roles,
     error,
   } = {}) {
-    const token = { id, isValid, issued, expires };
+    const token = { id, isValid, issued, expires, roles };
     if (error) {
       token.isValid = false;
       token.error = error.message || error;
       delete token.issued;
       delete token.expires;
+      delete token.roles;
     }
     return token;
   }
@@ -75,6 +79,7 @@ module.exports = class TokenService {
           id,
           issued: new Date(body.token.issued_at),
           expires: new Date(body.token.expires_at),
+          roles: body.token.roles,
         });
         if (this.cache) this.cache.set(id, token);
       }

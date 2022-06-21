@@ -9,12 +9,18 @@ const ENDPOINTS = [
   { instance: 'PROD', endPoint: 'atcswa-cr-iapig.mcloud.entsvcs.com' },
 ];
 
+const ROLES = { read: 'bur4u_api_consumer', write: 'bur4u_api_admin' };
+
 const OPTIONS = {
-  id: '2242189293e5412ba71a8f2086a3ef0c',
   environment: 'PROD',
   authHeader: 'x-auth-token',
   authSubjectHeader: 'x-subject-token',
   useCache: true,
+};
+
+const LOCAL_USER = {
+  id: '2242189293e5412ba71a8f2086a3ef0c',
+  roles: [ROLES.read, ROLES.write],
 };
 
 class TSA extends TokenService {
@@ -27,20 +33,19 @@ class TSA extends TokenService {
     environment,
     authHeader,
     authSubjectHeader,
-    isAuthorized,
+    roles,
     useCache = true,
   } = {}) {
     let endPoint;
     if (TSA.environments.has(environment)) {
       endPoint = TSA.endPoints.get(environment);
     }
-    super({ id, endPoint, authHeader, useCache });
+    super({ id, endPoint, authHeader, useCache, roles });
     this.environment = environment;
     this.authSubjectHeader = authSubjectHeader;
     this.agent = new https.Agent({
       rejectUnauthorized: false,
     });
-    if (isAuthorized) this.isAuthorized = isAuthorized.bind(this);
   }
   AuthBody({ name, password }) {
     return {
@@ -63,12 +68,6 @@ class TSA extends TokenService {
       },
     };
   }
-  isAuthorized = (token, options) =>
-    token.id === OPTIONS.id ||
-    token.roles.reduce(
-      (found, role) => found || role.name === options.role,
-      false
-    );
   setEnvironment(environment) {
     if (TSA.environments.has(environment)) {
       this.environment = environment;
@@ -123,14 +122,14 @@ class TSA extends TokenService {
     const body = await response.json();
     return { status, header, body };
   }
-  middleWare(options) {
+  middleWare(isAuthorized) {
     const func = async (req, res, next) => {
       try {
         const id = req.headers[this.authHeader];
         const token = await this.token(id);
         if (!token.isValid)
           return res.status(401).send(`Auth error: ${token.error}`);
-        if (!this.isAuthorized(token, options))
+        if (isAuthorized && !isAuthorized(token))
           return res.status(402).send(`Auth error: Not authorized`);
         req.token = token;
         return next();
@@ -143,6 +142,8 @@ class TSA extends TokenService {
 }
 
 let tokenService;
-if (!tokenService) tokenService = new TSA(OPTIONS);
+const options = { ...OPTIONS, ...LOCAL_USER };
+if (!tokenService) tokenService = new TSA(options);
 
 module.exports = tokenService;
+module.exports.ROLES = ROLES;

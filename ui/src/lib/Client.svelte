@@ -1,10 +1,19 @@
 <script>
   import { onDestroy } from 'svelte';
-  import { client, getStatus, getHistory, getConfig } from '../stores.js';
+  import {
+    client,
+    getStatus,
+    getHistory,
+    getConfig,
+    getOnOffStatus,
+    setOffline,
+    setOnline,
+  } from '../stores.js';
   import Settings from './Settings.svelte';
   import Jobs from './Jobs.svelte';
   import Policies from './Policies.svelte';
   import BackupTypes from './BackupTypes.svelte';
+  import Status from './Status.svelte';
 
   let name;
 
@@ -25,6 +34,16 @@
     <button on:click={() => getConfig(name)} title="Query configuration"
       >⚙</button
     >
+    <button
+      on:click={() => getOnOffStatus(name)}
+      title="Query online/offline status">❔</button
+    >
+    <button on:click={() => setOnline(name)} title="Set online status"
+      >✅</button
+    >
+    <button on:click={() => setOffline(name)} title="Set offline status"
+      >⛔</button
+    >
   </h3>
   {#if $client}
     <ul>
@@ -40,6 +59,7 @@
           <Jobs jobs={result.activeJobs} />
           <Jobs jobs={result.jobs} history={true} />
           <BackupTypes backupTypes={result.backupTypes} />
+          <Status client={result} />
         </li>
       {:else}
         <li>Nothing found</li>

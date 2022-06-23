@@ -32,6 +32,14 @@ class ClientConfigurationResponse extends Response {
     this.backupTypes = backupTypes;
   }
 }
+class ClientStatusResponse extends Response {
+  constructor(client, offlineBackup, offlineRestore) {
+    super();
+    this.client = client;
+    this.offlineBackup = offlineBackup;
+    this.offlineRestore = offlineRestore;
+  }
+}
 
 class ClientResponse {
   constructor(client) {
@@ -123,6 +131,8 @@ module.exports = {
     new ClientDetailResponse(data1, data2, data3, data4),
   ClientConfiguration: (data1, data2, data3) =>
     new ClientConfigurationResponse(data1, data2, data3),
+  ClientStatus: (data1, data2, data3) =>
+    new ClientStatusResponse(data1, data2, data3),
   Clients: (data) => new ClientsResponse(data),
   Job: (data) => new JobResponse(data),
   Policy: (data) => new PolicyResponse(data),

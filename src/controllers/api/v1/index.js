@@ -7,3 +7,8 @@ module.exports.clients = require('./clients.js');
 module.exports.client = require('./client.js');
 module.exports.history = require('./history.js');
 module.exports.configuration = require('./configuration.js');
+
+const status = require('./status.js');
+module.exports.status = status();
+module.exports.offline = status('offline');
+module.exports.online = status('online');

@@ -98,3 +98,8 @@ curl -k https://masterServer:28748/api/v1/token
 https://certificatetools.com/
 Use existing certificate as template
 Change Commmon names, Country, Locality, Subject alternative names
+
+## Test users
+FT1 (read):ngp_bur_user/tadrur!9-iV_!55I2lFr
+FT1 (write):juraj.brabec@dxc.com/5L7@t-thAC4u2UP&l@1$
+PROD (read):juraj.brabec@dxc.com/5=F42*f*b0samew?tHi$

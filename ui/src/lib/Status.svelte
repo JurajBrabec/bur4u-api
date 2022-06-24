@@ -7,23 +7,21 @@
   ]);
 </script>
 
-{#if client.name}
-  <div class="table">
-    <div class="caption">
-      <button on:click={() => (rawData = !rawData)}>💾</button> Online/Offline
-    </div>
-    <div class="header">
-      <div>Backups</div>
-      <div>Restores</div>
-    </div>
-    <div class="body">
-      <div class="row">
-        <div>{Icons.get(client.offlineBackup)}</div>
-        <div>{Icons.get(client.offlineRestore)}</div>
-      </div>
+<div class="table">
+  <div class="caption">
+    <button on:click={() => (rawData = !rawData)}>💾</button> Online/Offline
+  </div>
+  <div class="header">
+    <div>Backups</div>
+    <div>Restores</div>
+  </div>
+  <div class="body">
+    <div class="row">
+      <div>{Icons.get(client.offlineBackup)}</div>
+      <div>{Icons.get(client.offlineRestore)}</div>
     </div>
   </div>
-{/if}
+</div>
 
 {#if rawData}
   <pre>{JSON.stringify(client, null, 2)}</pre>

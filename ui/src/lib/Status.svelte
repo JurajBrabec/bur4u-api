@@ -7,24 +7,26 @@
   ]);
 </script>
 
-<div class="table">
-  <div class="caption">
-    <button on:click={() => (rawData = !rawData)}>💾</button> Online/Offline
-  </div>
-  <div class="header">
-    <div>Backups</div>
-    <div>Restores</div>
-  </div>
-  <div class="body">
-    <div class="row">
-      <div>{Icons.get(client.offlineBackup)}</div>
-      <div>{Icons.get(client.offlineRestore)}</div>
+{#if client.offlineBackup !== undefined}
+  <div class="table">
+    <div class="caption">
+      <button on:click={() => (rawData = !rawData)}>💾</button> Online/Offline
+    </div>
+    <div class="header">
+      <div>Backups</div>
+      <div>Restores</div>
+    </div>
+    <div class="body">
+      <div class="row">
+        <div>{Icons.get(client.offlineBackup)}</div>
+        <div>{Icons.get(client.offlineRestore)}</div>
+      </div>
     </div>
   </div>
-</div>
 
-{#if rawData}
-  <pre>{JSON.stringify(client, null, 2)}</pre>
+  {#if rawData}
+    <pre>{JSON.stringify(client, null, 2)}</pre>
+  {/if}
 {/if}
 
 <style>

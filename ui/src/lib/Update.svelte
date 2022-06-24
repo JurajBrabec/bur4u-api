@@ -27,7 +27,7 @@
   <button
     disabled={!files?.length}
     title="Update {files ? files[0].name : ''}"
-    type="submit">☣️</button
+    type="submit">♻️</button
   >
 </form>
 

@@ -3,7 +3,7 @@
 </script>
 
 {#if loading}
-  <div><i>♻</i><span><slot /></span></div>
+  <div><span class="spinner" /><span><slot /></span></div>
 {/if}
 
 <style>
@@ -11,23 +11,32 @@
     position: absolute;
     display: flex;
     align-items: center;
-    top: 140px;
-    left: 35%;
+    top: 100px;
+    left: 30%;
     padding: 20px;
-    width: 40%;
+    width: 35%;
     color: #39ba4a;
     background: #ecffe0;
     outline: 1px solid #3ea33a;
     padding: 20px;
   }
-  i {
-    display: inline-block;
-    width: 28px;
-    font-style: normal;
-    font-weight: bold;
-    font-size: 2rem;
-  }
   span {
     margin: 0px 5px;
+  }
+  .spinner {
+    animation: spin 1s infinite linear;
+    border: 2px solid #3ea33a;
+    border-left: 4px solid #ecffe0;
+    border-radius: 50%;
+    height: 15px;
+    width: 13px;
+  }
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 </style>

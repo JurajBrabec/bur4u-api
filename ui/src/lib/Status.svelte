@@ -2,15 +2,15 @@
   export let client;
   let rawData = false;
   const Icons = new Map([
-    [false, '✅'],
-    [true, '⛔'],
+    [true, '✅'],
+    [false, '⛔'],
   ]);
 </script>
 
 {#if client.offlineBackup !== undefined}
   <div class="table">
     <div class="caption">
-      <button on:click={() => (rawData = !rawData)}>💾</button> Online/Offline
+      <button on:click={() => (rawData = !rawData)}>❔</button> Online Status
     </div>
     <div class="header">
       <div>Backups</div>
@@ -18,8 +18,8 @@
     </div>
     <div class="body">
       <div class="row">
-        <div>{Icons.get(client.offlineBackup)}</div>
-        <div>{Icons.get(client.offlineRestore)}</div>
+        <div>{Icons.get(!client.offlineBackup)}</div>
+        <div>{Icons.get(!client.offlineRestore)}</div>
       </div>
     </div>
   </div>

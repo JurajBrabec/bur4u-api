@@ -16,15 +16,14 @@
     align-items: center;
     justify-content: space-between;
     position: absolute;
-    top: 70px;
+    top: 20px;
     left: 28%;
-    padding: 20px;
+    padding: 15px 20px;
     text-align: center;
     width: 40%;
     color: #ba3939;
     background: #ffe0e0;
-    outline: 1px solid #a33a3a;
-    padding: 20px;
+    outline: 3px solid #a33a3a;
   }
   i {
     display: inline-block;
@@ -38,6 +37,6 @@
   button {
     background: #ba3939;
     color: #ffe0e0;
-    border: 1px solid #a33a3a;
+    border: 2px solid #a33a3a;
   }
 </style>

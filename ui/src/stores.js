@@ -77,8 +77,8 @@ export const getHistory = async (name) => getEndpoint('/history', name);
 
 export const getConfig = async (name) => getEndpoint('/configuration', name);
 export const getOnOffStatus = async (name) => getEndpoint('/status', name);
-export const setOnline = async (name) => getEndpoint('/online', name);
-export const setOffline = async (name) => getEndpoint('/offline', name);
+export const setOnline = async (name) => getEndpoint('/status/online', name);
+export const setOffline = async (name) => getEndpoint('/status/offline', name);
 
 export const update = async (body) => {
   let data;

@@ -19,6 +19,7 @@ const INIT_INTERVAL = 1000 * 60;
 
 const CACHE_AGE = {
   clients: 1000 * 60 * 5,
+  config: 1000 * 60 * 60,
   jobs: 1000 * 60,
   policies: 1000 * 60 * 5,
 };

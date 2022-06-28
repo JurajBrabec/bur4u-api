@@ -23,14 +23,12 @@
   <header>
     <h2>BUR-4U-API User Interface</h2>
     <code>{$label}</code>
-    <div class="buttons">
-      {#if $token}
+    {#if $token}
+      <div class="buttons">
         <Update />
         <button on:click={() => token.set()} title="Log out">🔐</button>
-      {:else}
-        <Login />
-      {/if}
-    </div>
+      </div>
+    {/if}
   </header>
   {#if $token}
     <nav>
@@ -46,6 +44,8 @@
       <Clients />
     </nav>
     <article><Client /></article>
+  {:else}
+    <Login />
   {/if}
   <footer>
     <strong>&copy; 2022</strong> <kbd>DXC.technology</kbd>Juraj Brabec

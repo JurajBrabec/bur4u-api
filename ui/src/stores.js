@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 
-export const token = writable();
+export const token = writable(sessionStorage.token);
+token.subscribe((token) => (sessionStorage.token = token));
 export const error = writable('');
 export const loading = writable(false);
 export const label = writable('');

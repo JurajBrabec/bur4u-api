@@ -6,6 +6,7 @@ const ESL = require('./esl.js');
 const { scheduleJob } = require('./cron.js');
 
 const cached = Cached.depot('config');
+const CACHED_FILE = `${process.cwd()}/tmp/apicache.json`;
 
 const parallelPromises = (promises, length) => {
   const next = () => {
@@ -73,6 +74,7 @@ module.exports.init = async ({
   logger.stdout(`Started NBU integration with ${nbu.masterServer}.`);
   if (eslExport) process.exit(await ESL({ nbu, outputPath: eslExport }));
   if (eslCron) scheduleJob(eslCron, () => ESL({ nbu, outputPath: eslPath }));
+
   const cacheConfigs = async () => {
     let buf = 0;
     logger.stdout(`Caching of clients started...`);
@@ -105,10 +107,19 @@ module.exports.init = async ({
           })
       );
       await parallelPromises(promises, cacheConcurrency);
+      await cached.save(CACHED_FILE);
       logger.stdout(`Successfully cached ${clients.length} clients.`);
     } catch (error) {
       throw new Error(`caching clients: ${error.message}`);
     }
   };
-  if (cacheCron) scheduleJob(cacheCron, cacheConfigs);
+  let invoke;
+  try {
+    await access(CACHED_FILE);
+    await cached.load(CACHED_FILE);
+    invoke = false;
+  } catch (error) {
+    invoke = true;
+  }
+  if (cacheCron) scheduleJob(cacheCron, cacheConfigs, invoke);
 };

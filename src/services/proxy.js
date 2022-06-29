@@ -66,7 +66,7 @@ module.exports.init = async ({ addName, providers, queryCron, tsaEnv }) => {
       throw new Error(`importing providers: ${error.message}`);
     }
   };
-  if (queryCron) scheduleJob(queryCron, queryRoutine);
+  if (queryCron) scheduleJob(queryCron, queryRoutine, true);
 };
 
 const addProvider = async (provider) => {

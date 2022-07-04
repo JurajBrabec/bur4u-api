@@ -2,19 +2,7 @@
 
 ### Overview
 
-BUR4U API is designed to retrieve real-time information from VPC NetBackup BUR environments.
-
-- [Get overview for all providers](#get-overview-for-all-providers)
-- [Get clients for specific provider](#get-clients-for-specific-provider)
-- [Get list of all clients](#get-list-of-all-clients)
-- [Get active jobs and policies for a specific client](#get-active-jobs-and-policies-for-a-specific-client)
-- [Get history of jobs for a specific client](#get-history-of-jobs-for-a-specific-client)
-- [Get configuration for a specific client](#get-configuration-for-a-specific-client)
-- [Get active jobs and policies for a list of clients](#get-active-jobs-and-policies-for-a-list-of-clients)
-- [Get history of jobs for a list of clients](#get-history-of-jobs-for-a-list-of-clients)
-- [Get configuration for a list of clients](#get-configuration-for-a-list-of-clients)
-
-### Details
+BUR4U API is designed to retrieve or change information in real-time from VPC NetBackup BUR environments.
 
 Request should be sent to BUR4U API HTTPS service on port 443
 
@@ -43,6 +31,31 @@ If the authorization is successful, depending on the API end point, one of follo
 | Status | Message |
 | :---------- | :-------- |
 | `200` | `JSON data`
+
+### Retrieval endpoints
+
+Role `bur4u_api_consumer` is required.
+
+- [Get overview for all providers](#get-overview-for-all-providers)
+- [Get clients for specific provider](#get-clients-for-specific-provider)
+- [Get list of all clients](#get-list-of-all-clients)
+- [Get active jobs and policies for a specific client](#get-active-jobs-and-policies-for-a-specific-client)
+- [Get history of jobs for a specific client](#get-history-of-jobs-for-a-specific-client)
+- [Get configuration for a specific client](#get-configuration-for-a-specific-client)
+- [Get online/offline status for a specific client](#get-online-status-for-a-specific-client)
+- [Get active jobs and policies for a list of clients](#get-active-jobs-and-policies-for-a-list-of-clients)
+- [Get history of jobs for a list of clients](#get-history-of-jobs-for-a-list-of-clients)
+- [Get configuration for a list of clients](#get-configuration-for-a-list-of-clients)
+- [Get online/offline status for a list of clients](#get-online-status-for-a-list-of-clients)
+
+### Modification endpoints
+
+Role `bur4u_api_admin` is required.
+
+- [Set client offline for backups and restores](#set-client-offline)
+- [Set client online for backups and restores](#set-client-online)
+
+### Retrieval endpoints in detail
 
 #### Get overview for all providers
 
@@ -144,6 +157,24 @@ If the authorization is successful, depending on the API end point, one of follo
 | `providers` | `array`   | one or more [ProviderConfigurationSingle](#providerconfigurationsingle) objects |
 | `version`   | `string`  | version of the API                                                              |
 
+#### Get online status for a specific client
+
+```https
+  GET /api/v1/clients/${client}/status
+```
+
+| Parameter | Type     | Description                               |
+| :-------- | :------- | :---------------------------------------- |
+| `client`  | `string` | **Required**. Name of the client to fetch |
+
+##### Returns
+
+| Property    | Type      | Description                                                                   |
+| :---------- | :-------- | :---------------------------------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                                           |
+| `providers` | `array`   | one or more [ProviderOnlineStatusSingle](#provideronlinestatussingle) objects |
+| `version`   | `string`  | version of the API                                                            |
+
 #### Get active jobs and policies for a list of clients
 
 ```https
@@ -197,6 +228,62 @@ If the authorization is successful, depending on the API end point, one of follo
 | `timeStamp` | `integer` | seconds since epoch                                                                 |
 | `providers` | `array`   | one or more [ProviderConfigurationMultiple](#providerconfigurationmultiple) objects |
 | `version`   | `string`  | version of the API                                                                  |
+
+#### Get online status for a list of clients
+
+```https
+  POST /api/v1/clients/status
+```
+
+| Body      | Type     | Description                                         |
+| :-------- | :------- | :-------------------------------------------------- |
+| `clients` | `string` | **Required**. List of names of the clients to fetch |
+
+##### Returns
+
+| Property    | Type      | Description                                                                       |
+| :---------- | :-------- | :-------------------------------------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                                               |
+| `providers` | `array`   | one or more [ProviderOnlineStatusMultiple](#provideronlinestatusmultiple) objects |
+| `version`   | `string`  | version of the API                                                                |
+
+### Modification endpoints in detail
+
+#### Set client offline
+
+```https
+  GET /api/v1/clients/${client}/status/offline
+```
+
+| Parameter | Type     | Description                               |
+| :-------- | :------- | :---------------------------------------- |
+| `client`  | `string` | **Required**. Name of the client to fetch |
+
+##### Returns
+
+| Property    | Type      | Description                                                                   |
+| :---------- | :-------- | :---------------------------------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                                           |
+| `providers` | `array`   | one or more [ProviderOnlineStatusSingle](#provideronlinestatussingle) objects |
+| `version`   | `string`  | version of the API                                                            |
+
+#### Set client online
+
+```https
+  GET /api/v1/clients/${client}/status/online
+```
+
+| Parameter | Type     | Description                               |
+| :-------- | :------- | :---------------------------------------- |
+| `client`  | `string` | **Required**. Name of the client to fetch |
+
+##### Returns
+
+| Property    | Type      | Description                                                                   |
+| :---------- | :-------- | :---------------------------------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                                           |
+| `providers` | `array`   | one or more [ProviderOnlineStatusSingle](#provideronlinestatussingle) objects |
+| `version`   | `string`  | version of the API                                                            |
 
 ### Objects
 
@@ -279,6 +366,26 @@ If the authorization is successful, depending on the API end point, one of follo
 | `data`      | `array`   | Array of [ClientConfiguration](#clientconfiguration) |
 | `version`   | `string`  | version of the API                                   |
 
+##### ProviderOnlineStatusSingle
+
+| Property    | Type      | Description                               |
+| :---------- | :-------- | :---------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                       |
+| `name`      | `string`  | name of the provider                      |
+| `status`    | `string`  | status of the provider                    |
+| `data`      | `object`  | [ClientOnlineStatus](#clientonlinestatus) |
+| `version`   | `string`  | version of the API                        |
+
+##### ProviderOnlineStatusMultiple
+
+| Property    | Type      | Description                                        |
+| :---------- | :-------- | :------------------------------------------------- |
+| `timeStamp` | `integer` | seconds since epoch                                |
+| `name`      | `string`  | name of the provider                               |
+| `status`    | `string`  | status of the provider                             |
+| `data`      | `array`   | Array of [ClientOnlineStatus](#clientonlinestatus) |
+| `version`   | `string`  | version of the API                                 |
+
 ##### Clients
 
 | Property    | Type      | Description                           |
@@ -324,6 +431,16 @@ If the authorization is successful, depending on the API end point, one of follo
 | `settings`    | `object`  | [ClientSettings](#clientsettings) object      |
 | `backupTypes` | `array`   | one or more [BackupType](#backuptype) objects |
 | `version`     | `string`  | version of the API                            |
+
+##### ClientonlineStatus
+
+| Property          | Type      | Description         |
+| :---------------- | :-------- | :------------------ |
+| `timeStamp`       | `integer` | seconds since epoch |
+| `client`          | `string`  | client name         |
+| `offlineBackups`  | `boolean` | `Yes`/`No`          |
+| `offlineRestores` | `boolean` | `Yes`/`No`          |
+| `version`         | `string`  | version of the API  |
 
 ##### Job
 

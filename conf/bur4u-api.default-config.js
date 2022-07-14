@@ -2,9 +2,9 @@ module.exports = {
   cacheTime: 15,
   logPath: 'log',
   logRotation: '1d',
-  port: 28748,
   //API entries
-  //moduleName: 'api',
+  moduleName: 'api',
+  port: 28748,
   nbuBinPath: 'c:/program files/veritas/netbackup/bin',
   nbuDataPath: 'c:/programdata/veritas/netbackup',
   cacheCron: '0 */8 * * *',
@@ -12,12 +12,13 @@ module.exports = {
   eslCron: null,
   eslPath: '.',
   //PROXY entries
-  //moduleName: 'proxy',
+  moduleName: 'proxy',
+  port: 443,
   providers: [
-    {
-      addr: 'remotehost:28748',
-      api_token: '',
-    },
+    // {
+    //   addr: 'remotehost:28748',
+    //   api_token: '',
+    // },
   ],
   queryCron: '*/5 * * * *',
   ui: true,

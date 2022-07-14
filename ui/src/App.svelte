@@ -15,22 +15,22 @@
     getProviders,
     getClients,
   } from './stores.js';
+
+  $: if ($token) getProviders();
 </script>
 
 <main>
   <Error bind:error={$error} />
   <Loading bind:loading={$loading}>Loading...</Loading>
-  <header>
-    <h2>BUR-4U-API User Interface</h2>
-    <code>{$label}</code>
-    {#if $token}
+  {#if $token}
+    <header>
+      <h2>BUR-4U-API User Interface</h2>
+      <code>{$label}</code>
       <div class="buttons">
         <Update />
         <button on:click={() => token.set()} title="Log out">🔐</button>
       </div>
-    {/if}
-  </header>
-  {#if $token}
+    </header>
     <nav>
       <h3>
         <button on:click={() => getProviders()} title="Query providers"
@@ -43,8 +43,14 @@
       <Providers />
       <Clients />
     </nav>
-    <article><Client /></article>
+    <article>
+      <Client />
+    </article>
   {:else}
+    <header>
+      <h2>BUR-4U-API User Interface</h2>
+      <code>{$label}</code>
+    </header>
     <Login />
   {/if}
   <footer>

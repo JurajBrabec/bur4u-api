@@ -1,7 +1,11 @@
 import { writable, get } from 'svelte/store';
 
 export const token = writable(sessionStorage.token);
-token.subscribe((token) => (sessionStorage.token = token));
+token.subscribe((token) =>
+  token
+    ? sessionStorage.setItem('token', token)
+    : sessionStorage.removeItem('token')
+);
 export const error = writable('');
 export const loading = writable(false);
 export const label = writable('');
@@ -21,6 +25,29 @@ const params = (names, url) => {
   }
   return { method, body, url };
 };
+export const getConfiguration = async () => {
+  try {
+    return getJSON({
+      url: `${URL}/script/config`,
+    });
+  } catch (err) {
+    loading.set(false);
+    error.set(err.message);
+  }
+};
+export const setConfiguration = async (config) => {
+  try {
+    return getJSON({
+      method: 'POST',
+      url: `${URL}/script/config`,
+      body: JSON.stringify(config),
+    });
+  } catch (err) {
+    loading.set(false);
+    error.set(err.message);
+  }
+};
+
 export const getProviders = async () => {
   try {
     const { providers: data } = await getJSON({

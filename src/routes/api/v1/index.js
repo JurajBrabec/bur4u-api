@@ -24,6 +24,8 @@ router.post('/clients/status/online', v1.online);
 router.post('/clients', v1.client);
 
 router.use('/script', jwt.middleWare());
+router.get('/script/config', v1.config);
+router.post('/script/config', v1.config);
 router.post('/script/update', v1.update);
 
 module.exports = router;

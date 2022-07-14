@@ -47,6 +47,8 @@ router.post('/clients/status/online', writeAccess, v1.resolve, v1.proxy);
 router.post('/clients', v1.resolve, v1.proxy);
 
 router.use('/script', writeAccess);
+router.get('/script/config', v1.config);
+router.post('/script/config', v1.config);
 router.post('/script/update', v1.update);
 
 module.exports = router;

@@ -1,3 +1,4 @@
+module.exports.config = require('./helpers.js').config;
 module.exports.options = require('./options.js');
 module.exports.token = require('./token.js');
 module.exports.update = require('./update.js');

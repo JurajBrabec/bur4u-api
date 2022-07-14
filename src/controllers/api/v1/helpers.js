@@ -2,6 +2,7 @@ const { Cached, NBU, version } = require('../../../modules');
 const make = require('../../../models/api/v1');
 const jwt = require('../../../services/jwt');
 const update = require('../../../services/update.js');
+const config = require('../../../services/config.js')('api');
 
 const cached = Cached.depot('config');
 
@@ -21,6 +22,7 @@ module.exports = {
   make,
   getHostNames,
   settings,
+  config,
   update,
   version,
 };

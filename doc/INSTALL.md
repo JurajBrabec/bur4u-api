@@ -29,12 +29,12 @@
 
 ## Prerequisites
 
-### Linux
+### Linux (`root` access required)
 
 - Connectivity with Token Service `atcswa-cr-iapig.mcloud.entsvcs.com` on port `353578`
 - Install `node`
   ```
-  sudo su
+  su -
   export https_proxy=http://proxy-emea.svcs.entsvcs.com:8088
   curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
   yum install -y nodejs
@@ -43,8 +43,8 @@
   ```
 - Install `pm2`
   ```
-  sudo npm install -g pm2@latest
-  sudo pm2 -v
+  npm install -g pm2@latest
+  pm2 -v
   ```
 
 ### Windows
@@ -69,17 +69,15 @@ Steps are:
      - Remove `ui` subfolder
 1. Rename default configuration file `conf\bur4u-api.default-config.js` to `conf\bur4u-api.config.js` and edit
    - API
-     - Uncomment entry `moduleName: 'api'`
-     - Remove PROXY related entries `providers`, `queryInterval`, `tsaEnv` and `ui` (optional)
+     - Remove PROXY related entries `moduleName`, `port`, `providers`, `queryCron`, `tsaEnv` and `ui`
    - PROXY
-     - Uncomment entry `moduleName: 'proxy'`
-     - Remove API related entries `nbu*`, `domain`, `user`, `password`, `cache*`, `esl*` and `sm9*` (optional)
+     - Remove API related entries `moduleName`, `port`, `nbu*`, `cache*` and `esl*`
 1. Install the service
    - Linux
      ```
-     sudo pm2 start /opt/bur4u-api/dist/bur4u-api.js --cwd /opt/bur4u-api --time
-     sudo pm2 save
-     sudo pm2 startup
+     pm2 start /opt/bur4u-api/dist/bur4u-api.js --cwd /opt/bur4u-api --time
+     pm2 save
+     pm2 startup
      ```
    - Windows
      ```
@@ -88,7 +86,8 @@ Steps are:
 1. Start the service
    - Linux
      ```
-     sudo pm2 stop
+     pm2 stop
+     pm2 start
      ```
    - Widows
      ```
@@ -141,16 +140,16 @@ Steps are:
 
 1. Stop the service
    ```
-   sudo pm2 stop bur4u-api
+   pm2 stop bur4u-api
    ```
 1. Get the JWT token from the provider
    ```
-   sudo node /opt/bur4u-api/src/bur4u-api.js --add [FQDN]
+   node /opt/bur4u-api/src/bur4u-api.js --add [FQDN]
    ```
 1. Modify the configuration file `conf\bur4u-api.config.js` and add the displayed entry to the `providers` array
 1. Start the service
    ```
-   sudo pm2 start bur4u-api
+   pm2 start bur4u-api
    ```
 
 ## Monitoring setup

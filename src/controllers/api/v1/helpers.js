@@ -13,7 +13,7 @@ const getHostNames = (req) => {
   return hostNames;
 };
 
-const settings = (config) => (config ? config[0] : {});
+const settings = (response) => (response ? response[0] : {});
 
 module.exports = {
   NBU,
